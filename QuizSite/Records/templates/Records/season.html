@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ season }}
+{% endblock title %}
+{% block content %}
+    <h1>{{ season }}</h1>
+    <h2>Season details:</h2>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td>{{ season.name }}</td>
+        </tr>
+        <tr>
+            <td>Start Date:</td>
+            <td>{{ season.year }}</td>
+        </tr>
+        <tr>
+            <td>Material:</td>
+            <td>{{ season.material }}</td>
+        </tr>
+    </table>
+    <h2>List of events:</h2>
+    {% if events %}
+        <ul>
+            {% for event in events %}
+                <li>
+                    <a href=" {% url 'records:event' season.id event.id %} ">{{ event }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events are available.</p>
+    {% endif %}
+{% endblock content %}

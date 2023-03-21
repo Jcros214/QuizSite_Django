@@ -1,0 +1,21 @@
+from django.urls import path
+
+from . import views
+
+app_name = 'records'
+urlpatterns = [
+    path('', views.index, name='index'),
+    path('<int:season_id>/', views.season, name='season'),
+    path('<int:season_id>/<int:event_id>/', views.event, name='event'),
+    path('<int:season_id>/<int:event_id>/<int:quiz_id>/', views.quiz, name='quiz'),
+    path('<int:season_id>/<int:event_id>/<int:quiz_id>/<int:question_id>/', views.question, name='question'),
+
+    # # ex: /polls/
+    # path('', views.index, name='index'),
+    # # ex: /polls/5/
+    # path('<int:question_id>/', views.detail, name='detail'),
+    # # ex: /polls/5/results/
+    # path('<int:question_id>/results/', views.results, name='results'),
+    # # ex: /polls/5/vote/
+    # path('<int:question_id>/vote/', views.vote, name='vote'),
+]

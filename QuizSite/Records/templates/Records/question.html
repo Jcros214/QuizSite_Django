@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}
+    Question
+{% endblock title %}
+{% block content %}
+    <h1>{{ question }}</h1>
+    <h2>Data:</h2>
+    <table>
+        <tr>
+            <td>Quiz:</td>
+            <td>{{ question.quiz }}</td>
+        </tr>
+        <tr>
+            <td>Question #</td>
+            <td>{{ question.question_number }}</td>
+        </tr>
+        <tr>
+            <td>Answered by:</td>
+            <td>{{ question.individual }}</td>
+        </tr>
+        <tr>
+            <td>Ruleing:</td>
+            <td>{{ question.ruleing }}</td>
+        </tr>
+    </table>
+{% endblock content %}

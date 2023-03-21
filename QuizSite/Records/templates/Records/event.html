@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}
+    Event
+{% endblock title %}
+{% block content %}
+    <h1>{{ event }}</h1>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td>{{ event.name }}</td>
+        </tr>
+        <tr>
+            <td>Date:</td>
+            <td>{{ event.date }}</td>
+        </tr>
+        <tr>
+            <td>Season:</td>
+            <td>{{ event.season }}</td>
+        </tr>
+        <tr>
+            <td>Location:</td>
+            <td>{{ event.location }}</td>
+        </tr>
+    </table>
+    <h2>List of quizes:</h2>
+    {% if quizes %}
+        <ul>
+            {% for quiz in quizes %}
+                <li>
+                    <a href=" {% url 'records:quiz' season.id event.id quiz.id %} ">{{ quiz }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No quizes are available.</p>
+    {% endif %}
+{% endblock content %}

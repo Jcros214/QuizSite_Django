@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}
+    Quiz
+{% endblock title %}
+{% block content %}
+    <h1>{{ quiz }}</h1>
+    <h2>Quiz details:</h2>
+    <table>
+        <tr>
+            <td>Event:</td>
+            <td>{{ quiz.event }}</td>
+        </tr>
+        <tr>
+            <td>Quizmaster:</td>
+            <td>{{ quiz.quizmaster }}</td>
+        </tr>
+        <tr>
+            <td>Room:</td>
+            <td>{{ quiz.room }}</td>
+        </tr>
+        <tr>
+            <td>Round #</td>
+            <td>{{ quiz.round }}</td>
+        </tr>
+    </table>
+    <h2>List of questions:</h2>
+    {% if questions %}
+        <ul>
+            {% for question in questions %}
+                <li>
+                    <a href=" {% url 'records:question' season.id event.id quiz.id question.id %} ">{{ question }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No questions are available.</p>
+    {% endif %}
+{% endblock content %}

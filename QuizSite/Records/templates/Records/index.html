@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}
+    Seasons
+{% endblock title %}
+{% block content %}
+    <h1>Seasons</h1>
+    {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
+    {% comment %} <h2>List of seasons:</h2>s {% endcomment %}
+    {% if seasons %}
+        <ul>
+            {% for season in seasons %}
+                <li>
+                    <a href=" {% url 'records:season' season.id %} ">{{ season }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No seasons are available.</p>
+    {% endif %}
+{% endblock content %}
