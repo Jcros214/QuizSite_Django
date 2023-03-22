@@ -3,8 +3,9 @@ from django.contrib import admin
 # Register your models here.
 
 
-from .models import Orginization, Team, Individual, Season, Event, Quiz, AskedQuestion
+from .models import Orginization, Team, Individual, Season, Event, Quiz, AskedQuestion, League
 
+admin.site.register(League)
 admin.site.register(Season)
 admin.site.register(Orginization)
 

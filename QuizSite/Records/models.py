@@ -8,16 +8,39 @@ class Orginization(models.Model):
     def __str__(self):
         return self.name
 
-class Team(models.Model):
+class League(models.Model):
     name = models.CharField(max_length=100)
-    orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
 
+class LeagueMembership(models.Model):
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
+    orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
+
+
 class Individual(models.Model):
     name = models.CharField(max_length=100)
     birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None)
+
+    def __str__(self):
+        return self.name
+
+
+class Season(models.Model):
+    name = models.CharField(max_length=100)
+    # Should probably be changed to be first day of season...
+    year = models.DateField((""), auto_now=False, auto_now_add=False)
+    material = models.CharField(max_length=100)
+    league = models.ForeignKey(League, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} - {self.year.year}"
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
+    orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
+    season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -28,17 +51,6 @@ class TeamMembership(models.Model):
 
     def __str__(self):
         return self.name
-
-class Season(models.Model):
-    name = models.CharField(max_length=100)
-    # Should probably be changed to be first day of season...
-    year = models.DateField((""), auto_now=False, auto_now_add=False)
-    material = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.name} - {self.year.year}"
-
-
 class Event(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateField((""), auto_now=False, auto_now_add=False)

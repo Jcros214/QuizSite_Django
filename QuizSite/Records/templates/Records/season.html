@@ -20,11 +20,11 @@
         </tr>
     </table>
     <h2>List of events:</h2>
-    {% if events %}
+    {% if list %}
         <ul>
-            {% for event in events %}
+            {% for l in list %}
                 <li>
-                    <a href=" {% url 'records:event' season.id event.id %} ">{{ event }}</a>
+                    <a href=" {% url 'records:event' league.id season.id l.id %} ">{{ l }}</a>
                 </li>
             {% endfor %}
         </ul>

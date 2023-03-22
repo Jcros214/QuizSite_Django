@@ -23,11 +23,11 @@
         </tr>
     </table>
     <h2>List of quizes:</h2>
-    {% if quizes %}
+    {% if list %}
         <ul>
-            {% for quiz in quizes %}
+            {% for l in list %}
                 <li>
-                    <a href=" {% url 'records:quiz' season.id event.id quiz.id %} ">{{ quiz }}</a>
+                    <a href=" {% url 'records:quiz' league.id season.id event.id l.id %} ">{{ l }}</a>
                 </li>
             {% endfor %}
         </ul>

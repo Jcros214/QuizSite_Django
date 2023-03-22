@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 {% block title %}
-    Leagues
+    Seasons
 {% endblock title %}
 {% block content %}
     <h1>Records</h1>
-    <h2>Leagues:</h2>
+    <h2>By season:</h2>
     {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
+    {% comment %} <h2>List of seasons:</h2>s {% endcomment %}
     {% if list %}
         <ul>
             {% for l in list %}
                 <li>
-                    <a href=" {% url 'records:league' l.id %} ">{{ l }}</a>
+                    <a href=" {% url 'records:season' league.id l.id %} ">{{ l }}</a>
                 </li>
             {% endfor %}
         </ul>

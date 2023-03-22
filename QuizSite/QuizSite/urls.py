@@ -19,5 +19,14 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('records/', include('Records.urls'))
+    path('records/', include('Records.urls')),
+    # path('pages/', include('django.contrib.flatpages.urls')),
 ]
+
+
+# from django.contrib.flatpages import views
+
+# urlpatterns += [
+#     path('about-us/', views.flatpage, {'url': '/about/'}, name='about'),
+#     path('privacy/', views.flatpage, {'url': '/privacy/'}, name='privacy'),
+# ]

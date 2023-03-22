@@ -5,10 +5,11 @@ from . import views
 app_name = 'records'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('<int:season_id>/', views.season, name='season'),
-    path('<int:season_id>/<int:event_id>/', views.event, name='event'),
-    path('<int:season_id>/<int:event_id>/<int:quiz_id>/', views.quiz, name='quiz'),
-    path('<int:season_id>/<int:event_id>/<int:quiz_id>/<int:question_id>/', views.question, name='question'),
+    path('<int:league_id>/', views.league, name='league'),
+    path('<int:league_id>/<int:season_id>/', views.season, name='season'),
+    path('<int:league_id>/<int:season_id>/<int:event_id>/', views.event, name='event'),
+    path('<int:league_id>/<int:season_id>/<int:event_id>/<int:quiz_id>/', views.quiz, name='quiz'),
+    path('<int:league_id>/<int:season_id>/<int:event_id>/<int:quiz_id>/<int:question_id>/', views.question, name='question'),
 
     # # ex: /polls/
     # path('', views.index, name='index'),
