@@ -18,14 +18,12 @@ class LeagueMembership(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
 
-
 class Individual(models.Model):
     name = models.CharField(max_length=100)
     birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None)
 
     def __str__(self):
         return self.name
-
 
 class Season(models.Model):
     name = models.CharField(max_length=100)
@@ -63,7 +61,6 @@ class Event(models.Model):
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE)
-    # team: should teams be here or in another table (so it's not limited to 2 or 3)
     room = models.CharField(max_length=10)
     round = models.CharField(max_length=10)
 
@@ -82,6 +79,10 @@ class AskedQuestion(models.Model):
     question_number = models.IntegerField()
     individual = models.ForeignKey(Individual, on_delete=models.CASCADE)
     ruleing = models.CharField(max_length=100)
+    value = models.IntegerField()
+    bonusDescription = models.CharField(max_length=100, null=True, blank=True)
+    bonusValue = models.IntegerField(null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.quiz} - {self.individual}: {self.ruleing}"
