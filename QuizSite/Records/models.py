@@ -42,13 +42,16 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def isMember(self, individual):
+        return TeamMembership.objects.filter(team_id=self.pk, individual_id=individual.pk).exists()
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     individual = models.ForeignKey(Individual, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.team.name} - {self.individual.name}"
 class Event(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateField((""), auto_now=False, auto_now_add=False)
@@ -66,13 +69,41 @@ class Quiz(models.Model):
 
     def __str__(self) -> str:
         return f"{self.event.name} - {self.room}{self.round}"
+    
+    def getQuestions(self):
+        return AskedQuestion.objects.filter(quiz_id=self.pk)
+    
+    def getTeams(self):
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+
+        return [p.team for p in participants]
+    
+    # Results should be: {team: model: score: int, ...}
+    def getResults(self):
+        questions = self.getQuestions()
+        results = {}
+
+        for team in self.getTeams():
+            score = 0
+
+            for question in questions:
+                if team.isMember(question.individual):
+                    score += question.value
+                    # Handle nulls
+                    if question.bonusValue:
+                        score += question.bonusValue
+
+            results[team] = score
+        
+        return results
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    team = models.ForeignKey(Individual, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.quiz} - {self.team}"
+
 
 class AskedQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)

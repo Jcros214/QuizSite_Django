@@ -40,6 +40,7 @@ def make_context(*args):
                 'season': get_object_or_404(Season, pk=args[1]),
                 'event': get_object_or_404(Event, pk=args[2]),
                 'quiz': get_object_or_404(Quiz, pk=args[3]),
+                'results': get_object_or_404(Quiz, pk=args[3]).getResults(),
                 'list': AskedQuestion.objects.filter(quiz_id=args[3]),
             }
         case 5:
