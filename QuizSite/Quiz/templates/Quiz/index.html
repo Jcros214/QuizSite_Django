@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}
+    Quiz
+{% endblock title %}
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/quiz.css' %}"/>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-md-2">
+                <button class="btn btn-primary">Back</button>
+            </div>
+            <div class="col-md-8 text-center">
+                <h4>Question #1</h4>
+                <select class="form-select">
+                    <option selected>
+                        Select an option
+                    </option>
+                    <option value="1">
+                        Option 1
+                    </option>
+                    <option value="2">
+                        Option 2
+                    </option>
+                    <option value="3">
+                        Option 3
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary">Forward</button>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="row">
+                <div class="col">
+                    <div class="circle" id="circle1"></div>
+                    <div class="col form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggle1"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="circle" id="circle2"></div>
+                    <div class="col form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggle2"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="circle" id="circle3"></div>
+                    <div class="col form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggle3"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="circle" id="circle4"></div>
+                    <div class="col form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggle4"/>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="circle" id="circle5"></div>
+                    <div class="col form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="toggle5"/>
+                    </div>
+                </div>
+            </div>
+            <div style="margin: auto">
+                <button class="btn btn-secondary btn-lg round-button">Push</button>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/quiz.js' %}"></script>
+{% endblock content %}

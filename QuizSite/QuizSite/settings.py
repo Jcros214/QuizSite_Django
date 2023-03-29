@@ -38,6 +38,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'Records.apps.RecordsConfig',
+    'Quiz.apps.QuizConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -150,3 +151,6 @@ STATIC_ROOT = BASE_DIR / '_static'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SITE_ID = 1
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
