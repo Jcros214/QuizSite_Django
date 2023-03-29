@@ -31,7 +31,8 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    '104.248.224.128'
+    '104.248.224.128',
+    'quizbox.app'
     ]
 
 # Application definition
