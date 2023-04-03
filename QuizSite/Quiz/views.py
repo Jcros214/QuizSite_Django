@@ -4,3 +4,6 @@ from django.shortcuts import render
 
 def index(request):
     return render(request, 'quiz/index.html')
+
+def quiz(request):
+    return render(request, 'quiz/quiz.html')
