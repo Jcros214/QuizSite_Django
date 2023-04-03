@@ -29,6 +29,7 @@ urlpatterns = [
     path('records/', include('Records.urls')),
     path('quiz/', include('Quiz.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('Auth.urls')),
 
 ]
 urlpatterns += staticfiles_urlpatterns()

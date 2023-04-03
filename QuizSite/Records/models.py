@@ -1,5 +1,8 @@
 from django.db import models
 
+from django.contrib.auth.models import User
+
+
 class Orginization(models.Model):
     name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=100)
@@ -21,6 +24,8 @@ class LeagueMembership(models.Model):
 class Individual(models.Model):
     name = models.CharField(max_length=100)
     birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+
 
     def __str__(self):
         return self.name

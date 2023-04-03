@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}
+    Register
+{% endblock title %}
+{% block content %}
+    <h2>Register</h2>
+    <form method="post">
+        <div style="height: 30px">
+            <label class="required" for="id_orginization">Orginization:</label>
+            <select name="organization" required id="id_organization">
+                <option value="">
+                    ---------
+                </option>
+                {% for church in churches %}
+                    <option value="{{ loop.index }}">
+                        {{ church }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <p>
+            <label for="id_username">Username:</label>
+            <input type="text"
+                   name="username"
+                   autofocus=""
+                   autocapitalize="none"
+                   autocomplete="username"
+                   maxlength="150"
+                   required=""
+                   id="id_username"/>
+        </p>
+        <p>
+            <label for="id_password">Password:</label>
+            <input type="password"
+                   name="password"
+                   autocomplete="current-password"
+                   required=""
+                   id="id_password"/>
+        </p>
+        <p>
+            <label for="id_password">Verify Password:</label>
+            <input type="password"
+                   name="password"
+                   autocomplete="current-password"
+                   required=""
+                   id="id_password"/>
+        </p>
+        <button type="submit">Log In</button>
+    </form>
+{% endblock content %}
