@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+    Individal
+{% endblock title %}
+{% block content %}
+    <h1>{{ individual.user.username }}</h1>
+    <h2>Details:</h2>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td>{{ individual.name }}</td>
+        </tr>
+        <tr>
+            <td>Birthday:</td>
+            <td>{{ individual.birthday }}</td>
+        </tr>
+    </table>
+    <h2>List of teams:</h2>
+    {% if teams %}
+        <ul>
+            {% for t in teams %}
+                <li>
+                    <a href="{{ t.url }}">{{ t }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No individuals are available.</p>
+    {% endif %}
+{% endblock content %}

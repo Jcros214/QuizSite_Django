@@ -39,6 +39,9 @@ class Season(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.year.year}"
+    
+    def getTeams(self):
+        return Team.objects.filter(season_id=self.pk)
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -50,6 +53,9 @@ class Team(models.Model):
     
     def isMember(self, individual):
         return TeamMembership.objects.filter(team_id=self.pk, individual_id=individual.pk).exists()
+    
+    def url(self):
+        return f"/records/{self.season.league.pk}/{self.season.pk}/team/{self.pk}"
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)

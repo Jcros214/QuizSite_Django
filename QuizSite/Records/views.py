@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import League, Season, Event, Quiz, AskedQuestion
+from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual
 from django.contrib.auth.decorators import login_required
 
 
@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
     # }
 
 
-def make_context(*args):
+def make_context(*args, **kwargs):
     match len(args):
         case 0:
             return {'list': League.objects.all()}
@@ -27,14 +27,19 @@ def make_context(*args):
             return {
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
+                'teams': get_object_or_404(Season, pk=args[1]).getTeams(),
                 'list': Event.objects.filter(season_id=args[1]),
             }
         case 3:
+            if kwargs.get("team", False):
+                l = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
+            else:
+                l = Quiz.objects.filter(event_id=args[2])
             return {
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
                 'event': get_object_or_404(Event, pk=args[2]),
-                'list': Quiz.objects.filter(event_id=args[2]),
+                'list': l,
             }
         case 4:
             return {
@@ -67,6 +72,7 @@ def league (request, league_id):
 # List of events
 @login_required
 def season (request, league_id, season_id):
+    # List of teams
     return render(request, "Records/season.html", make_context(league_id, season_id))
 
 # List of quizes
@@ -82,3 +88,13 @@ def quiz (request, league_id, season_id, event_id, quiz_id):
 @login_required
 def question (request, league_id, season_id, event_id, quiz_id, question_id):
     return render(request, "Records/question.html", make_context(league_id, season_id, event_id, quiz_id, question_id))
+
+@login_required
+def team (request, league_id, season_id, team_id):
+    return render(request, "Records/team.html", make_context(league_id, season_id, team_id, team=True))
+
+@login_required
+def individual(request, individual_id):
+    individual = get_object_or_404(Individual, pk=individual_id)
+    teams = [_.team for _ in TeamMembership.objects.filter(individual_id=individual_id)]
+    return render(request, "Records/individual.html", {'individual': individual, 'teams': teams})

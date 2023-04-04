@@ -49,7 +49,7 @@
                                 <a class="nav-link"
                                    style="color: white"
                                    aria-current="page"
-                                   href="{% url 'logout' %}">Hi, {{ user.username }}!</a>
+                                   href="{% url 'auth:profile' %}">Hi, {{ user.username }}!</a>
                             {% else %}
                                 <a class="nav-link"
                                    style="color: white"

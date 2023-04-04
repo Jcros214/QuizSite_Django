@@ -19,28 +19,16 @@
             <td>{{ season.material }}</td>
         </tr>
     </table>
-    <h2>List of events:</h2>
+    <h2>List of individuals:</h2>
     {% if list %}
         <ul>
             {% for l in list %}
                 <li>
-                    <a href=" {% url 'records:event' league.id season.id l.id %} ">{{ l }}</a>
+                    <a href=" {% url 'records:individual' l.id %} ">{{ l }}</a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No events are available.</p>
-    {% endif %}
-    {% if teams %}
-        <h2>Teams:</h2>
-        <ul>
-            {% for t in teams %}
-                <li>
-                    <a href=" {{ t.url }} ">{{ t }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No teams are available.</p>
+        <p>No individuals are available.</p>
     {% endif %}
 {% endblock content %}
