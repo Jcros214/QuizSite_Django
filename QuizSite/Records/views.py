@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual
+from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual, Team
 from django.contrib.auth.decorators import login_required
 
 
@@ -31,16 +31,19 @@ def make_context(*args, **kwargs):
                 'list': Event.objects.filter(season_id=args[1]),
             }
         case 3:
-            if kwargs.get("team", False):
-                l = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
-            else:
-                l = Quiz.objects.filter(event_id=args[2])
-            return {
+            context = {
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
-                'event': get_object_or_404(Event, pk=args[2]),
-                'list': l,
             }
+            
+            if kwargs.get("team", False):
+                context['list'] = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
+                context['team'] = get_object_or_404(Team, pk=args[2])
+            else:
+                context['list'] = Quiz.objects.filter(event_id=args[2])
+                context['event'] = get_object_or_404(Event, pk=args[2])
+            return context
+
         case 4:
             return {
                 'league': get_object_or_404(League, pk=args[0]),

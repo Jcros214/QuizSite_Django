@@ -8,7 +8,9 @@
     <table>
         <tr>
             <td>Event:</td>
-            <td>{{ quiz.event }}</td>
+            <td>
+                <a href=" {% url 'records:event' league.id season.id event.id %} ">{{ event }}</a>
+            </td>
         </tr>
         <tr>
             <td>Quizmaster:</td>
@@ -22,15 +24,19 @@
             <td>Round #</td>
             <td>{{ quiz.round }}</td>
         </tr>
+    </table>
+    <h2>Results:</h2>
+    <table>
         <tr>
-            <td>Computed Values:</td>
-            <td></td>
+            <th>Team</th>
+            <th>Score</th>
         </tr>
-        <tr>
-            <td>results:</td>
-            {% comment %} TODO: TMP!!! {% endcomment %}
-            <td>{{ results }}</td>
-        </tr>
+        {% for team,score in results.items %}
+            <tr>
+                <td>{{ team }}</td>
+                <td>{{ score }}</td>
+            </tr>
+        {% endfor %}
     </table>
     <h2>List of questions:</h2>
     {% if list %}

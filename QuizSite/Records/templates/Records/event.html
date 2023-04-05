@@ -15,7 +15,9 @@
         </tr>
         <tr>
             <td>Season:</td>
-            <td>{{ event.season }}</td>
+            <td>
+                <a href=" {% url 'records:season' league.id season.id %} ">{{ season }}</a>
+            </td>
         </tr>
         <tr>
             <td>Location:</td>

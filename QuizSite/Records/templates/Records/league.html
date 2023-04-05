@@ -3,8 +3,15 @@
     {{ league }}
 {% endblock title %}
 {% block content %}
-    <h1>Records</h1>
-    <h2>By season:</h2>
+    <h1>League: {{ league }}</h1>
+    <h2>Details</h2>
+    <table>
+        <tr>
+            <td>Name:</td>
+            <td>{{ league.name }}</td>
+        </tr>
+    </table>
+    <h2>Seasons:</h2>
     {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
     {% comment %} <h2>List of seasons:</h2>s {% endcomment %}
     {% if list %}

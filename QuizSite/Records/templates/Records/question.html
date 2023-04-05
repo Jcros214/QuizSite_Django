@@ -8,7 +8,9 @@
     <table>
         <tr>
             <td>Quiz:</td>
-            <td>{{ question.quiz }}</td>
+            <td>
+                <a href="{% url 'records:quiz' league.id season.id event.id quiz.id %}">{{ quiz }}</a>
+            </td>
         </tr>
         <tr>
             <td>Question #</td>

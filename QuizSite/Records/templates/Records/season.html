@@ -3,12 +3,12 @@
     {{ season }}
 {% endblock title %}
 {% block content %}
-    <h1>{{ season }}</h1>
-    <h2>Season details:</h2>
+    <h1>Season: {{ season }}</h1>
+    <h2>Details:</h2>
     <table>
         <tr>
             <td>Name:</td>
-            <td>{{ season.name }}</td>
+            <td>{{ season }}</td>
         </tr>
         <tr>
             <td>Start Date:</td>
@@ -18,8 +18,14 @@
             <td>Material:</td>
             <td>{{ season.material }}</td>
         </tr>
+        <tr>
+            <td>League:</td>
+            <td>
+                <a href=" {% url 'records:league' league.id %} ">{{ league }}</a>
+            </td>
+        </tr>
     </table>
-    <h2>List of events:</h2>
+    <h2>Events:</h2>
     {% if list %}
         <ul>
             {% for l in list %}
