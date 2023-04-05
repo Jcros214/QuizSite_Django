@@ -4,6 +4,7 @@
     Login | QuizSite
 {% endblock title %}
 {% block content %}
+    {% csrf_token %}
     <h2>Log In</h2>
     <form method="post">
         {% csrf_token %}
