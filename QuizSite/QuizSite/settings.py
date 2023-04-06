@@ -32,7 +32,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1','161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app'
 ]
 
-CSRF_TRUSTED_ORIGINS = [*ALLOWED_HOSTS, 'https://www.quizbox.app']
+CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app']
 
 # Application definition
 
@@ -155,3 +155,17 @@ SITE_ID = 1
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+}
