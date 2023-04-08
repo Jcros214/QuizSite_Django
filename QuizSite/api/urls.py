@@ -5,5 +5,5 @@ from . import views
 app_name = 'api'
 
 urlpatterns = [
-    path('records/', views.register, name='register'),
+    path('records/', views.getRecords, name='register'),
 ]

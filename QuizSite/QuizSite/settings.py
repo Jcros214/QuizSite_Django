@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'Records.apps.RecordsConfig',
     'Quiz.apps.QuizConfig',
     'Auth.apps.AuthConfig',
+    'Api.apps.ApiConfig',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
