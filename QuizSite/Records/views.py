@@ -62,9 +62,21 @@ def make_context(*args, **kwargs):
                 'question': get_object_or_404(AskedQuestion, pk=args[4]),
             }
 
+
+# views.py
+from django.views.generic import ListView
+# from books.models import Publisher
+
+
+class LeagueListView(ListView):
+    model = League
+
+
+
 # List of leagues
 @login_required
 def index(request):
+    return LeagueListView.as_view()
     return render(request, "Records/index.html", make_context())
 
 # List of seasons
