@@ -21,6 +21,9 @@ class LeagueMembership(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
     orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.orginization.name} - {self.league.name}"
+
 class Individual(models.Model):
     name = models.CharField(max_length=100)
     birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None)

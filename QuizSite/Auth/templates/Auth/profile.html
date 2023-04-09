@@ -4,9 +4,9 @@
 {% endblock title %}
 {% block content %}
     <h1>{{ user.username }}'s Profile</h1>
-    {% if list %}
+    {% if object_list %}
         <ul>
-            {% for l in list %}
+            {% for l in object_list %}
                 <li>
                     <a href=" {% url 'records:team' league.id season.id event.id l.id %} ">{{ l }}</a>
                 </li>

@@ -17,18 +17,18 @@ from django.contrib.auth.decorators import login_required
 def make_context(*args, **kwargs):
     match len(args):
         case 0:
-            return {'list': League.objects.all()}
+            return {'object_list': League.objects.all()}
         case 1:
             return {
                 'league': get_object_or_404(League, pk=args[0]),
-                'list': Season.objects.filter(league_id=args[0]),
+                'object_list': Season.objects.filter(league_id=args[0]),
             }
         case 2:
             return {
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
                 'teams': get_object_or_404(Season, pk=args[1]).getTeams(),
-                'list': Event.objects.filter(season_id=args[1]),
+                'object_list': Event.objects.filter(season_id=args[1]),
             }
         case 3:
             context = {
@@ -37,10 +37,10 @@ def make_context(*args, **kwargs):
             }
             
             if kwargs.get("team", False):
-                context['list'] = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
+                context['object_list'] = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
                 context['team'] = get_object_or_404(Team, pk=args[2])
             else:
-                context['list'] = Quiz.objects.filter(event_id=args[2])
+                context['object_list'] = Quiz.objects.filter(event_id=args[2])
                 context['event'] = get_object_or_404(Event, pk=args[2])
             return context
 
@@ -51,7 +51,7 @@ def make_context(*args, **kwargs):
                 'event': get_object_or_404(Event, pk=args[2]),
                 'quiz': get_object_or_404(Quiz, pk=args[3]),
                 'results': get_object_or_404(Quiz, pk=args[3]).getResults(),
-                'list': AskedQuestion.objects.filter(quiz_id=args[3]),
+                'object_list': AskedQuestion.objects.filter(quiz_id=args[3]),
             }
         case 5:
             return {
@@ -63,21 +63,36 @@ def make_context(*args, **kwargs):
             }
 
 
-# views.py
-from django.views.generic import ListView
-# from books.models import Publisher
+# # views.py
+# from django.views.generic import ListView
+# from django.contrib.auth.mixins import LoginRequiredMixin
+
+# # from books.models import Publisher
 
 
-class LeagueListView(ListView):
-    model = League
+# class LeagueListView(LoginRequiredMixin, ListView):
+#     model = League
+
+#     context = make_context()
+
+#     # def get_context_data(self, **kwargs):
+#     #     context = super().get_context_data(**kwargs)
+#     #     from django.utils import timezone
+#     #     context['now'] = timezone.now()
+#     #     return context
+
+
+#     # template_name = ''
+
+    
+
 
 
 
 # List of leagues
 @login_required
 def index(request):
-    return LeagueListView.as_view()
-    return render(request, "Records/index.html", make_context())
+    return render(request, "Records/league_list.html", make_context())
 
 # List of seasons
 @login_required

@@ -38,10 +38,10 @@
             </tr>
         {% endfor %}
     </table>
-    <h2>List of questions:</h2>
-    {% if list %}
+    <h2>object_list of questions:</h2>
+    {% if object_list %}
         <ul>
-            {% for l in list %}
+            {% for l in object_list %}
                 <li>
                     <a href=" {% url 'records:question' league.id season.id event.id quiz.id l.id %} ">{{ l }}</a>
                 </li>

@@ -6,9 +6,9 @@
     <h1>Records</h1>
     <h2>Leagues:</h2>
     {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
-    {% if list %}
+    {% if object_list %}
         <ul>
-            {% for l in list %}
+            {% for l in object_list %}
                 <li>
                     <a href=" {% url 'records:league' l.id %} ">{{ l }}</a>
                 </li>

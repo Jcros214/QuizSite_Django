@@ -93,24 +93,25 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 
 #     }
 # }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'QuizDB.sqlite',
+# if DEBUG:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': 'QuizDB.sqlite',
+#         }
 #     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'quizdb',
-        'USER': 'django_user',
-        'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
-        'HOST': 'localhost',
-        'PORT': '',
+# else:
+if True:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'quizdb',
+            'USER': 'django_user',
+            'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
+            'HOST': 'localhost',
+            'PORT': '',
+        }
     }
-}
 
 
 

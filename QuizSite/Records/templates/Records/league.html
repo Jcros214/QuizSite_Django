@@ -13,10 +13,10 @@
     </table>
     <h2>Seasons:</h2>
     {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
-    {% comment %} <h2>List of seasons:</h2>s {% endcomment %}
-    {% if list %}
+    {% comment %} <h2>object_list of seasons:</h2>s {% endcomment %}
+    {% if object_list %}
         <ul>
-            {% for l in list %}
+            {% for l in object_list %}
                 <li>
                     <a href=" {% url 'records:season' league.id l.id %} ">{{ l }}</a>
                 </li>
