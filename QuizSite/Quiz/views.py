@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 
 def index(request):
-    return render(request, 'quiz/index.html')
+    return render(request, 'Quiz/index.html')
 
 def quiz(request):
-    return render(request, 'quiz/quiz.html')
+    return render(request, 'Quiz/quiz.html')
