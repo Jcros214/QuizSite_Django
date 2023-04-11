@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'Auth.apps.AuthConfig',
     'api.apps.ApiConfig',
 
+    'rest_framework',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -93,15 +95,14 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 
 #     }
 # }
-# if DEBUG:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': 'QuizDB.sqlite',
-#         }
-#     }
-# else:
-if True:
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'QuizDB.sqlite',
+        }
+    }
+else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -183,4 +184,12 @@ LOGGING = {
         "handlers": ["console"],
         "level": "WARNING",
     },
+}
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
 }
