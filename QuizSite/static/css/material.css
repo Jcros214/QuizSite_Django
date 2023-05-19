@@ -1,0 +1,40 @@
+.book {
+    /* font: italic */
+}
+
+.chapter {
+    /* font: bold; */
+}
+
+.verse {
+    /* font: normal; */
+}
+
+.referance {
+    display: inline;
+}
+
+dt {
+    visibility: hidden;
+    display: inline-block;
+    font-size: 0pt;
+    font-weight: normal;
+}
+dt::first-letter {
+    visibility: visible;
+    font-size: 18pt;
+}
+  
+dt:hover {
+    visibility: visible;
+    font-size: 18pt;
+} 
+once {
+    text-decoration-line: underline;
+    text-decoration-style: solid;  
+}
+
+twice {
+  text-decoration-line: underline;
+  text-decoration-style: double;
+}

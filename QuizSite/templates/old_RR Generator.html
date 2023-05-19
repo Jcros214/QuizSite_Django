@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}
+    Round Robin Generator
+{% endblock title %}
+{% block content %}
+
+<div class="container mt-5">
+  <h1 class="mb-4">Round Robin Bracket Generator</h1>
+  <form id="generator-form">
+    <div class="mb-3">
+      <label for="participants" class="form-label">Participants (comma-separated):</label>
+      <input type="text" class="form-control" id="participants"
+        value="A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T" required>
+    </div>
+    <div class="mb-3">
+      <label for="participants-per-match" class="form-label">Participants per match:</label>
+      <input type="number" class="form-control" id="participants-per-match" min="2" value="3" required>
+    </div>
+    <div class="mb-3">
+      <label for="rounds" class="form-label">Number of rounds:</label>
+      <input type="number" class="form-control" id="rounds" min="1" value="10" required>
+    </div>
+    <div class="mb-3">
+      <label for="rooms" class="form-label">Number of rooms (matches per round):</label>
+      <input type="number" class="form-control" id="rooms" min="1" value="5" required>
+    </div>
+    <!-- Add this inside the form element -->
+    <div class="mb-3">
+      <label for="attempts" class="form-label">Number of attempts:</label>
+      <input type="number" class="form-control" id="attempts" value="1000" min="1" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary" id="generate-btn">
+      <span id="loading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+      Generate
+    </button>
+  </form>
+  <div class="mt-5" id="results">
+  </div>
+</div>
+
+<!-- Add Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+<script>
+  document.getElementById("generator-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+
+
+    // Show the loading spinner and disable the button
+    document.getElementById("loading").classList.remove("d-none");
+    document.getElementById("generate-btn").disabled = true;
+
+
+    const participantsInput = document.getElementById("participants").value;
+    const participantsPerMatch = parseInt(document.getElementById("participants-per-match").value);
+    const rounds = parseInt(document.getElementById("rounds").value);
+    const rooms = parseInt(document.getElementById("rooms").value);
+    const attempts = parseInt(document.getElementById("attempts").value);
+
+    const participants = participantsInput.split(",").map(x => x.trim());
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function isValidSchedule(schedule) {
+      const matchesPerTeam = {};
+      for (const round of schedule) {
+        for (const match of round) {
+          for (const team of match) {
+            matchesPerTeam[team] = (matchesPerTeam[team] || 0) + 1;
+          }
+        }
+      }
+
+      const maxMatches = Math.min(rounds * rooms, (participants.length - 1) * (participants.length - 2) / 2);
+      for (const team in matchesPerTeam) {
+        if (matchesPerTeam[team] > maxMatches) return false;
+      }
+
+      return true;
+    }
+
+    function generateSchedule() {
+      for (let attempt = 0; attempt < attempts; attempt++) {
+        const shuffledParticipants = shuffle(participants.slice());
+        const schedule = [];
+        const matchups = {};
+
+        for (let round = 0; round < rounds; round++) {
+          const roundMatches = [];
+          const usedParticipants = [];
+
+          for (let room = 0; room < rooms; room++) {
+            const match = [];
+            let count = 0;
+
+            for (let i = 0; i < shuffledParticipants.length && count < participantsPerMatch; i++) {
+              const participant = shuffledParticipants[i];
+
+              if (!usedParticipants.includes(participant) && match.every(team => {
+                const pair = [team, participant].sort().join('-');
+                matchups[pair] = (matchups[pair] || 0) + 1;
+                return matchups[pair] <= 2;
+              })) {
+                match.push(participant);
+                usedParticipants.push(participant);
+                count++;
+              }
+            }
+
+            if (match.length === participantsPerMatch) {
+              roundMatches.push(match);
+            } else {
+              break;
+            }
+          }
+
+          if (roundMatches.length === rooms) {
+            schedule.push(roundMatches);
+          } else {
+            break;
+          }
+        }
+
+        if (schedule.length === rounds && isValidSchedule(schedule)) {
+          return schedule;
+        }
+      }
+
+      return null;
+    }
+    function displaySchedule(schedule) {
+      const resultsDiv = document.getElementById("results");
+      if (schedule) {
+        let html = "<h2>Generated Schedule:</h2>";
+        html += "<table class='table table-bordered'><thead><tr><th scope='col'>Room</th>";
+        for (let i = 0; i < rounds; i++) {
+          html += `<th scope='col'>Round ${i + 1}</th>`;
+        }
+        html += "</tr></thead><tbody>";
+        for (let room = 0; room < rooms; room++) {
+          html += `<tr><th scope='row'>Room ${room + 1}</th>`;
+          for (const round of schedule) {
+            if (room < round.length) {
+              html += `<td>${round[room].join(" vs. ")}</td>`;
+            } else {
+              html += "<td></td>";
+            }
+          }
+          html += "</tr>";
+        }
+        html += "</tbody></table>";
+
+        const matchesPerTeam = {};
+        for (const round of schedule) {
+          for (const match of round) {
+            for (const team of match) {
+              matchesPerTeam[team] = (matchesPerTeam[team] || 0) + 1;
+            }
+          }
+        }
+
+        const groupedMatches = {};
+        for (const team in matchesPerTeam) {
+          if (!groupedMatches[matchesPerTeam[team]]) {
+            groupedMatches[matchesPerTeam[team]] = [];
+          }
+          groupedMatches[matchesPerTeam[team]].push(team);
+        }
+
+        html += "<h2>Matches per team:</h2><ul>";
+        for (const matches in groupedMatches) {
+          html += `<li>${matches}: ${groupedMatches[matches].sort().join(", ")}</li>`;
+        }
+        html += "</ul>";
+
+        const opponents = {};
+        for (const round of schedule) {
+          for (const match of round) {
+            for (const team of match) {
+              if (!opponents[team]) {
+                opponents[team] = new Set();
+              }
+              for (const opponent of match) {
+                if (team !== opponent) {
+                  opponents[team].add(opponent);
+                }
+              }
+            }
+          }
+        }
+
+        html += "<h2>Percentage of teams quizzed within a division:</h2><ul>";
+        for (const team in opponents) {
+          const percentage = (opponents[team].size / (participants.length - 1)) * 100;
+          html += `<li>${team}: ${percentage.toFixed(2)}%</li>`;
+        }
+        html += "</ul>";
+
+        resultsDiv.innerHTML = html;
+      } else {
+        resultsDiv.innerHTML = "<h2>No valid schedule found within the given number of attempts. Please try again or adjust the input parameters.</h2>";
+      }
+    }
+
+
+
+    const schedule = generateSchedule();
+    displaySchedule(schedule);
+    // Hide the loading spinner and enable the button
+    document.getElementById("loading").classList.add("d-none");
+    document.getElementById("generate-btn").disabled = false;
+
+  });
+
+</script>
+
+
+{% endblock content %}

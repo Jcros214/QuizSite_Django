@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}
+    Round Robin Generator
+{% endblock title %}
+{% block content %}
+<h1>Team Matchups Generator</h1>
+<form id="matchupForm">
+  <div class="mb-3">
+    <label for="teamNames" class="form-label">Comma-separated team names:</label>
+    <input type="text" class="form-control" id="teamNames" required>
+  </div>
+  <div class="mb-3">
+    <label for="rounds" class="form-label">Number of rounds:</label>
+    <input type="number" class="form-control" id="rounds" min="1" required>
+  </div>
+  <div class="mb-3">
+    <label for="rooms" class="form-label">Number of rooms:</label>
+    <input type="number" class="form-control" id="rooms" min="1" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Generate Matchups</button>
+
+  <div class="spinner-border text-primary d-none" role="status" id="loadingIndicator">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  
+</form>
+<table class="table mt-5" id="matchupTable">
+</table>
+</div>
+<script>
+  
+  document.getElementById('matchupForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const teamNames = document.getElementById('teamNames').value.split(',');
+    const rounds = parseInt(document.getElementById('rounds').value);
+    const rooms = parseInt(document.getElementById('rooms').value);
+    generateMatchups(teamNames, rounds, rooms);
+  });
+
+  function generateMatchups(teamNames, rounds, rooms) {
+    const totalMatches = rounds * rooms;
+    const matchups = [];
+
+    const played = new Map();
+    const pickedThisRound = new Set();
+    const hadByeLastRound = new Set();
+
+    teamNames.forEach((team) => {
+      played.set(team, new Set());
+    });
+
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.classList.remove('d-none');
+
+
+    for (let i = 0; i < totalMatches; i++) {
+      console.log(i);
+      if (i % rooms === 0) {
+        pickedThisRound.clear();
+      }
+
+      let team1, team2, team3;
+
+      for (const team of teamNames) {
+        if (!pickedThisRound.has(team) && !hadByeLastRound.has(team)) {
+          team1 = team;
+          break;
+        }
+      }
+
+      pickedThisRound.add(team1);
+
+      for (const team of teamNames) {
+        if (team !== team1 && !pickedThisRound.has(team) && !played.get(team1).has(team)) {
+          team2 = team;
+          break;
+        }
+      }
+
+      pickedThisRound.add(team2);
+
+      outer: for (const team of teamNames) {
+        if (team !== team1 && team !== team2 && !pickedThisRound.has(team)) {
+          if (!played.get(team1).has(team) && !played.get(team2).has(team)) {
+            team3 = team;
+            break outer;
+          }
+        }
+      }
+
+      if (team3) {
+        pickedThisRound.add(team3);
+        played.get(team1).add(team2);
+        played.get(team1).add(team3);
+        played.get(team2).add(team1);
+        played.get(team2).add(team3);
+        played.get(team3).add(team1);
+        played.get(team3).add(team2);
+        matchups.push([team1, team2, team3]);
+      } else {
+        hadByeLastRound.add(team2);
+        pickedThisRound.delete(team2);
+        i--;
+      }
+
+      if (i % rooms === rooms - 1) {
+        hadByeLastRound.clear();
+        teamNames.forEach((team) => {
+          played.get(team).clear();
+        });
+        matchups.forEach((match) => {
+          played.get(match[0]).add(match[1]);
+          played.get(match[0]).add(match[2]);
+          played.get(match[1]).add(match[0]);
+          played.get(match[1]).add(match[2]);
+          played.get(match[2]).add(match[0]);
+          played.get(match[2]).add(match[1]);
+        });
+      }
+    }
+
+
+  // Hide loading indicator
+  loadingIndicator.classList.add('d-none');
+
+  displayMatchups(matchups, rounds, rooms);
+}
+
+
+
+
+
+
+  function displayMatchups(matchups, rounds, rooms) {
+    const table = document.getElementById('matchupTable');
+    table.innerHTML = '';
+
+    const header = table.createTHead();
+    const headerRow = header.insertRow();
+    for (let round = 1; round <= rounds; round++) {
+      const cell = headerRow.insertCell();
+      cell.outerHTML = `<th scope="col">Round ${round}</th>`;
+    }
+
+    const body = table.createTBody();
+    for (let room = 1; room <= rooms; room++) {
+      const row = body.insertRow();
+      for (let round = 1; round <= rounds; round++) {
+        const cell = row.insertCell();
+        const matchIndex = (round - 1) * rooms + (room - 1);
+        const match = matchups[matchIndex];
+        if (match) {
+          cell.innerHTML = `${match[0]} vs ${match[1]} vs ${match[2]}`;
+        } else {
+          cell.innerHTML = 'N/A';
+        }
+      }
+    }
+  }
+</script>
+
+
+
+
+{% endblock content %}

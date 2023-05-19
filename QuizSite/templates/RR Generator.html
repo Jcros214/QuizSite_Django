@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}
+Round Robin Generator
+{% endblock title %}
+{% block content %}
+<h1>Team Matchups Generator</h1>
+<form id="matchupForm">
+  <div class="mb-3">
+    <label for="teamNames" class="form-label">Comma-separated team names:</label>
+    <input type="text" class="form-control" id="teamNames" required>
+  </div>
+  <div class="mb-3">
+    <label for="rounds" class="form-label">Number of rounds:</label>
+    <input type="number" class="form-control" id="rounds" min="1" required>
+  </div>
+  <div class="mb-3">
+    <label for="rooms" class="form-label">Number of rooms:</label>
+    <input type="number" class="form-control" id="rooms" min="1" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Generate Matchups</button>
+
+  <div class="spinner-border text-primary d-none" role="status" id="loadingIndicator">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+
+</form>
+<table class="table mt-5" id="matchupTable">
+</table>
+<div class="mt-5">
+  <h2>Fairness Metrics</h2>
+  <div id="fairnessMetrics">
+  </div>
+</div>
+<script>
+  document.getElementById('matchupForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const teamNames = document.getElementById('teamNames').value.split(',');
+    const rounds = parseInt(document.getElementById('rounds').value);
+    const rooms = parseInt(document.getElementById('rooms').value);
+    generateMatchups(teamNames, rounds, rooms);
+  });
+
+  function generateMatchups(teamNames, rounds, rooms) {
+    const totalMatches = rounds * rooms;
+    const matchups = [];
+
+    const played = new Map();
+    const pickedThisRound = new Set();
+
+    teamNames.forEach((team) => {
+      played.set(team, new Set());
+    });
+
+    // Show loading indicator
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.classList.remove('d-none');
+
+    for (let i = 0; i < totalMatches; i++) {
+      if (i % rooms === 0) {
+        pickedThisRound.clear();
+      }
+
+      let team1, team2, team3;
+
+      const eligibleTeams = teamNames.filter(team => !pickedThisRound.has(team));
+      eligibleTeams.sort((a, b) => played.get(a).size - played.get(b).size || Math.random() - 0.5);
+
+      team1 = eligibleTeams[Math.floor(Math.random() * eligibleTeams.length)];
+      pickedThisRound.add(team1);
+
+      const team1Played = Array.from(played.get(team1));
+      const eligibleTeam2 = teamNames.filter(team => !pickedThisRound.has(team) && !played.get(team1).has(team));
+      team2 = eligibleTeam2[0];
+      pickedThisRound.add(team2);
+
+      const eligibleTeam3 = teamNames.filter(team => team !== team1 && team !== team2 && !pickedThisRound.has(team) && !played.get(team1).has(team) && !played.get(team2).has(team));
+      team3 = eligibleTeam3[0];
+      pickedThisRound.add(team3);
+
+      played.get(team1).add(team2);
+      played.get(team1).add(team3);
+      played.get(team2).add(team1);
+      played.get(team2).add(team3);
+      played.get(team3).add(team1);
+      played.get(team3).add(team2);
+
+      matchups.push([team1, team2, team3]);
+    }
+
+    // Hide loading indicator
+    loadingIndicator.classList.add('d-none');
+    displayMatchups(matchups, rounds, rooms);
+    displayFairnessMetrics(played);
+  }
+
+  function displayMatchups(matchups, rounds, rooms) {
+    const table = document.getElementById('matchupTable');
+    table.innerHTML = '';
+
+    const header = table.createTHead();
+    const headerRow = header.insertRow();
+    for (let round = 1; round <= rounds; round++) {
+      const cell = headerRow.insertCell();
+      cell.outerHTML = `<th scope="col">Round ${round}</th>`;
+    }
+
+    const body = table.createTBody();
+    for (let room = 1; room <= rooms; room++) {
+      const row = body.insertRow();
+      for (let round = 1; round <= rounds; round++) {
+        const cell = row.insertCell();
+        const matchIndex = (round - 1) * rooms + (room - 1);
+        const match = matchups[matchIndex];
+        if (match) {
+          cell.innerHTML = `${match[0]} vs ${match[1]} vs ${match[2]}`;
+        } else {
+          cell.innerHTML = 'N/A';
+        }
+      }
+    }
+  }
+
+  function displayFairnessMetrics(played) {
+    const fairnessMetricsDiv = document.getElementById('fairnessMetrics');
+    fairnessMetricsDiv.innerHTML = '';
+
+    let totalRoundsPlayed = 0;
+    played.forEach((opponents, team) => {
+      totalRoundsPlayed += opponents.size;
+      const p = document.createElement('p');
+      p.textContent = `${team}: ${opponents.size} rounds played`;
+      fairnessMetricsDiv.appendChild(p);
+    });
+
+    const averageRoundsPlayed = totalRoundsPlayed / played.size;
+    const averageRoundsPlayedP = document.createElement('p');
+    averageRoundsPlayedP.textContent = `Average rounds played: ${averageRoundsPlayed.toFixed(2)}`;
+    fairnessMetricsDiv.appendChild(averageRoundsPlayedP);
+  }
+</script>
+{% endblock content %}

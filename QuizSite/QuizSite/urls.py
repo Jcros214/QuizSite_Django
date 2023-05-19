@@ -56,9 +56,20 @@ urlpatterns += [
     path('admin/', admin.site.urls),
     path('records/', include('Records.urls')),
     path('quiz/', include('Quiz.urls')),
+
+
     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('Auth.urls')),
+    path('accounts/', include('allauth.urls')),
+
+
     path('api/', include('api.urls')),
+
+    path('material/', include('Material.urls')),
+
+    # TMP!
+
+    path('rr_gen/', lambda request: render(request, 'RR Generator.html'), name="rr_gen")
+
 
 ]
 urlpatterns += staticfiles_urlpatterns()
