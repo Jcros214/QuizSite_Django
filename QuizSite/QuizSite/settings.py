@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     # 'Auth.apps.AuthConfig',
     'api.apps.ApiConfig',
     'Material.apps.MaterialConfig',
+    'TournamentManager.apps.TournamentmanagerConfig',
 
     'rest_framework',
 

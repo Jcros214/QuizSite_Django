@@ -139,3 +139,4 @@ GitHub.sublime-settings
 # Mac files
 .DS_Store
 QuizSite/QuizSite/DJANGO_SECRET.env
+tmp.html

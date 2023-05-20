@@ -65,6 +65,7 @@ urlpatterns += [
     path('api/', include('api.urls')),
 
     path('material/', include('Material.urls')),
+    path('manager/', include('TournamentManager.urls')),
 
     # TMP!
 
