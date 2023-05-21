@@ -22,9 +22,13 @@ New Idea:
 
 
 from itertools import combinations
-from random import choice, shuffle
+from random import choice
+import random
 from typing import Tuple
 # from dataclasses import dataclass
+
+from concurrent.futures import ThreadPoolExecutor
+
 
 class Team:
     def __init__(self, name):
@@ -96,30 +100,66 @@ class Division:
         
         return divs
     
-    def find_unique_quizes(self):
+    def find_unique_quizes(self, num_iterations=1, num_threads=8) -> list[Tuple[Team, Team, Team]]:
         unique_combo_sets = []
         team_combinations = list(combinations(self.teams, 3))
-        unique_combinations = []
+        unique_combinations = set()
 
-        shuffle(team_combinations)
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures = []
+
+            for _ in range(num_iterations):
+                random.shuffle(team_combinations)
+                future = executor.submit(self._check_combinations, team_combinations[:])
+                futures.append(future)
+
+            for future in futures:
+                valid_combinations = future.result()
+                unique_combo_sets.append(list(valid_combinations))
+                
+                # unique_combinations.update(valid_combinations)
+
+
+        unique_combo_sets = self.sort_by_fairness(unique_combo_sets)
+
+        print(f"{len(unique_combo_sets[0])} unique combos\n",
+              ', '.join([f"{team.name}: {sum([unique_combo.count(team) for unique_combo in unique_combo_sets[0]])}"
+                         for team in self.teams]))
+        return unique_combo_sets[0]
+
+    def _check_combinations(self, team_combinations: list[Tuple[Team, Team, Team]]) -> list[Tuple[Team, Team, Team]]:
+        valid_combinations = []
 
         for team_combo in team_combinations:
-            if len(unique_combinations) == 0:
-                unique_combinations.append(team_combo)
-                continue
-            
-            for unique_combo in unique_combinations:
-                # Count the number of teams in common
+            is_valid = True
+
+            for unique_combo in valid_combinations:
                 common_teams = len([team for team in team_combo if team in unique_combo])
 
                 if common_teams >= 2:
+                    is_valid = False
                     break
-            else:
-                unique_combinations.append(team_combo)
-                
-        unique_combo_sets.append(unique_combinations)
-        
-        print(f"{len(unique_combinations)} unique combos\n", ', '.join([f"{team.name}: {sum([unique_combo.count(team) for unique_combo in unique_combinations])}" for team in division.teams])) # type: ignore
+
+            if is_valid:
+                valid_combinations.append(team_combo)
+
+        return valid_combinations
+
+    @staticmethod
+    def sort_by_fairness(unique_combo_sets: list[list[Tuple[Team, Team, Team]]]) -> list[list[Tuple[Team, Team, Team]]]:
+        return sorted(unique_combo_sets, key=lambda combo_set: Division._get_fairness(combo_set))
+
+    @staticmethod
+    def _get_fairness(combo_set: list[Tuple[Team, Team, Team]]) -> float:
+        set_of_teams = set()
+
+        for combo in combo_set:
+            set_of_teams.update(combo)
+
+        matches_per_team = [sum([match.count(team) for match in combo_set]) for team in sorted(list(set_of_teams))]
+
+        return max(matches_per_team) - min(matches_per_team)
+
 
 
     def add_team(self, team: Team):
@@ -202,83 +242,122 @@ class Bracket:
             teams += division.teams
         return teams
 
-    def getRandomTeam(self) -> Team:
-        return choice(self.teams)
+    def generate(self):
+        self.rounds = []
+        self.rounds: list[Round]
 
-    def countTeamOccurances(self, team: Team) -> int:
-        count = 0
-        for round in self.rounds:
-            for quiz in round.quizes:
-                for quiz_team in quiz.getTeams():
-                    if team == quiz_team:
-                        count += 1
-        return count
+        rounds_in_shared_rooms = []
 
-    def findMinTeamCount(self) -> Tuple[int, Team]: 
-        teams = iter(self.teams)
-        team = next(teams)
+        if len(self.rooms) / len(self.divisions) % 1 != 0:
+            raise Exception("Number of rooms must be divisible by the number of divisions")
 
-        min_count = self.countTeamOccurances(team)
-        min_team = team
 
-        for team in teams:
-            if count := self.countTeamOccurances(team) < min_count:
-                min_count = count
-                min_team = team
+        for division in self.divisions:
+            combo_set = division.find_unique_quizes(num_iterations=1000)
 
-        return min_count, min_team
+            num_rounds = (len(self.rooms) * self.num_rounds) / len(self.divisions) #42
 
-    def doesTeamHaveMinCount(self, team: Team, minCount: int|None = None) -> bool:        
-        if minCount is None:
-            minCount = self.findMinTeamCount()[0]
+            if num_rounds % 1 != 0:
+                raise Exception("Number of rounds must be divisible by the number of divisions")
+            else:
+                num_rounds = int(num_rounds)
+            
+            match_set_choices = []
 
-        return self.countTeamOccurances(team) == minCount
+            for _ in combinations(combo_set, num_rounds):
+                match_set_choices.append(_)
+           
+            matches = Division.sort_by_fairness(match_set_choices)[0]
+
+            rooms_per_division = len(self.rooms) // len(self.divisions)
+
+            ...
+
+            
+
+
+
+
+
+
+
+    # def getRandomTeam(self) -> Team:
+    #     return choice(self.teams)
+
+    # def countTeamOccurances(self, team: Team) -> int:
+    #     count = 0
+    #     for round in self.rounds:
+    #         for quiz in round.quizes:
+    #             for quiz_team in quiz.getTeams():
+    #                 if team == quiz_team:
+    #                     count += 1
+    #     return count
+
+    # def findMinTeamCount(self) -> Tuple[int, Team]: 
+    #     teams = iter(self.teams)
+    #     team = next(teams)
+
+    #     min_count = self.countTeamOccurances(team)
+    #     min_team = team
+
+    #     for team in teams:
+    #         if count := self.countTeamOccurances(team) < min_count:
+    #             min_count = count
+    #             min_team = team
+
+    #     return min_count, min_team
+
+    # def doesTeamHaveMinCount(self, team: Team, minCount: int|None = None) -> bool:        
+    #     if minCount is None:
+    #         minCount = self.findMinTeamCount()[0]
+
+    #     return self.countTeamOccurances(team) == minCount
     
-    def getRandomTeamWithMinCount(self) -> Team:
-        team = self.getRandomTeam()
+    # def getRandomTeamWithMinCount(self) -> Team:
+    #     team = self.getRandomTeam()
 
-        while not self.doesTeamHaveMinCount(team):
-            team = self.getRandomTeam()
+    #     while not self.doesTeamHaveMinCount(team):
+    #         team = self.getRandomTeam()
         
-        return team
+    #     return team
 
-    '''
-    Ensures that the given teams all have played the fewest number of times possible and have not played each other
-    TODO: What if there is not a set of teams that can play together? Restart? Allow +/- 1 for min num?
-    '''
-    def canTeamPlayWith(self, teams: list[Team]) -> bool:
-        minCount = self.findMinTeamCount()[0]
+    # '''
+    # Ensures that the given teams all have played the fewest number of times possible and have not played each other
+    # TODO: What if there is not a set of teams that can play together? Restart? Allow +/- 1 for min num?
+    # '''
+    # def canTeamPlayWith(self, teams: list[Team]) -> bool:
+    #     minCount = self.findMinTeamCount()[0]
 
-        for division in self.divisions:
-            if all([division.conatins_team(team) for team in teams]):
-                break
-        else:
-            raise Exception("Teams must be in one division")
+    #     for division in self.divisions:
+    #         if all([division.conatins_team(team) for team in teams]):
+    #             break
+    #     else:
+    #         raise Exception("Teams must be in one division")
         
 
-        if not all([self.doesTeamHaveMinCount(team, minCount) for team in teams]):
-            return False
+    #     if not all([self.doesTeamHaveMinCount(team, minCount) for team in teams]):
+    #         return False
         
-        for quiz in self.rounds[-1].quizes:
-            for team in teams:
-                if team in quiz.getTeams():
-                    return False
+    #     for quiz in self.rounds[-1].quizes:
+    #         for team in teams:
+    #             if team in quiz.getTeams():
+    #                 return False
 
-        # check if teams is a subset of an existing quiz's teams
-        for round in self.rounds[:-1]:
-            for quiz in round.quizes:
-                ctr = 0
-                for team in teams:
-                    if team in quiz.getTeams():
-                       ctr += 1
-                if ctr > 1:
-                    return False 
+    #     # check if teams is a subset of an existing quiz's teams
+    #     for round in self.rounds[:-1]:
+    #         for quiz in round.quizes:
+    #             ctr = 0
+    #             for team in teams:
+    #                 if team in quiz.getTeams():
+    #                    ctr += 1
+    #             if ctr > 1:
+    #                 return False 
 
-        return True
+    #     return True
 
-    def find_unique_matches(self):
-        for division in self.divisions:
-            division.find_unique_quizes()
+    # def find_unique_matches(self):
+    #     for division in self.divisions:
+    #         division.find_unique_quizes()
 
 
 
@@ -286,7 +365,6 @@ class Bracket:
 
 
 if __name__ == "__main__":
-    divisions = Division.generate_teams(['R', 'G'], 36)
-
-    for division in divisions:
-        division.find_unique_quizes()
+    bracket = Bracket(['R', 'G'], 36, ['A', 'B', 'C', 'D', 'E', 'F', 'G'], 12)
+    
+ 
