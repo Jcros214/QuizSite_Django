@@ -62,7 +62,7 @@ urlpatterns += [
     path('accounts/', include('allauth.urls')),
 
 
-    path('api/', include('api.urls')),
+#     path('api/', include('api.urls')),
 
     path('material/', include('Material.urls')),
     path('manager/', include('TournamentManager.urls')),
