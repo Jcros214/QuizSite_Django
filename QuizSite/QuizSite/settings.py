@@ -26,7 +26,7 @@ from django.core.management.utils import get_random_secret_key
 SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG ="True" # " os.getenv("DEBUG", "False") == "
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     '127.0.0.1','161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app'
