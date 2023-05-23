@@ -26,10 +26,10 @@ from django.core.management.utils import get_random_secret_key
 SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = 'True'# os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    '127.0.0.1','161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app'
+    '127.0.0.1','161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app', 'localhost'
 ]
 
 CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app']
@@ -72,7 +72,7 @@ INSTALLED_APPS = [
 
     'allauth.socialaccount.providers.google',
 
-
+    'django_simple_tags',
 ]
 
 
@@ -197,6 +197,14 @@ SITE_ID = 1
 
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
+
+# Email Settings. Does mine work?
+# EMAIL_HOST = "smtp.migadu.org"
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+# EMAIL_USE_TLS = True
+
 
 LOGGING = {
     "version": 1,
