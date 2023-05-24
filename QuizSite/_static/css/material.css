@@ -14,18 +14,26 @@
     display: inline;
 }
 
-dt {
+h3 {
+    display: inline-block;
+    font-size: 18pt;
+    font-weight: normal;
+    transition:font-size .1s;
+
+}
+
+.single-letter {
     visibility: hidden;
     display: inline-block;
     font-size: 0pt;
     font-weight: normal;
 }
-dt::first-letter {
+.single-letter::first-letter {
     visibility: visible;
     font-size: 18pt;
 }
   
-dt:hover {
+.single-letter:hover {
     visibility: visible;
     font-size: 18pt;
 } 

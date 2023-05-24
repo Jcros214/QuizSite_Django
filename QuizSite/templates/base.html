@@ -45,6 +45,7 @@
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{% url 'records:index' %}">Records</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="{% url 'quiz:index' %}">Quiz</a>
                 </li>
@@ -54,6 +55,15 @@
                        aria-current="page"
                        href="{% url 'rr_gen' %}">Round Robin Generator</a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link"
+                       aria-current="page"
+                       href="{% url 'material:current_material' %}">Material</a>
+                </li>
+
+                
+
 
                 {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
@@ -70,18 +80,16 @@
                             <li>
                                 <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
                             </li>
-                            {#                            <li>#}
-                            {#                                <hr class="dropdown-divider"/>#}
-                            {#                            </li>#}
-                            {#                            <li>#}
-                            {#                                <a class="dropdown-item" href="#">Something else here</a>#}
-                            {#                            </li>#}
+                            {% comment %}
+                            <li>
+                                <hr class="dropdown-divider"/>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Something else here</a>
+                            </li>
+                            {% endcomment%}
                         </ul>
                     </li>
-
-
-
-
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link"

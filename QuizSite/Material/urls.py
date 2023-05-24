@@ -7,6 +7,7 @@ app_name = 'material'
 urlpatterns = [
     # Used to pick material
     path('', views.index, name='index'),
+    path('current-material/', views.current_material, name='current_material'),
 
     # Used to 
 

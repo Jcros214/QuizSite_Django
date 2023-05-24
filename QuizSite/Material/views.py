@@ -4,3 +4,6 @@ from django.shortcuts import render
 
 def index(request):
     return render(request, 'Material/material.html')
+
+def current_material(request):
+    return index(request)
