@@ -6,17 +6,17 @@ Material
 {% load static %}
 
 {% block content %}
-	<button onclick='viewWords()' >View Words</button>
-	<button onclick='viewLetters()' >View Letters</button>
+	<button type='button' class='btn btn-secondary' onclick='viewWords()' >View Words</button>
+	<button type='button' class='btn btn-secondary' onclick='viewLetters()' >View Letters</button>
 
 	
 	
-	{% include "Material/texts/matthew5-7.html" %}
+	{% include "Material/texts/matt5-7.html" %}
 	<script>
 		const container = document.getElementsByClassName("container").item(1);
 
 		function viewLetters() {
-			Array.from(container.getElementsByTagName('h3')).forEach(word => {
+			Array.from(container.getElementsByTagName('span')).forEach(word => {
 				if (!word.classList.contains("single-letter")) {
 					word.classList.add("single-letter");
 				}
@@ -24,7 +24,7 @@ Material
 		}
 
 		function viewWords() {
-			Array.from(container.getElementsByTagName('h3')).forEach(word => {
+			Array.from(container.getElementsByTagName('span')).forEach(word => {
 				if (word.classList.contains("single-letter")) {
 					word.classList.remove("single-letter");
 				}
