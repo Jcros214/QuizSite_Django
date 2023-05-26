@@ -4,16 +4,16 @@ mat = "matt5-7"
 
 
 class HTMLize:
-    def __html__(self) -> str:
+    def __html__(self, *args, **kwargs) -> str:
         return f"<h1>{self}</h1>"
     
     def __hash__(self) -> int:
-        hash(self.__str__())
+        return hash(self.__str__())
 
 
-def html(obj: HTMLize) -> str:
+def html(obj: HTMLize, *args, **kwargs) -> str:
     try:
-        return obj.__html__()
+        return obj.__html__(*args, **kwargs)
     except AttributeError:
         return ""
 
@@ -25,11 +25,25 @@ class Word(HTMLize):
         self.used = None
         self.used: int | None
 
+    @property
+    def punc_before(self) -> str:
+        return "".join([letter for letter in self.word[:1] if not letter.isalpha()])
+    
+    @property
+    def punc_after(self) -> str:
+        return "".join([letter for letter in self.word[-1:] if not letter.isalpha()])
+
     def clean(self) -> str:
         return "".join([letter.lower() for letter in self.word if letter.isalpha()])
+    
+    def no_case_clean(self) -> str:
+        return "".join([letter for letter in self.word if letter.isalpha()])
 
     def __str__(self) -> str:
         return self.word
+    
+    def __repr__(self) -> str:
+        return f"<Word {self.word}>"
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Word):
@@ -40,9 +54,13 @@ class Word(HTMLize):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def __html__(self) -> str:
-        html_class = f' class="{"once" if self.used == 1 else "twice"}"' if self.used else ""
-        return f'<word{html_class}>{self.word}</word>'
+    def __html__(self, html_class : str|None = None, *args, **kwargs) -> str:
+        if html_class != None:
+            occur = "once" if self.used == 1 else "twice" if self.used == 2 else ""
+            html_class = f' class="{occur} {html_class}"' if self.used else ""
+        else:
+            html_class = f' class="{"once" if self.used == 1 else "twice"}"' if self.used else ""
+        return f'{self.punc_before}<word{html_class}>{self.no_case_clean()}</word>{self.punc_after}'
 
 
 class Verse(HTMLize):
@@ -67,7 +85,7 @@ class Verse(HTMLize):
     @property
     def unique_start(self) -> list[Word] | None:
         return (
-            self.words[: self.index_at_unique_word]
+            self.words[:self.index_at_unique_word]
             if self.index_at_unique_word != None
             else None
         )
@@ -92,9 +110,9 @@ class Verse(HTMLize):
 
     def __html__(self) -> str:
         if self.index_at_unique_word == None:
-            return f"<verse>{' '.join([html(word) for word in self.words])}</verse>"
+            return f"<verse>{' '.join([html(word) for word in self.words])}</verse> "
         else:
-            return f"<verse>{' '.join([html(word) for word in self.unique_start])}<span class='unique-start'>{' '.join([html(word) for word in self.after_unique_start])}</span></verse>" # type: ignore
+            return f"<verse><ref>{self.versenum} </ref> <span class='unique_start'>{' '.join([html(word, 'font-weight-bold') for word in self.unique_start])}/ </span> {' '.join([html(word) for word in self.after_unique_start])}</verse><br> " # type: ignore
 
 
 class Chapter(HTMLize):
@@ -166,7 +184,28 @@ class Material:
         self.books.append(Book(versesInBook))
         versesInBook = []
 
+        self.flat_verses_strs = []
+        self.flat_verses_strs: list[str]
+
         for verse in self.verses:
+            self.flat_verses_strs.append(' '.join([word.clean() for word in verse.words]))
+
+
+        for verse in self.verses:
+            for word in verse.words:
+                # Create flat string
+                flat = [word.clean() for word in verse.words]
+
+                used = []
+
+                for word in flat:
+                    for flat_verse in self.flat_verses_strs:
+                        if flat_verse.startswith(' '.join(used + [word])):
+                            # continue somewhere..
+                            ...
+
+
+
             verse.index_at_unique_word = self.word_would_make_verse_unique(verse)
 
         self.getWords()
@@ -210,8 +249,18 @@ class Material:
                 word.used = 2
 
     def word_would_make_verse_unique(self, verse: Verse) -> int:
+        def test_num(num):
+            for other_verse in self.verses:
+                for ind in range(1,num):
+                    if verse.words[:ind] != other_verse.words[:ind]:
+                        if num != ind + 1:
+                            return False
+            return True
+
+
+
         for other_verse in self.verses:
-            for ind in range(len(verse.words)):
+            for ind in range(1,len(verse.words)):
                 if verse.words[:ind] == other_verse.words[:ind]:
                     continue
                 else:
@@ -238,33 +287,6 @@ strHTML = ""
 
 for book in material.books:
     strHTML += html(book)
-    # strHTML += '<div class="book">\n'
-    # for chapter in book.chapters:
-    #     strHTML += '\t<div class="chapter">\n'
-    #     strHTML += f"\t\t<h2>{chapter.referance}</h2\n>"
-    #     for verse in chapter.verses:
-    #         strHTML += '\t\t<div class="verse">\n\t\t\t'
-    #         strHTML += f'<div class="referance">{verse.versenum}</div>\n\t\t\t'
-    #         for word in verse.wordswpunc:
-    #             if word in material.onceUsedWords:
-    #                 strHTML += f"<h3><once>{word}</once></h3> "
-    #             elif word in material.twiceUsedWords:
-    #                 strHTML += f"<h3><twice>{word}</twice></h3> "
-    #             else:
-    #                 strHTML += f"<h3>{word} </h3> "
 
-    #         strHTML += "\n\t\t</div>\n"
-    #     strHTML += "\t</div>\n"
-    # strHTML += "</div>\n"
-
-# strHTML = '''
-# {% extends "base.html" %}
-# {% block title %}
-# Material
-# {% endblock title %}
-# {% load static %}
-
-# {% block content %}''' + strHTML + '{% endblock content %}'
-
-with open("{mat}.html", "w") as fw:
+with open(f"{mat}.html", "w") as fw:
     fw.write(strHTML)
