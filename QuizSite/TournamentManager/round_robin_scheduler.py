@@ -3,8 +3,11 @@ from typing import Tuple, List
 
 LETTERS = [chr(_) for _ in range(65, 65 + 26)]
 
+class ImpossibleSchedule(Exception):
+    ...
+
 class RoundRobinScheduler:
-    matches = set()
+    matches: set[tuple[int, int, int]] = set()
     named_matches = set()
     team_stats = {}
     rounds = set()
@@ -16,7 +19,7 @@ class RoundRobinScheduler:
         self.matches_per_round = matches_per_round
 
     @staticmethod
-    def create_schedule(team_names: Tuple[str], number_teams: int = 18, round_number: int = 12,
+    def create_schedule(team_names: list[str], number_teams: int = 18, round_number: int = 12,
                         matches_per_round: int = 4):
         scheduler = RoundRobinScheduler(number_teams, round_number, matches_per_round)
         scheduler.create_matches()
@@ -25,11 +28,64 @@ class RoundRobinScheduler:
             scheduler.create_rounds()
         return scheduler.rounds
 
-    def get_matchable_team(self, team_num: int) -> int:
-        team_match_key = f"team{team_num}"
-        remaining_teams = self.teams.difference(self.full_teams)
-        matchable_teams = list(remaining_teams ^ set(self.team_stats[team_match_key]))  # XOR operator... get everything that is not in common between the two sets
-        return choice(matchable_teams)
+    def get_matchable_team(self, teams : list[int] = []) -> int:
+        ''' A team is matchable if:
+        1. It is not team_num
+        2. It has not already competed against team_num
+        3. It has the lowest number of matches (ie, has played the fewest of times) possible.
+            - It may not be possible for team_num to match with a team that has played the fewest number of times
+                - In this case, we will match with a team that has played the second fewest number of times and so on
+
+        Create a list of teams, remove all teams who violate 1-2, then sort by 3
+
+        Ideally, you'd also check if the team has already competed in this round, but that is not possible with the current structure.
+
+        If no teams found, then the schedule is impossible. Need to start over (raise ImpossibleSchedule error)
+        '''
+
+        matchable_teams = list(self.teams)
+
+        # 1
+        for team in teams:
+            matchable_teams.remove(team)
+        
+        # 2
+        for team in teams:
+            for match in self.matches:
+                if team in match:
+                    [
+                        matchable_teams.remove(rmteam) 
+                        if rmteam in matchable_teams else '' 
+                        for rmteam in match
+                    ]
+            
+        ### RM ###
+        from itertools import combinations
+
+        have_played = set()
+
+        for match in self.matches:
+            have_played_len_start = len(have_played)
+            
+            for pair in combinations(match, 2):
+                if pair in have_played:
+                    raise ValueError("How did this happen??")
+                else:
+                    have_played.add(pair)
+
+            
+
+        # for team in self.teams:
+        #     if len([match for match in self.matches if team in match])
+        ### RM ###
+                                    
+        # 3 
+        matchable_teams.sort(key = lambda team: len([match for match in self.matches if team in match]))
+
+        try:
+            return choice(matchable_teams)
+        except:
+            raise ImpossibleSchedule("No teams could be matched")
 
     def create_matches(self) -> None:
         """I'm using python's set type here so I can use the intersect shortcut"""
@@ -45,13 +101,16 @@ class RoundRobinScheduler:
         for team in self.teams:
             main_team_count_key = f"team{team}-count"
             while self.team_stats[main_team_count_key] < self.round_number:
-                team_match_1 = self.get_matchable_team(team)
+                try:
+                    team_match_1 = self.get_matchable_team([team])
+                except ImpossibleSchedule:
+                    break
                 team1_match_key = f"team{team_match_1}"
                 team_count_key = f"team{team_match_1}-count"
                 self.team_stats[team1_match_key].append(team)
                 self.team_stats[team_count_key] += 1
 
-                team_match_2 = self.get_matchable_team(team_match_1)
+                team_match_2 = self.get_matchable_team([team_match_1, team])
                 self.matches.add((team, team_match_1, team_match_2))
 
                 team_match_key = f"team{team}"
@@ -66,7 +125,7 @@ class RoundRobinScheduler:
                 self.team_stats[team1_match_key].append(team_match_2)
             self.full_teams.append(team)
 
-    def give_teams_names(self, names: Tuple[str]) -> None:
+    def give_teams_names(self, names: list[str]) -> None:
         if len(names) < len(self.teams):
             raise ValueError("Not enough names")
 
@@ -174,14 +233,28 @@ def main():
     
         return True
 
-    except Exception as e:
-        print(e)
+    except ImpossibleSchedule as e:
+        return
         
 
 
+import multiprocessing
 
+def run_main():
+    num_processes = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=num_processes)
 
+    attempts = 0
 
-if __name__ == "__main__":
-    while not main():
-        main()
+    while True:
+        results = [pool.apply_async(main) for _ in range(num_processes)]
+        attempts += len(results)
+        if attempts % 10000 == 0:
+            print(f'still going... attempt {attempts}')
+        for result in results:
+            if result.get():
+                pool.terminate()
+                return
+
+if __name__ == '__main__':
+    run_main()
