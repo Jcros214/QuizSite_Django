@@ -221,7 +221,7 @@ def find_fairness(teams: list[str], schedule: dict[str, list[str]]) -> dict[str,
 def main():
     teams = [f'R{_}' for _ in LETTERS[:18]]
 
-    teamsets = [[f'{div}{_}' for _ in LETTERS[:18]] for div in ['R', 'G']]
+    teamsets = [[f'{div}{_}' for _ in LETTERS[:18]] for div in ['R']]
     try:
         schedules = [RoundRobinScheduler.create_schedule(teams) for teams in teamsets]
 
@@ -241,7 +241,13 @@ def main():
 import multiprocessing
 
 def run_main():
-    num_processes = multiprocessing.cpu_count()
+    # get cli arg 
+    import sys
+    if len(sys.argv) > 1:
+        num_processes = int(sys.argv[1])
+    else:
+        raise ValueError('specify the number of processes to use')
+
     pool = multiprocessing.Pool(processes=num_processes)
 
     attempts = 0
@@ -249,7 +255,7 @@ def run_main():
     while True:
         results = [pool.apply_async(main) for _ in range(num_processes)]
         attempts += len(results)
-        if attempts % 10000 == 0:
+        if attempts % 100000 == 0:
             print(f'still going... attempt {attempts}')
         for result in results:
             if result.get():
