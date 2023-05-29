@@ -6,6 +6,17 @@ LETTERS = [chr(_) for _ in range(65, 65 + 26)]
 class ImpossibleSchedule(Exception):
     ...
 
+class Team:
+    def __init__(self, name) -> None:
+        self.name = name
+        self.count = 0
+
+    def __repr__(self) -> str:
+        return f'"{self.name}"'
+    
+    def __str__(self) -> str:
+        return self.name
+
 class RoundRobinScheduler:
     matches: set[tuple[int, int, int]] = set()
     named_matches = set()
@@ -13,8 +24,8 @@ class RoundRobinScheduler:
     rounds = set()
     full_teams = []
 
-    def __init__(self, number_teams: int = 18, round_number: int = 12, matches_per_round: int = 4):
-        self.teams = set(range(number_teams))
+    def __init__(self, number_teams: int = 18, round_number: int = 12, matches_per_round: int = 3):
+        self.teams = [Team(name) for name in LETTERS[:number_teams]]
         self.round_number = round_number
         self.matches_per_round = matches_per_round
 
@@ -23,12 +34,23 @@ class RoundRobinScheduler:
                         matches_per_round: int = 4):
         scheduler = RoundRobinScheduler(number_teams, round_number, matches_per_round)
         scheduler.create_matches()
-        scheduler.give_teams_names(team_names)
-        if not scheduler.rounds:
-            scheduler.create_rounds()
         return scheduler.rounds
 
-    def get_matchable_team(self, teams : list[int] = []) -> int:
+    def have_played(self, team1: Team, team2: Team) -> int:
+        for round in self.rounds:
+            for quiz in round:
+                if team1 in quiz and team2 in quiz:
+                    return True
+        return False
+
+    def teams_have_played(self, team1: Team, team2: Team, team3: Team) -> int:
+        
+        return sum([int(self.have_played(*match)) for match in ((team1, team2), (team2, team3), (team1, team3))])
+
+    # self.have_played(team1, team2) or self.have_played(team2, team3) or self.have_played(team1, team3)
+
+
+    def get_triple_of_matchable_teams(self, round: list[list[Team]], excluded_teams: list[Team] = []) -> list[Team]:
         ''' A team is matchable if:
         1. It is not team_num
         2. It has not already competed against team_num
@@ -45,118 +67,64 @@ class RoundRobinScheduler:
 
         matchable_teams = list(self.teams)
 
-        # 1
-        for team in teams:
-            matchable_teams.remove(team)
-        
-        # 2
-        for team in teams:
-            for match in self.matches:
-                if team in match:
-                    [
-                        matchable_teams.remove(rmteam) 
-                        if rmteam in matchable_teams else '' 
-                        for rmteam in match
-                    ]
-            
+        # # Remove teams already competeing in this round; these should not be considered
+        for quiz in round:
+            for team in quiz:
+                matchable_teams.remove(team)
+
+        # # Remove excluded teams
+        # for team in excluded_teams:
+        #     if team in matchable_teams:
+        #         matchable_teams.remove(team)
+
+        # # Group by the number of times they've played
+        # team_dict = {team:0 for team in matchable_teams}
+
+        # for match in self.matches:
+        #     for team in match:
+        #         if team in team_dict:
+        #             team_dict[team] += 1
+
+        # num_matches_per_team = {}
+
+        # for team in team_dict:
+        #     if team_dict[team] in num_matches_per_team:
+        #         num_matches_per_team[team_dict[team]].append(team)
+        #     else:
+        #         num_matches_per_team[team_dict[team]] = [team]
+                
+
         ### RM ###
         from itertools import combinations
 
         have_played = set()
 
         for match in self.matches:
-            have_played_len_start = len(have_played)
-            
             for pair in combinations(match, 2):
                 if pair in have_played:
                     raise ValueError("How did this happen??")
                 else:
                     have_played.add(pair)
-
-            
-
-        # for team in self.teams:
-        #     if len([match for match in self.matches if team in match])
         ### RM ###
-                                    
-        # 3 
-        matchable_teams.sort(key = lambda team: len([match for match in self.matches if team in match]))
 
-        try:
-            return choice(matchable_teams)
-        except:
-            raise ImpossibleSchedule("No teams could be matched")
+        matchups = list(combinations(matchable_teams, 3))
+        return list(sorted(matchups, key=lambda matchup: self.teams_have_played(*matchup))[0])
 
-    def create_matches(self) -> None:
+
+
+    def create_matches(self) -> None|bool:
         """I'm using python's set type here so I can use the intersect shortcut"""
         self.matches = set()
         self.team_stats = {}
 
-        for team in self.teams:
-            team_match_key = f"team{team}"
-            team_count_key = f"team{team}-count"
-            self.team_stats[team_match_key] = [team]
-            self.team_stats[team_count_key] = 0
+        # Setup rounds as a 2d array
+        self.rounds = [[[] for _ in  range(self.matches_per_round) ] for __ in  range(self.round_number)]
 
-        for team in self.teams:
-            main_team_count_key = f"team{team}-count"
-            while self.team_stats[main_team_count_key] < self.round_number:
-                try:
-                    team_match_1 = self.get_matchable_team([team])
-                except ImpossibleSchedule:
-                    break
-                team1_match_key = f"team{team_match_1}"
-                team_count_key = f"team{team_match_1}-count"
-                self.team_stats[team1_match_key].append(team)
-                self.team_stats[team_count_key] += 1
 
-                team_match_2 = self.get_matchable_team([team_match_1, team])
-                self.matches.add((team, team_match_1, team_match_2))
+        for round_ind, round in enumerate(self.rounds):
+            for quiz_ind, quiz in enumerate(round):
+                self.rounds[round_ind][quiz_ind] = self.get_triple_of_matchable_teams(round)
 
-                team_match_key = f"team{team}"
-                self.team_stats[team_match_key].extend([team_match_1, team_match_2])
-                self.team_stats[main_team_count_key] += 1
-
-                team_match_key = f"team{team_match_2}"
-                team_count_key = f"team{team_match_2}-count"
-                self.team_stats[team_match_key].extend([team_match_1, team])
-                self.team_stats[team_count_key] += 1
-
-                self.team_stats[team1_match_key].append(team_match_2)
-            self.full_teams.append(team)
-
-    def give_teams_names(self, names: list[str]) -> None:
-        if len(names) < len(self.teams):
-            raise ValueError("Not enough names")
-
-        self.named_matches = set()
-        for match in self.matches:
-            named_match = []
-            for team in match:
-                named_match.append(names[team])
-            self.named_matches.add(tuple(named_match))
-
-    def create_rounds(self):
-        matches = list(self.named_matches)
-        for i in range(self.round_number):
-            teams_in_round = set()
-            matches_for_round = []
-
-            for k in range(self.matches_per_round):
-                match_to_add = choice(matches)
-                while match_to_add in teams_in_round:
-                    match_to_add = choice(matches)
-                match_to_add = choice(matches)
-
-                teams_in_round.add(match_to_add)
-                matches.remove(match_to_add)
-                matches_for_round.append(tuple(match_to_add))
-
-                if k < self.matches_per_round - 1 and len(matches) == 0: 
-                    # if we're not on the last match and there are no more matches to add 
-                    # in other words, we've run out of matches to try
-                    return False
-            self.rounds.add(tuple(matches_for_round))
 
 
 
@@ -166,10 +134,10 @@ def tabulate_rounds(schedule, rooms_letters: list[str]) -> dict[str, list[str]]:
     rooms = {letter:[] for letter in rooms_letters}
 
     # convert from tuples to list
-    sch = [list(list(sc) for sc in s) for s in schedule]
+    # sch = [list(list(sc) for sc in s) for s in schedule]
 
-    for room in list(rooms.keys()):
-        for rnd in sch:
+    for rnd in schedule:
+        for room in list(rooms.keys()):
             rooms[room].append(rnd.pop(0))
         
 
@@ -186,29 +154,29 @@ def tabulate_rounds(schedule, rooms_letters: list[str]) -> dict[str, list[str]]:
     for room in rooms:
         rnd = [f"|{room:^3}|"]
         for quiz in rooms[room]:
-            rnd.append(f"{' v '.join(quiz):^14}|")
+            teams = [str(team) for team in quiz]
+            rnd.append(f"{' v '.join(teams):^14}|")
         output.append("".join(rnd))
 
     print("\n".join(output))
 
     return rooms
 
-def get_all_quizzes_from_schedule(schedule: dict[str, list[str]]) -> list[str]:
+def get_all_quizzes_from_schedule(schedule: dict[str, list[str]]) -> list[list[Team]]:
     quizzes = []
-    for team in schedule:
-        for quiz in schedule[team]:
+    for room in schedule:
+        for quiz in schedule[room]:
             if quiz not in quizzes:
                 quizzes.append(quiz)
             else:
                 raise ValueError(f"Quiz {quiz} already in list")
     return quizzes
 
-def find_fairness(teams: list[str], schedule: dict[str, list[str]]) -> dict[str, dict[str, int]]:
+def find_fairness(teams: list[Team], schedule: dict[str, list[str]]) -> dict[str, dict[str, int]]:
     fairness_dict = {}
 
     for team in teams:
         fairness_dict[team] = {team:0 for team in teams}
-
         for quiz in get_all_quizzes_from_schedule(schedule):
             if team in quiz:
                 for quiz_team in quiz:
@@ -219,48 +187,57 @@ def find_fairness(teams: list[str], schedule: dict[str, list[str]]) -> dict[str,
 
 
 def main():
-    teams = [f'R{_}' for _ in LETTERS[:18]]
+    # teams = [f'R{_}' for _ in LETTERS[:18]]
 
-    teamsets = [[f'{div}{_}' for _ in LETTERS[:18]] for div in ['R']]
+    # teamsets = [[f'{div}{_}' for _ in LETTERS[:18]] for div in ['R']]
     try:
-        schedules = [RoundRobinScheduler.create_schedule(teams) for teams in teamsets]
+        scheduler = RoundRobinScheduler(matches_per_round=4)
 
-        for schedule in schedules:
+        scheduler.teams = [Team(f'R{_}') for _ in LETTERS[:18]]
 
-            dict_schedule = tabulate_rounds(schedule, LETTERS[:4])
+        scheduler.create_matches()
 
-            print(find_fairness(teams, dict_schedule), '\n\n')
-    
+        schedule = scheduler.rounds
+        
+        dict_schedule = tabulate_rounds(schedule, LETTERS[:4])
+
+        print(find_fairness(scheduler.teams, dict_schedule), '\n\n')
+
         return True
 
     except ImpossibleSchedule as e:
+        print('tried...')
         return
         
 
 
-import multiprocessing
+# import multiprocessing
 
-def run_main():
-    # get cli arg 
-    import sys
-    if len(sys.argv) > 1:
-        num_processes = int(sys.argv[1])
-    else:
-        raise ValueError('specify the number of processes to use')
+# def run_main():
+#     # get cli arg 
+#     from datetime import datetime
+#     import sys
+#     if len(sys.argv) > 1:
+#         num_processes = int(sys.argv[1])
+#     else:
+#         raise ValueError('specify the number of processes to use')
 
-    pool = multiprocessing.Pool(processes=num_processes)
+#     pool = multiprocessing.Pool(processes=num_processes)
 
-    attempts = 0
+#     attempts = 0
 
-    while True:
-        results = [pool.apply_async(main) for _ in range(num_processes)]
-        attempts += len(results)
-        if attempts % 100000 == 0:
-            print(f'still going... attempt {attempts}')
-        for result in results:
-            if result.get():
-                pool.terminate()
-                return
+#     while True:
+#         results = [pool.apply_async(main) for _ in range(num_processes)]
+#         attempts += len(results)
+#         if attempts % 100000 == 0:
+#             print(f'still going... attempt {attempts} {datetime.now()}')
+#         for result in results:
+#             if result.get():
+#                 pool.terminate()
+#                 return
+
+# if __name__ == '__main__':
+#     run_main()
 
 if __name__ == '__main__':
-    run_main()
+    main()

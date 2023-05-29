@@ -18,6 +18,35 @@ from django.shortcuts import render
 from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+
+def index(request):
+    return render(request, 'home/index.html')
+
+
+urlpatterns = [
+    path('', index, name='index'),
+    path('admin/', admin.site.urls),
+    path('records/', include('Records.urls')),
+    path('quiz/', include('Quiz.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('material/', include('Material.urls')),
+    path('manager/', include('TournamentManager.urls')),
+]
+urlpatterns += staticfiles_urlpatterns()
+
+from django.contrib.flatpages import views
+
+urlpatterns += [
+    path('about-us/', views.flatpage, {'url': '/about/'}, name='about'),
+    path('privacy/', views.flatpage, {'url': '/privacy/'}, name='privacy'),
+]
+
+
+'''
+REST API stuff
+
+
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 
@@ -47,37 +76,4 @@ urlpatterns = [
 ]
 
 
-def index(request):
-    return render(request, 'home/index.html')
-
-
-urlpatterns += [
-    path('', index, name='index'),
-    path('admin/', admin.site.urls),
-    path('records/', include('Records.urls')),
-    path('quiz/', include('Quiz.urls')),
-
-
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('allauth.urls')),
-
-
-#     path('api/', include('api.urls')),
-
-    path('material/', include('Material.urls')),
-    path('manager/', include('TournamentManager.urls')),
-
-    # TMP!
-
-    path('rr_gen/', lambda request: render(request, 'RR Generator.html'), name="rr_gen")
-
-
-]
-urlpatterns += staticfiles_urlpatterns()
-
-# from django.contrib.flatpages import views
-
-# urlpatterns += [
-#     path('about-us/', views.flatpage, {'url': '/about/'}, name='about'),
-#     path('privacy/', views.flatpage, {'url': '/privacy/'}, name='privacy'),
-# ]
+'''

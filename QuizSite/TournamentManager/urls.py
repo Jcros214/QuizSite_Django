@@ -8,5 +8,5 @@ app_name = 'manager'
 urlpatterns = [
     # Used to pick material
     path('', views.index, name='index'),
-    path('round_robbin/', views.round_robbin, name='round_robbin'),
+    path('round_robin/', views.generate_matchups, name='round_robin')
 ]

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}
+Matchup Result
+{% endblock title %}
+{% block content %}
+<table class="table mt-5" id="matchupTable">
+  {% for room, quizzes in schedule.items %}
+      <tr>
+        {% for quiz in quizzes %}
+          <td>{% for team in quiz %}{{ team }}{% if not forloop.last %}&nbsp;vs&nbsp;{% endif %}{% endfor %}</td>
+        {% endfor %}
+      </tr>
+  {% endfor %}
+</table>
+
+<div class="mt-5">
+  <button class="btn btn-primary" id="copyTableBtn">Copy Table to Clipboard</button>
+  <textarea id="tableData" style="display: none;"></textarea>
+</div>
+<div class="mt-5">
+  <h2>Fairness Metrics</h2>
+  <div id="fairnessMetrics">
+    {% for team, metrics in fairness_metrics.items %}
+      <p>{{ team }}: {{ metrics }}</p>
+    {% endfor %}
+  </div>
+</div>
+
+
+<script>
+  document.getElementById('copyTableBtn').addEventListener('click', function (event) {
+    event.preventDefault();
+    copyTableToClipboard();
+  });
+
+  function copyTableToClipboard() {
+    const table = document.getElementById('matchupTable');
+    const tableData = getTableData(table);
+    const textarea = document.getElementById('tableData');
+    textarea.value = tableData;
+    textarea.select();
+    document.execCommand('copy');
+  }
+
+  function getTableData(table) {
+    let data = '';
+
+    for (let i = 0; i < table.rows.length; i++) {
+      const cells = table.rows[i].cells;
+      for (let j = 0; j < cells.length; j++) {
+        const cell = cells[j];
+        data += cell.innerText.trim() + '\t';
+      }
+      data += '\n';
+    }
+
+    return data;
+  }
+</script>
+{% endblock content %}
