@@ -4,7 +4,7 @@ from .round_robin_scheduler import RoundRobinScheduler, Team, tabulate_rounds, f
 # Create your views here.
 
 def index(request):
-    return render(request, 'manager/index.html')
+    return render(request, 'Manager/index.html')
 
 # def round_robbin(request):
 #     if request.method == 'GET':
