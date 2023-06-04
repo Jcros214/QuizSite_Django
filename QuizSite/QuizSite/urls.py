@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.shortcuts import render
 from django.urls import path, include
+from django.contrib.flatpages import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
@@ -32,10 +33,10 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('material/', include('Material.urls')),
     path('manager/', include('TournamentManager.urls')),
+    path('games/', include('quiz_games.urls')),
 ]
 urlpatterns += staticfiles_urlpatterns()
 
-from django.contrib.flatpages import views
 
 urlpatterns += [
     path('about-us/', views.flatpage, {'url': '/about/'}, name='about'),

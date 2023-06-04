@@ -141,3 +141,4 @@ GitHub.sublime-settings
 .DS_Store
 QuizSite/QuizSite/DJANGO_SECRET.env
 tmp.html
+/QuizSite/DUMPS/

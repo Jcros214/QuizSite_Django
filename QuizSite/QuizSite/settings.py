@@ -13,23 +13,22 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 from django.core.management.utils import get_random_secret_key
+
 SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    '127.0.0.1','161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app', 'localhost'
+    '127.0.0.1', '161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app', 'localhost'
 ]
 
 CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app']
@@ -44,8 +43,6 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-
-
 INSTALLED_APPS = [
     'Records.apps.RecordsConfig',
     'Quiz.apps.QuizConfig',
@@ -53,6 +50,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'Material.apps.MaterialConfig',
     'TournamentManager.apps.TournamentmanagerConfig',
+    'quiz_games.apps.QuizGamesConfig',
 
     'rest_framework',
 
@@ -74,9 +72,6 @@ INSTALLED_APPS = [
 
     'django_simple_tags',
 ]
-
-
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -111,7 +106,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'QuizSite.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -121,6 +115,7 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 
 #     }
 # }
+
 if DEBUG:
     DATABASES = {
         'default': {
@@ -140,10 +135,6 @@ else:
         }
     }
 
-
-
-
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -162,7 +153,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -174,7 +164,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
@@ -185,8 +174,7 @@ STATICFILES_DIRS = [
     # '/var/www/static/',
 ]
 
-STATIC_ROOT = BASE_DIR / '_static'
-
+STATIC_ROOT = '/_static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
