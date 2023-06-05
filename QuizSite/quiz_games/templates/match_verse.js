@@ -42,8 +42,10 @@ check_answer = function (event) {
 
             if (data.result === 'Correct!') {
                 time = 1250;
+                result_element.addClass('alert-success');
             } else {
                 time = 5000;
+                result_element.addClass('alert-danger');
             }
 
             delay(time).then(() => {

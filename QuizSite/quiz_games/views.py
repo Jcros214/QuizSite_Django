@@ -6,6 +6,7 @@ from django.templatetags.static import static
 
 import requests as req
 from random import shuffle
+import os
 
 
 # Create your views here.
@@ -19,7 +20,9 @@ def match_verse(request):
 
 def match_verse_backend(request):
     if request.method == 'GET':
-        material = json.loads(req.get('http://localhost:8000' + static('summer_spectacular2023_material.json')).content)
+        path = os.path.realpath('/tmp/' + 'summer_spectacular2023_material.json')
+
+        material = json.loads(open(path).read())
 
         # Filter material
         material = [verse for verse in material['verses'] if int(verse['chapter']) == 5]
