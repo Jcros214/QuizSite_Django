@@ -1,0 +1,35 @@
+.game {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 20px;
+    justify-items: center;
+    align-items: center;
+    height: 100%;
+}
+
+.row#prompt {
+
+}
+
+.row#options {
+    display: grid;
+    gap: 20px;
+    justify-items: stretch;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    width: 100%;
+
+}
+
+.row#options input[type="button"] {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    background-color: #4CAF50;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 0;
+
+}

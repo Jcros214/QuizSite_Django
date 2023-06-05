@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}
+    Match
+{% endblock title %}
+
+{% load static %}
+
+{% block imports %}
+    <link rel="stylesheet" href="{% static 'match_verse.css' %}">
+{% endblock imports %}
+
+{% block content %}
+    <h1>Match</h1>
+
+    <div id="result"></div>
+
+    <div class="game">
+        <div class="row" id="prompt">
+            <p class="text-center">"A verse from matthew 5-7"</p>
+        </div>
+        <div class="row" id="options">
+            <input type="button" value="1"/>
+            <input type="button" value="2"/>
+            <input type="button" value="3"/>
+            <input type="button" value="4"/>
+        </div>
+    </div>
+
+    <script>
+        {% include 'match_verse.js' %}
+    </script>
+{% endblock content %}
