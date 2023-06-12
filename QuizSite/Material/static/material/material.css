@@ -1,16 +1,19 @@
 book {
     display: inline-block;
-    /* font: italic */
+    font-size: xx-large;
+    font-weight: bolder;
 }
 
 chapter {
     display: inline-block;
-    /* font: bold; */
+    font-size: x-large;
+    font-weight: bold;
 }
 
 verse {
     display: inline-block;
     font-size: 18pt;
+    font-weight: normal;
 }
 
 referance {

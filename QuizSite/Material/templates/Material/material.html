@@ -7,18 +7,21 @@
 {% block content %}
     <link rel="stylesheet" href="{% static 'material/material.css' %}"/>
 
-    <button type='button' class='btn btn-secondary' onclick='viewWords()'>View Words</button>
-    <button type='button' class='btn btn-secondary' onclick='viewLetters()'>View Letters</button>
-
     <br><br>
+    <button style="max-width: 20%" type='button' class='btn btn-secondary' onclick='viewWords()'>View Words</button>
+    <button style="max-width: 20%" type='button' class='btn btn-secondary' onclick='viewLetters()'>View Letters</button>
+    <br><br>
+
 
     {#    <div class="alert alert-danger" role="alert">#}
     {#        This page is still under development! I do not guarantee that the information here is correct (yet).#}
     {#    </div>#}
 
-    <br><br>
+    {% block material %}
+        {% include "Material/texts/matt5-7.html" %}
+    {% endblock material %}
 
-    {% include "Material/texts/matt5-7.html" %}
+
     <script>
         const container = document.getElementsByClassName("container").item(1);
 

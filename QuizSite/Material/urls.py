@@ -1,16 +1,17 @@
 from django.urls import path
 
 from . import views
+
 # from .views import LeagueListView
 
 app_name = 'material'
 urlpatterns = [
     # Used to pick material
-    path('', views.index, name='index'),
     path('current-material/', views.current_material, name='current_material'),
+    path('matthew/', views.matthew, name='matthew')
+    # path('<int:material_id>', views.material, name="custom_material"),
 
-    # Used to 
-
+    # Used to
 
     # # ex: /polls/
     # path('', views.index, name='index'),

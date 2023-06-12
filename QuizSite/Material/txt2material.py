@@ -2,7 +2,7 @@
 import os
 import json
 
-mat = "matt5-7"
+mat = "matthew"
 
 
 class HTMLize:
@@ -111,9 +111,9 @@ class Verse(HTMLize):
 
     def __html__(self) -> str:
         if self.index_at_unique_word is None:
-            return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words])} </verse> <br>"
+            return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words])} </verse> "
         else:
-            return f"<verse> <ref> {self.verse_number} </ref> <span class='unique_start'>{' '.join([html(word, 'font-weight-bold') for word in self.unique_start])}/ </span> {' '.join([html(word) for word in self.after_unique_start])}</verse> <br> "  # type: ignore
+            return f"<verse> <ref> {self.verse_number} </ref> <span class='unique_start'>{' '.join([html(word, 'font-weight-bold') for word in self.unique_start])}/ </span> {' '.join([html(word) for word in self.after_unique_start])}</verse> "  # type: ignore
 
 
 class Chapter(HTMLize):
@@ -138,7 +138,7 @@ class Chapter(HTMLize):
         return f"{self.book_name} {self.chapter_number}"
 
     def __html__(self) -> str:
-        return f"<chapter>{''.join([html(verse) for verse in self.verse_list])}</chapter>"
+        return f"<chapter> {self.book_name} {self.chapter_number} <br> {'<br>'.join([html(verse) for verse in self.verse_list])}</chapter>"
 
 
 class Book(HTMLize):
@@ -146,6 +146,8 @@ class Book(HTMLize):
         verse_list = list(verse_list)
         self.chapters = []
         self.chapters: list[Chapter]
+
+        self.name = verse_list[0].get('book_name', '')
 
         # there must be a better way...
         verse_list.append({"chapter": None})
@@ -164,7 +166,7 @@ class Book(HTMLize):
         # versesInChapter = []
 
     def __html__(self) -> str:
-        return f"<book>{''.join([html(chapter) for chapter in self.chapters])}</book>"
+        return f"<book> {self.name.capitalize()} <br><br> {'<br><br>'.join([html(chapter) for chapter in self.chapters])}</book>"
 
 
 class Material(HTMLize):
@@ -255,11 +257,11 @@ class Material(HTMLize):
                     raise ValueError("Attempted duplicate once used.")
                 self.onceUsedWords.add(word)
                 word.used = 1
-            # elif val == 2:
-            #     if val in self.twiceUsedWords or val in self.onceUsedWords:
-            #         raise ValueError("Attempted duplicate twice used.")
-            #     self.twiceUsedWords.add(word)
-            #     word.used = 2
+            elif val == 2:
+                if val in self.twiceUsedWords or val in self.onceUsedWords:
+                    raise ValueError("Attempted duplicate twice used.")
+                self.twiceUsedWords.add(word)
+                word.used = 2
 
     def word_would_make_verse_unique(self, verse: Verse) -> int:
         # def test_num(num):
