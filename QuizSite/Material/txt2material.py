@@ -51,7 +51,7 @@ class Word(HTMLize):
         if not isinstance(__value, Word):
             return False
 
-        return str(self) == str(__value)
+        return str(self.clean()) == str(__value.clean())
 
     def __hash__(self) -> int:
         return super().__hash__()
@@ -138,7 +138,7 @@ class Chapter(HTMLize):
         return f"{self.book_name} {self.chapter_number}"
 
     def __html__(self) -> str:
-        return f"<chapter> {self.book_name} {self.chapter_number} <br> {''.join([html(verse) for verse in self.verse_list])}</chapter>"
+        return f"<chapter> {self.book_name} {self.chapter_number} <br> {'<br>'.join([html(verse) for verse in self.verse_list])}</chapter>"
 
 
 class Book(HTMLize):
@@ -166,7 +166,7 @@ class Book(HTMLize):
         # versesInChapter = []
 
     def __html__(self) -> str:
-        return f"<book> {self.name.capitalize()} <br><br> {''.join([html(chapter) for chapter in self.chapters])}</book>"
+        return f"<book> {self.name.capitalize()} <br><br> {'<br><br>'.join([html(chapter) for chapter in self.chapters])}</book>"
 
 
 class Material(HTMLize):
