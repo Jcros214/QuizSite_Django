@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}
+    Audio Verses
+{% endblock title %}
+
+{% load static %}
+
+{% block content %}
+
+    <h3> Audio Verses </h3>
+    <audio controls autoplay>
+        <source src="/static/audio/{{ material_set }}/{{ chapter }}/{{ file }}">
+        Your browser doesn't support playing audio.
+    </audio>
+{% endblock content %}
