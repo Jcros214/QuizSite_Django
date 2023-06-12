@@ -1,44 +1,43 @@
-
 {% extends "base.html" %}
 {% block title %}
-Material
+    Material
 {% endblock title %}
 {% load static %}
 
 {% block content %}
-    <link rel="stylesheet" href="{% static 'css/material.css' %}"/>
+    <link rel="stylesheet" href="{% static 'material/material.css' %}"/>
 
-	<button type='button' class='btn btn-secondary' onclick='viewWords()' >View Words</button>
-	<button type='button' class='btn btn-secondary' onclick='viewLetters()' >View Letters</button>
+    <button type='button' class='btn btn-secondary' onclick='viewWords()'>View Words</button>
+    <button type='button' class='btn btn-secondary' onclick='viewLetters()'>View Letters</button>
 
-	<br><br>
-	
-	<div class="alert alert-danger" role="alert">
-		This page is still under development! I do not garantee that the information here is correct (yet).
-	</div>
+    <br><br>
 
-	<br><br>
-	
-	{% include "Material/texts/matt5-7.html" %}
-	<script>
-		const container = document.getElementsByClassName("container").item(1);
+    {#    <div class="alert alert-danger" role="alert">#}
+    {#        This page is still under development! I do not guarantee that the information here is correct (yet).#}
+    {#    </div>#}
 
-		function viewLetters() {
-			Array.from(container.getElementsByTagName('word')).forEach(word => {
-				if (!word.classList.contains("single-letter")) {
-					word.classList.add("single-letter");
-				}
-			});
-		}
+    <br><br>
 
-		function viewWords() {
-			Array.from(container.getElementsByTagName('word')).forEach(word => {
-				if (word.classList.contains("single-letter")) {
-					word.classList.remove("single-letter");
-				}
-			});
-		}
+    {% include "Material/texts/matt5-7.html" %}
+    <script>
+        const container = document.getElementsByClassName("container").item(1);
 
-		viewWords();
-	</script>
+        function viewLetters() {
+            Array.from(container.getElementsByTagName('word')).forEach(word => {
+                if (!word.classList.contains("single-letter")) {
+                    word.classList.add("single-letter");
+                }
+            });
+        }
+
+        function viewWords() {
+            Array.from(container.getElementsByTagName('word')).forEach(word => {
+                if (word.classList.contains("single-letter")) {
+                    word.classList.remove("single-letter");
+                }
+            });
+        }
+
+        viewWords();
+    </script>
 {% endblock content %}

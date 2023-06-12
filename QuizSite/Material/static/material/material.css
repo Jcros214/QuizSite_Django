@@ -10,7 +10,7 @@ chapter {
 
 verse {
     display: inline-block;
-    /* font: normal; */
+    font-size: 18pt;
 }
 
 referance {
@@ -28,30 +28,31 @@ span.unique_start {
     display: inline-block;
     font-size: 0pt;
 }
+
 .single-letter::first-letter {
     visibility: visible;
     font-size: 18pt;
 }
-  
+
 .single-letter:hover {
     visibility: visible;
     font-size: 18pt;
-} 
+}
 
 word {
     display: inline-block;
     font-size: 18pt;
-    transition:font-size .1s;
+    transition: font-size .1s;
 }
 
 word.once {
     text-decoration-line: underline;
-    text-decoration-style: solid;  
+    text-decoration-style: solid;
 }
 
 word.twice {
-  text-decoration-line: underline;
-  text-decoration-style: double;
+    text-decoration-line: underline;
+    text-decoration-style: double;
 }
 
 ref {
