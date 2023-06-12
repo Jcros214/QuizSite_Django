@@ -22,25 +22,56 @@
     {% endblock material %}
 
 
-    <script>
-        const container = document.getElementsByClassName("container").item(1);
+    <script>const container = document.getElementsByClassName("container").item(1);
 
-        function viewLetters() {
-            Array.from(container.getElementsByTagName('word')).forEach(word => {
-                if (!word.classList.contains("single-letter")) {
-                    word.classList.add("single-letter");
+    function viewLetters() {
+        Array.from(container.getElementsByTagName("word")).forEach((word) => {
+            if (!word.classList.contains("single-letter")) {
+                word.classList.add("single-letter");
+            }
+        });
+    }
+
+    function viewWords() {
+        Array.from(container.getElementsByTagName("word")).forEach((word) => {
+            if (word.classList.contains("single-letter")) {
+                word.classList.remove("single-letter");
+            }
+        });
+    }
+
+    function handleClick(event) {
+        const clickedWord = event.target.textContent.trim();
+        const startSpans = Array.from(container.getElementsByClassName("unique_start"));
+
+        startSpans.forEach((startSpan) => {
+            const startWords = Array.from(startSpan.getElementsByClassName("word"));
+            const matchingVerses = [];
+
+            startWords.forEach((word) => {
+                if (word.textContent.trim() === clickedWord) {
+                    const verse = word.closest("verse");
+                    matchingVerses.push(verse);
                 }
             });
-        }
 
-        function viewWords() {
-            Array.from(container.getElementsByTagName('word')).forEach(word => {
-                if (word.classList.contains("single-letter")) {
-                    word.classList.remove("single-letter");
+            const allVerses = Array.from(container.getElementsByTagName("verse"));
+            allVerses.forEach((verse) => {
+                if (!matchingVerses.includes(verse)) {
+                    verse.style.display = "none";
+                } else {
+                    verse.style.display = "block";
                 }
             });
-        }
+        });
+    }
 
-        viewWords();
+    viewWords();
+
+    // Attach click event listeners to words inside unique_start spans
+    const uniqueStartWords = Array.from(container.querySelectorAll(".unique_start word"));
+    uniqueStartWords.forEach((word) => {
+        word.addEventListener("click", handleClick);
+    });
     </script>
 {% endblock content %}

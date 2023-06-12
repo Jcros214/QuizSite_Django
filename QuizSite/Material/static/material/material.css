@@ -5,13 +5,13 @@ book {
 }
 
 chapter {
-    display: inline-block;
+    display: block;
     font-size: x-large;
     font-weight: bold;
 }
 
 verse {
-    display: inline-block;
+    display: block;
     font-size: 18pt;
     font-weight: normal;
 }

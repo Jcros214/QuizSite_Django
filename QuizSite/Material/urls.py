@@ -8,7 +8,8 @@ app_name = 'material'
 urlpatterns = [
     # Used to pick material
     path('current-material/', views.current_material, name='current_material'),
-    path('matthew/', views.matthew, name='matthew')
+    path('matthew/', views.matthew, name='matthew'),
+    path('audio/', views.audio_verses, name='audio')
     # path('<int:material_id>', views.material, name="custom_material"),
 
     # Used to
