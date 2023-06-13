@@ -117,12 +117,13 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 # }
 
 if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'QuizDB.sqlite',
-        }
-    }
+    ...
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': 'QuizDB.sqlite',
+    #     }
+    # }
 else:
     DATABASES = {
         'default': {
