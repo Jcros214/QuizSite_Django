@@ -11,11 +11,13 @@ class Orginization(models.Model):
     def __str__(self):
         return self.name
 
+
 class League(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
 
 class LeagueMembership(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
@@ -24,14 +26,15 @@ class LeagueMembership(models.Model):
     def __str__(self):
         return f"{self.orginization.name} - {self.league.name}"
 
+
 class Individual(models.Model):
     name = models.CharField(max_length=100)
-    birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None)
+    birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-
 
     def __str__(self):
         return self.name
+
 
 class Season(models.Model):
     name = models.CharField(max_length=100)
@@ -42,9 +45,10 @@ class Season(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.year.year}"
-    
+
     def getTeams(self):
         return Team.objects.filter(season_id=self.pk)
+
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
@@ -53,12 +57,13 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def isMember(self, individual):
         return TeamMembership.objects.filter(team_id=self.pk, individual_id=individual.pk).exists()
-    
+
     def url(self):
         return f"/records/{self.season.league.pk}/{self.season.pk}/team/{self.pk}"
+
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -66,6 +71,8 @@ class TeamMembership(models.Model):
 
     def __str__(self):
         return f"{self.team.name} - {self.individual.name}"
+
+
 class Event(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateField((""), auto_now=False, auto_now_add=False)
@@ -75,6 +82,7 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE)
@@ -83,15 +91,15 @@ class Quiz(models.Model):
 
     def __str__(self) -> str:
         return f"{self.event.name} - {self.room}{self.round}"
-    
+
     def getQuestions(self):
         return AskedQuestion.objects.filter(quiz_id=self.pk)
-    
+
     def getTeams(self):
         participants = QuizParticipants.objects.filter(quiz_id=self.pk)
 
         return [p.team for p in participants]
-    
+
     # Results should be: {team: model: score: int, ...}
     def getResults(self):
         questions = self.getQuestions()
@@ -108,8 +116,9 @@ class Quiz(models.Model):
                         score += question.bonusValue
 
             results[team] = score
-        
+
         return results
+
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -127,7 +136,6 @@ class AskedQuestion(models.Model):
     value = models.IntegerField()
     bonusDescription = models.CharField(max_length=100, null=True, blank=True)
     bonusValue = models.IntegerField(null=True, blank=True)
-
 
     def __str__(self):
         return f"{self.quiz} - {self.individual}: {self.ruleing}"

@@ -255,12 +255,12 @@ class Material(HTMLize):
             if val == 1:
                 if val in self.onceUsedWords or val in self.twiceUsedWords:
                     raise ValueError("Attempted duplicate once used.")
-                self.onceUsedWords.add(word)
+                self.onceUsedWords.add(word.clean())
                 word.used = 1
             elif val == 2:
                 if val in self.twiceUsedWords or val in self.onceUsedWords:
                     raise ValueError("Attempted duplicate twice used.")
-                self.twiceUsedWords.add(word)
+                self.twiceUsedWords.add(word.clean())
                 word.used = 2
 
     def word_would_make_verse_unique(self, verse: Verse) -> int:
