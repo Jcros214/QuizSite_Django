@@ -1,6 +1,10 @@
+# TODO: Instead of custom HTML tags, convert to <ol>
+
+
 # from typing import Tuple
 import os
 import json
+from collections import Counter
 
 mat = "matt5-7"
 
@@ -24,8 +28,8 @@ class Word(HTMLize):
     def __init__(self, word: str) -> None:
         self.word = word
         # Set to 1 or 2 as used
-        self.used = None
-        self.used: int | None
+        self.used = 1
+        self.used: int
 
     @property
     def punc_before(self) -> str:
@@ -45,23 +49,22 @@ class Word(HTMLize):
         return self.word
 
     def __repr__(self) -> str:
-        return f"<Word {self.word}>"
+        return f"<Word {self.clean()}>"
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Word):
             return False
 
-        return str(self.clean()) == str(__value.clean())
+        return self.clean() == __value.clean()
 
     def __hash__(self) -> int:
-        return super().__hash__()
+        return hash(self.clean())
 
     def __html__(self, html_class: str | None = None, *args, **kwargs) -> str:
-        if html_class is not None:
-            occur = "once" if self.used == 1 else "twice" if self.used == 2 else ""
-            html_class = f' class="{occur} {html_class}"' if self.used else ""
-        else:
-            html_class = f' class="{"once" if self.used == 1 else "twice"}"' if self.used else ""
+        occur = {1: 'once', 2: 'twice'}.get(self.used, '')
+
+        html_class = f' class="{occur} {html_class if html_class is not None else ""}"'
+
         return f'{self.punc_before}<word{html_class}>{self.no_case_clean()}</word>{self.punc_after}'
 
 
@@ -109,7 +112,10 @@ class Verse(HTMLize):
     def __str__(self) -> str:
         return " ".join(self.words_with_punctuation)
 
-    def __html__(self) -> str:
+    def __html__(self, keywords_only: bool = False) -> str:
+        if keywords_only:
+            return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words if word.used <= 2])} </verse> "
+
         if self.index_at_unique_word is None:
             return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words])} </verse> "
         else:
@@ -137,8 +143,8 @@ class Chapter(HTMLize):
     def reference(self):
         return f"{self.book_name} {self.chapter_number}"
 
-    def __html__(self) -> str:
-        return f"<chapter> {self.book_name} {self.chapter_number} <br> {'<br>'.join([html(verse) for verse in self.verse_list])}</chapter>"
+    def __html__(self, keywords_only: bool = False) -> str:
+        return f"<chapter> {self.book_name} {self.chapter_number} <br> {'<br>'.join([html(verse, keywords_only) for verse in self.verse_list])}</chapter>"
 
 
 class Book(HTMLize):
@@ -165,8 +171,8 @@ class Book(HTMLize):
         # self.chapters.append(Chapter(versesInChapter, f"{versesInChapter[-1].get('book_name')} {versesInChapter[-1].get('chapter')}"))
         # versesInChapter = []
 
-    def __html__(self) -> str:
-        return f"<book> {self.name.capitalize()} <br><br> {'<br><br>'.join([html(chapter) for chapter in self.chapters])}</book>"
+    def __html__(self, keywords_only: bool = False) -> str:
+        return f"<book> {self.name.capitalize()} <br><br> {'<br><br>'.join([html(chapter, keywords_only) for chapter in self.chapters])}</book>"
 
 
 class Material(HTMLize):
@@ -226,42 +232,22 @@ class Material(HTMLize):
         self.get_words()
 
     @property
+    def chapters(self) -> list[Chapter]:
+        return [chapter for book in self.books for chapter in book.chapters]
+
+    @property
     def verses(self) -> list[Verse]:
-        return [
-            verse
-            for _ in self.books
-            for chapter in _.chapters
-            for verse in chapter.verse_list
-        ]
+        return [verse for chapter in self.chapters for verse in chapter.verse_list]
+
+    @property
+    def words(self) -> list[Word]:
+        return [word for verse in self.verses for word in verse.words]
 
     def get_words(self):
-        all_words = {}
-        all_words: dict[Word, int]
+        counted_words = Counter(self.words)
 
-        for current_book in self.books:
-            for current_chapter in current_book.chapters:
-                for current_verse in current_chapter.verse_list:
-                    for current_word in current_verse.words:
-                        try:
-                            all_words[current_word] += 1
-                        except KeyError:
-                            all_words[current_word] = 1
-
-        for word in all_words:
-            # TODO: what's the right way to do this?
-
-            val = all_words[word]
-
-            if val == 1:
-                if val in self.onceUsedWords or val in self.twiceUsedWords:
-                    raise ValueError("Attempted duplicate once used.")
-                self.onceUsedWords.add(word.clean())
-                word.used = 1
-            elif val == 2:
-                if val in self.twiceUsedWords or val in self.onceUsedWords:
-                    raise ValueError("Attempted duplicate twice used.")
-                self.twiceUsedWords.add(word.clean())
-                word.used = 2
+        for word in self.words:
+            word.used = counted_words[word]
 
     def word_would_make_verse_unique(self, verse: Verse) -> int:
         # def test_num(num):
@@ -281,8 +267,8 @@ class Material(HTMLize):
 
         raise ValueError("No unique word found.")
 
-    def __html__(self) -> str:
-        return "".join([html(book) for book in self.books])
+    def __html__(self, keywords_only: bool = False) -> str:
+        return "".join([html(book, keywords_only) for book in self.books])
 
 
 if __name__ == "__main__":
@@ -299,7 +285,9 @@ if __name__ == "__main__":
 
     material = Material(verses)
 
-    strHTML = html(material)
+    strHTML = html(material) + '<br><br><br><h2>Keywords by Verse</h2>' + html(material, True)
+
+    # TODO: Create a table of keywords in alphabetical order
 
     with open(f"{mat}.html", "w") as fw:
         fw.write(strHTML)
