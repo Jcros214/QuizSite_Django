@@ -142,3 +142,4 @@ GitHub.sublime-settings
 QuizSite/QuizSite/DJANGO_SECRET.env
 tmp.html
 /QuizSite/DUMPS/
+*.sqlite
