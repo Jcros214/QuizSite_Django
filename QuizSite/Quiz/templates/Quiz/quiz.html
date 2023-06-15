@@ -5,76 +5,35 @@
 {% block content %}
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/quiz.css' %}"/>
-    <div class="container my-5">
+
+    <header>Three State Checkbox</header>
+    <div class="content">
         <div class="row">
-            <div class="col-2">
-                <a href="" class="btn btn-primary">Back</a>
-            </div>
-            <div class="col-8 text-center">
-                <h1>QuizMaster View</h1>
-            </div>
-            <div class="col-2">
-                <a href="" class="btn btn-primary">Next</a>
-            </div>
+            <span class="checkbox"></span>
+            <span class="label">Neutral</span>
         </div>
-
-        <div class="row justify-content-center">
-            <div class="col-2" align="center">
-                <input class="form-check-input" type="checkbox" id="seat1" value="seat1"/>
-            </div>
-            <div class="col-2" align="center">
-                <input class="form-check-input" type="checkbox" id="seat2" value="seat2"/>
-            </div>
-            <div class="col-2" align="center">
-                <input class="form-check-input" type="checkbox" id="seat3" value="seat3"/>
-            </div>
-            <div class="col-2" align="center">
-                <input class="form-check-input" type="checkbox" id="seat4" value="seat4"/>
-            </div>
-            <div class="col-2" align="center">
-                <input class="form-check-input" type="checkbox" id="seat5" value="seat5"/>
-            </div>
-          </div>
-
-          <div class="row justify-content-center" style="margin-top: 50px;">
-            <div class="col-2" align="center">
-                <label class="switch">
-                    <input class="form-check-input" type="checkbox" id="switch1" value="switch1" checked/>
-                    <span class="slider round"></span>
-                  </label>
-            </div>
-            <div class="col-2" align="center">
-                <label class="switch">
-                    <input class="form-check-input" type="checkbox" id="switch2" value="switch2" checked/>
-                    <span class="slider round"></span>
-                  </label>
-                  
-            </div>
-            <div class="col-2" align="center">
-                <label class="switch">
-                    <input class="form-check-input" type="checkbox" id="switch3" value="switch3" checked/>
-                    <span class="slider round"></span>
-                  </label>
-            </div>
-            <div class="col-2" align="center">
-                <label class="switch">
-                    <input class="form-check-input" type="checkbox" id="switch4" value="switch4" checked/>
-                    <span class="slider round"></span>
-                  </label>
-            </div>
-            <div class="col-2" align="center">
-                <label class="switch">
-                    <input class="form-check-input" type="checkbox" id="switch5" value="switch5" checked/>
-                    <span class="slider round"></span>
-                  </label>
-            </div>
-          </div>
-
-        <div class="row justify-content-center" style="margin-top: 50px;">
-            <!-- <div class="col-md-2"> -->
-                <button class="btn btn-primary btn-lg" style="border-radius: 50%; width: 50px; height: 50px; ">
-                </button>
-            <!-- </div> -->
+        <div class="row">
+                <span class="checkbox positive">
+                    <svg id="i-checkmark" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor"
+                         stroke-linecap="round" stroke-linejoin="round" stroke-width="10.9375%">
+                        <path d="M2 20 L12 28 30 4"></path>
+                    </svg>
+                </span>
+            <span class="label">Positive</span>
+        </div>
+        <div class="row">
+                <span class="checkbox negative">
+                    <svg id="i-close" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor"
+                         stroke-linecap="round" stroke-linejoin="round" stroke-width="10.9375%">
+                        <path d="M2 30 L30 2 M30 30 L2 2"></path>
+                    </svg>
+                </span>
+            <span class="label">Negative</span>
         </div>
     </div>
+    <p><small>Third state cycles back to first</small></p>
+
+    <script src="{% static 'Quiz/quiz.js' %}"></script>
+
+
 {% endblock content %}
