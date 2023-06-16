@@ -11,6 +11,20 @@
     vertical-align: middle;
 }
 
+/*.table-div {*/
+/*    overflow-x: scroll;*/
+/*}*/
+table {
+    display: block;
+    max-width: -moz-fit-content;
+    max-width: fit-content;
+    margin: 0 auto;
+    overflow-x: scroll;
+    white-space: nowrap;
+
+}
+
+
 .checkbox-img svg {
     margin-top: 6px;
     stroke: #fff;

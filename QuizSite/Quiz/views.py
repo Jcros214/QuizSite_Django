@@ -19,28 +19,30 @@ def quiz(request):
     NEW_LINE = '\n'
 
     HTML = f'''\
-    <form>
-        <table>
-            <tr>
-                <td>Quizzer</td>{NEW_LINE}{''.join([f'<td>{_}</td>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()))])} 
-            </tr>
+<form>
+    <div class="table-div">
+    <table>
+        <tr>
+            <td>Quizzer</td>{NEW_LINE}{''.join([f'            <td>{_}</td>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()) + 1)])} 
+        </tr>
     '''
 
     for team in current_quiz.get_teams():
         # How do you separate the teams?
 
         for quizzer in TeamMembership.objects.filter(team=team):
-            HTML += '<tr>'
+            HTML += f'        <tr>{NEW_LINE}'
 
-            HTML += f'<td>{quizzer}</td>'
+            HTML += f'            <td>{quizzer}</td>{NEW_LINE}'
             for question in current_quiz.get_questions():
                 # Create checkbox span things per question
-                HTML += f'<span class="checkbox-img" style="height:25px;"></span>'
+                HTML += f'            <td><span class="checkbox-img" style="height:25px;"></span></td>{NEW_LINE}'
 
-            HTML += '</tr>'
+            HTML += '        </tr>\n'
 
     HTML += '''\
         </table>
+        </div>
     </form>
     '''
 

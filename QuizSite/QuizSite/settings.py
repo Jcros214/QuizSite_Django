@@ -121,7 +121,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'quizdb',
-        'USER': 'postgres',
+        'USER': 'django_user',
         'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
         'HOST': 'localhost',
         'PORT': '',
