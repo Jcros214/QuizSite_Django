@@ -4,34 +4,9 @@
 {% endblock title %}
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/quiz.css' %}"/>
+    <link rel="stylesheet" href="{% static 'Quiz/quiz.css' %}"/>
 
-    <header>Three State Checkbox</header>
-    <div class="content">
-        <div class="row">
-            <span class="checkbox"></span>
-            <span class="label">Neutral</span>
-        </div>
-        <div class="row">
-                <span class="checkbox positive">
-                    <svg id="i-checkmark" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor"
-                         stroke-linecap="round" stroke-linejoin="round" stroke-width="10.9375%">
-                        <path d="M2 20 L12 28 30 4"></path>
-                    </svg>
-                </span>
-            <span class="label">Positive</span>
-        </div>
-        <div class="row">
-                <span class="checkbox negative">
-                    <svg id="i-close" viewBox="0 0 32 32" width="20" height="20" fill="none" stroke="currentcolor"
-                         stroke-linecap="round" stroke-linejoin="round" stroke-width="10.9375%">
-                        <path d="M2 30 L30 2 M30 30 L2 2"></path>
-                    </svg>
-                </span>
-            <span class="label">Negative</span>
-        </div>
-    </div>
-    <p><small>Third state cycles back to first</small></p>
+    {{ question_form|safe }}
 
     <script src="{% static 'Quiz/quiz.js' %}"></script>
 

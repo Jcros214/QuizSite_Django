@@ -37,16 +37,14 @@ class Individual(models.Model):
 
 
 class Season(models.Model):
-    name = models.CharField(max_length=100)
-    # Should probably be changed to be first day of season...
-    year = models.DateField((""), auto_now=False, auto_now_add=False)
+    start_date = models.DateField("", auto_now=False, auto_now_add=False)
     material = models.CharField(max_length=100)
     league = models.ForeignKey(League, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.name} - {self.year.year}"
+        return f"{self.league} - {self.start_date.year}"
 
-    def getTeams(self):
+    def get_teams(self):
         return Team.objects.filter(season_id=self.pk)
 
 
@@ -74,13 +72,13 @@ class TeamMembership(models.Model):
 
 
 class Event(models.Model):
-    name = models.CharField(max_length=100)
-    date = models.DateField((""), auto_now=False, auto_now_add=False)
+    # name = models.CharField(max_length=100)
+    date = models.DateField("", auto_now=False, auto_now_add=False)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
     location = models.ForeignKey(Orginization, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.season} - {self.date.month}"
 
 
 class Quiz(models.Model):
@@ -90,22 +88,22 @@ class Quiz(models.Model):
     round = models.CharField(max_length=10)
 
     def __str__(self) -> str:
-        return f"{self.event.name} - {self.room}{self.round}"
+        return f"{self.event} - {self.room}{self.round}"
 
-    def getQuestions(self):
+    def get_questions(self):
         return AskedQuestion.objects.filter(quiz_id=self.pk)
 
-    def getTeams(self):
+    def get_teams(self):
         participants = QuizParticipants.objects.filter(quiz_id=self.pk)
 
         return [p.team for p in participants]
 
     # Results should be: {team: model: score: int, ...}
-    def getResults(self):
-        questions = self.getQuestions()
+    def get_results(self):
+        questions = self.get_questions()
         results = {}
 
-        for team in self.getTeams():
+        for team in self.get_teams():
             score = 0
 
             for question in questions:
@@ -131,9 +129,9 @@ class QuizParticipants(models.Model):
 class AskedQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     question_number = models.IntegerField()
-    individual = models.ForeignKey(Individual, on_delete=models.CASCADE)
-    ruleing = models.CharField(max_length=100)
-    value = models.IntegerField()
+    individual = models.ForeignKey(Individual, on_delete=models.CASCADE, blank=True, null=True)
+    ruleing = models.CharField(max_length=100, blank=True, null=True)
+    value = models.IntegerField(blank=True, null=True)
     bonusDescription = models.CharField(max_length=100, null=True, blank=True)
     bonusValue = models.IntegerField(null=True, blank=True)
 

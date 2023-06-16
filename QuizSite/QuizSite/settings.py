@@ -116,24 +116,17 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 #     }
 # }
 
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'QuizDB.sqlite',
-        }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'quizdb',
+        'USER': 'postgres',
+        'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
+        'HOST': 'localhost',
+        'PORT': '',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'quizdb',
-            'USER': 'django_user',
-            'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
-            'HOST': 'localhost',
-            'PORT': '',
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

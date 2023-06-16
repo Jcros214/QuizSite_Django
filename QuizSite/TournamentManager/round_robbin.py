@@ -1,8 +1,6 @@
 # Instead of picking matchups, then picking from those matchups, need to generate a correctly sized bracket...
 
 
-
-
 '''
 Objectives:
     1. Each team should compete as many times as possible
@@ -36,8 +34,6 @@ NUM_TEAMS = 36
 
 DIV_ROUNDS = (len(ROOMS) * NUM_ROUNDS) / len(DIVISIONS)
 
-
-
 from itertools import combinations
 from random import choice, shuffle
 import random
@@ -59,9 +55,9 @@ class Team:
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Team):
             return False
-        
+
         return self.name == __value.name
-    
+
     def __lt__(self, __value: object) -> bool:
         if not isinstance(__value, Team):
             return False
@@ -89,6 +85,7 @@ class Team:
     def __hash__(self):
         return hash(self.name)
 
+
 class Division:
     def __init__(self, letter) -> None:
         self.letter = letter
@@ -97,7 +94,8 @@ class Division:
 
     @staticmethod
     def generate_teams(divisions: list[str], teams: int) -> list['Division']:
-        letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                   'U', 'V', 'W', 'X', 'Y', 'Z']
 
         teams_per_division = teams // len(divisions)
 
@@ -109,15 +107,14 @@ class Division:
 
         for division in divisions:
             div = Division(division)
-            
+
             for team in letters[:teams_per_division]:
                 div.add_team(Team(division + team))
-            
+
             divs.append(div)
 
-        
         return divs
-    
+
     # def find_unique_quizes(self, num_iterations=1, num_threads=8) -> list[Tuple[Team, Team, Team]]:
     #     unique_combo_sets = []
     #     team_combinations = list(combinations(self.teams, 3))
@@ -136,9 +133,8 @@ class Division:
     #             if len(valid_combinations) == DIV_ROUNDS:
     #                 unique_combo_sets.append(list(valid_combinations))
     #                 # print("Was valid")
-                
-    #             # unique_combinations.update(valid_combinations)
 
+    #             # unique_combinations.update(valid_combinations)
 
     #     unique_combo_sets = self.sort_by_fairness(unique_combo_sets)
 
@@ -180,8 +176,6 @@ class Division:
 
     #     return max(matches_per_team) - min(matches_per_team)
 
-
-
     def add_team(self, team: Team):
         self.teams.append(team)
 
@@ -191,8 +185,9 @@ class Division:
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Division):
             return False
-        
+
         return self.letter == __value.letter
+
 
 class Quiz:
     def __init__(self, teams: list[Team]):
@@ -206,8 +201,9 @@ class Quiz:
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Quiz):
             return False
-        
+
         return sorted(self.__teams) == sorted(__value.getTeams())
+
 
 class Round:
     def __init__(self, rooms: list[str]):
@@ -217,7 +213,7 @@ class Round:
 
         for room in rooms:
             self.rooms[room] = None
-    
+
     # Throws an exception if the team is already in the round
     def add_quiz(self, quiz: Quiz, room: str):
         # Check that the teams are not in the round already
@@ -225,26 +221,27 @@ class Round:
             for existing_team in self.getAllTeams():
                 if new_team == existing_team:
                     raise Exception("Team already in round!")
-        
+
         # Check that the room is not already taken
         if self.rooms[room] != None:
             raise Exception("Room already taken!")
 
         # Add the quiz to the round
         self.rooms[room] = quiz
-    
+
     def getAllTeams(self):
         teams = []
         for quiz in self.quizes:
-            teams += quiz.getTeams()
+            teams += quiz.get_teams()
         return teams
 
-class Bracket:    
-    def __init__(self, divisions: list[str]|list[Division], teams: int|None, rooms: list[str], rounds: int) -> None:
+
+class Bracket:
+    def __init__(self, divisions: list[str] | list[Division], teams: int | None, rooms: list[str], rounds: int) -> None:
         if type(divisions) == list[Division]:
-            self.divisions = divisions # type: ignore
+            self.divisions = divisions  # type: ignore
         else:
-            self.divisions = Division.generate_teams(divisions, teams) # type: ignore
+            self.divisions = Division.generate_teams(divisions, teams)  # type: ignore
 
         self.divisions: list[Division]
 
@@ -263,7 +260,8 @@ class Bracket:
             teams += division.teams
         return teams
 
-    def get_non_conflicting_quizzes(self, matchups: list[tuple[Team, Team, Team]], num_matchups: int) -> list[tuple[Team, Team, Team]]:
+    def get_non_conflicting_quizzes(self, matchups: list[tuple[Team, Team, Team]], num_matchups: int) -> list[
+        tuple[Team, Team, Team]]:
         # for _ in matchups, try to append to result, check if valid, if not, remove from result
         result = []
 
@@ -281,7 +279,7 @@ class Bracket:
                     else:
                         continue
                     break
-        
+
         return result
 
     # def generate(self):
@@ -294,12 +292,9 @@ class Bracket:
 
     #     rooms_copy = self.rooms.copy()
 
-
     #     [self.rounds.append(Round(self.rooms)) for _ in range(self.num_rounds)]
 
     #     rounds_in_shared_rooms = []
-
-
 
     #     for division in self.divisions:
     #         num_rounds = (total_rounds := len(self.rooms) * self.num_rounds) / len(self.divisions) #42
@@ -308,7 +303,7 @@ class Bracket:
     #             raise ValueError("Number of rounds must be divisible by the number of divisions!")
     #         else:
     #             num_rounds = int(num_rounds)
-            
+
     #         # all_unique_matchups = division.find_unique_quizes(num_iterations=NUM_ITERATIONS)
     #         # selected_unique_matchups = [list(combo) for combo in combinations(all_unique_matchups, num_rounds)]
     #         # fairest_unique_matchups = Division.sort_by_fairness(selected_unique_matchups)[0]
@@ -326,48 +321,47 @@ class Bracket:
     #                     , room
     #                 )
 
-
     def tabulate_rounds(self) -> str:
         output = []
-        header = "|   |" + "|".join([f"{'Round ' + str(i+1):^14}" for i in range(self.num_rounds)]) + "|"
+        header = "|   |" + "|".join([f"{'Round ' + str(i + 1):^14}" for i in range(self.num_rounds)]) + "|"
         output.append(header)
-        output.append("|---|" + "|".join(["-"*14] * self.num_rounds) + "|")
+        output.append("|---|" + "|".join(["-" * 14] * self.num_rounds) + "|")
 
         for room in self.rooms:
             rnd = [f"|{room:^3}|"]
             for round in self.rounds:
                 quiz = round.rooms[room]
                 if quiz:
-                    rnd.append(f"{' v '.join([team.name for team in quiz.getTeams()]):^14}|")
+                    rnd.append(f"{' v '.join([team.name for team in quiz.get_teams()]):^14}|")
                 # else:
                 #     output.append(f"| {room} |           |")
             output.append("".join(rnd))
         return "\n".join(output)
 
     def generate_schedule_new(self):
-        self.schedule = {room:[] for room in self.rooms}
+        self.schedule = {room: [] for room in self.rooms}
 
         for division in self.divisions:
             num_rooms = len(self.rooms) // len(self.divisions)
             rooms = self.rooms[:num_rooms]
 
             teams = division.teams
-            
+
             shuffled_teams = teams.copy()
 
-            schedule_copy = {room:[] for room in rooms}
-            schedule_copy_copy = {room:[] for room in rooms}
+            schedule_copy = {room: [] for room in rooms}
+            schedule_copy_copy = {room: [] for room in rooms}
 
             popped_teams = []
             popped_teams: list[Team]
 
             ctr = 0
 
-            while len(list(schedule_copy.values())[-1]) < self.num_rounds: # type: ignore
+            while len(list(schedule_copy.values())[-1]) < self.num_rounds:  # type: ignore
                 shuffle(shuffled_teams)
                 ctr += 1
                 print(f'ctr: {ctr}') if ctr % 100 == 0 else None
-                [popped_teams.append(shuffled_teams.pop()) for _ in range(3)] # type: ignore
+                [popped_teams.append(shuffled_teams.pop()) for _ in range(3)]  # type: ignore
                 self.add_match_to_next_slot(schedule_copy_copy, popped_teams)
                 if self.test_schedule(schedule_copy_copy):
                     schedule_copy = self.deep_copy_dictionary(schedule_copy_copy)
@@ -376,11 +370,11 @@ class Bracket:
                     schedule_copy_copy = self.deep_copy_dictionary(schedule_copy)
                     shuffled_teams += popped_teams
                     popped_teams = []
-            
+
             for room, matches in schedule_copy.items():
                 self.schedule[room] += matches
 
-    def add_match_to_next_slot(self, schedule: dict, match: list[Team]|tuple[Team]):
+    def add_match_to_next_slot(self, schedule: dict, match: list[Team] | tuple[Team]):
         prv_len = 0
         for room, matches in schedule.items():
             if prv_len > len(matches):
@@ -390,7 +384,7 @@ class Bracket:
             first_key = list(schedule.keys())[0]
             schedule[first_key].append(match)
 
-    def remove_match_from_prv_slot(self, schedule: dict, match: list[Team]|tuple[Team]):
+    def remove_match_from_prv_slot(self, schedule: dict, match: list[Team] | tuple[Team]):
         index_at_prv_len = [0]
         prv_len = 0
         for index, (room, matches) in enumerate(schedule.items()):
@@ -414,7 +408,7 @@ class Bracket:
 
         if len(all_pairs) != len(set(all_pairs)):
             return False
-        else: 
+        else:
             return True
         # for match in all_matches:
         #     for pair in combinations(match, 2):
@@ -423,10 +417,9 @@ class Bracket:
         #         else:
         #             all_pairs.add(pair)
 
-
-
     def deep_copy_dictionary(self, dictionary: dict[str, list]) -> dict[str, list]:
         return {str(key): list(value) for key, value in dictionary.items()}
+
 
 def calculate_team_statistics(bracket: Bracket):
     team_statistics = {}
@@ -442,7 +435,7 @@ def calculate_team_statistics(bracket: Bracket):
     for round in bracket.rounds:
         for room, quiz in round.rooms.items():
             if quiz:
-                teams = quiz.getTeams()
+                teams = quiz.get_teams()
                 for team in teams:
                     team_statistics[team.name]['total_quizzes'] += 1
 
@@ -456,15 +449,9 @@ def calculate_team_statistics(bracket: Bracket):
     return team_statistics
 
 
-
-
-
-            
-
 if __name__ == "__main__":
     bracket = Bracket(DIVISIONS, NUM_TEAMS, ROOMS, NUM_ROUNDS)
     # print(bracket.tabulate_rounds())
     # print('\n\n\n\n\n\n')
     # print(calculate_team_statistics(bracket))
     print(bracket.schedule)
-

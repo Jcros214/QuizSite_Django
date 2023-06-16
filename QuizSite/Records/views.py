@@ -5,13 +5,13 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
-    # context = {
-    #     'league':     get_object_or_404(League, pk=league_id),
-    #     'season':     get_object_or_404(Season, pk=season_id),
-    #     'event':      get_object_or_404(Event, pk=event_id),
-    #     'quiz':       get_object_or_404(Quiz, pk=quiz_id),
-    #     'question':   get_list_or_404(AskedQuestion.objects.all()),
-    # }
+# context = {
+#     'league':     get_object_or_404(League, pk=league_id),
+#     'season':     get_object_or_404(Season, pk=season_id),
+#     'event':      get_object_or_404(Event, pk=event_id),
+#     'quiz':       get_object_or_404(Quiz, pk=quiz_id),
+#     'question':   get_list_or_404(AskedQuestion.objects.all()),
+# }
 
 
 def make_context(*args, **kwargs):
@@ -27,7 +27,7 @@ def make_context(*args, **kwargs):
             return {
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
-                'teams': get_object_or_404(Season, pk=args[1]).getTeams(),
+                'teams': get_object_or_404(Season, pk=args[1]).get_teams(),
                 'object_list': Event.objects.filter(season_id=args[1]),
             }
         case 3:
@@ -35,7 +35,7 @@ def make_context(*args, **kwargs):
                 'league': get_object_or_404(League, pk=args[0]),
                 'season': get_object_or_404(Season, pk=args[1]),
             }
-            
+
             if kwargs.get("team", False):
                 context['object_list'] = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
                 context['team'] = get_object_or_404(Team, pk=args[2])
@@ -50,7 +50,7 @@ def make_context(*args, **kwargs):
                 'season': get_object_or_404(Season, pk=args[1]),
                 'event': get_object_or_404(Event, pk=args[2]),
                 'quiz': get_object_or_404(Quiz, pk=args[3]),
-                'results': get_object_or_404(Quiz, pk=args[3]).getResults(),
+                'results': get_object_or_404(Quiz, pk=args[3]).get_results(),
                 'object_list': AskedQuestion.objects.filter(quiz_id=args[3]),
             }
         case 5:
@@ -84,44 +84,47 @@ def make_context(*args, **kwargs):
 
 #     # template_name = ''
 
-    
-
-
-
 
 # List of leagues
 @login_required
 def index(request):
     return render(request, "Records/league_list.html", make_context())
 
+
 # List of seasons
 @login_required
-def league (request, league_id):
+def league(request, league_id):
     return render(request, "Records/league.html", make_context(league_id))
+
 
 # List of events
 @login_required
-def season (request, league_id, season_id):
+def season(request, league_id, season_id):
     # List of teams
     return render(request, "Records/season.html", make_context(league_id, season_id))
 
+
 # List of quizes
 @login_required
-def event (request, league_id, season_id, event_id):
+def event(request, league_id, season_id, event_id):
     return render(request, "Records/event.html", make_context(league_id, season_id, event_id))
+
 
 # List of questions
 @login_required
-def quiz (request, league_id, season_id, event_id, quiz_id):
+def quiz(request, league_id, season_id, event_id, quiz_id):
     return render(request, "Records/quiz.html", make_context(league_id, season_id, event_id, quiz_id))
 
-@login_required
-def question (request, league_id, season_id, event_id, quiz_id, question_id):
-    return render(request, "Records/question.html", make_context(league_id, season_id, event_id, quiz_id, question_id))
 
 @login_required
-def team (request, league_id, season_id, team_id):
+def question(request, league_id, season_id, event_id, quiz_id, question_id):
+    return render(request, "Records/question.html", make_context(league_id, season_id, event_id, quiz_id, question_id))
+
+
+@login_required
+def team(request, league_id, season_id, team_id):
     return render(request, "Records/team.html", make_context(league_id, season_id, team_id, team=True))
+
 
 @login_required
 def individual(request, individual_id):

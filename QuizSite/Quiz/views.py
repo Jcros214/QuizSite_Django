@@ -9,42 +9,39 @@ def index(request):
 
 
 def quiz(request):
-    return render(request, 'Quiz/quiz.html')
+    # Find quiz
+    # Get questions
+    # Get teams
+    #     get individuals from teams
 
+    current_quiz = Quiz.objects.get(pk=1)
 
-# Find quiz
-# Get questions
-# Get teams
-#     get individuals from teams
+    NEW_LINE = '\n'
 
-"""
+    HTML = f'''\
+    <form>
+        <table>
+            <tr>
+                <td>Quizzer</td>{NEW_LINE}{''.join([f'<td>{_}</td>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()))])} 
+            </tr>
+    '''
 
-<form>
-    
-    <table>
-        <tr>
-            <th>Quizzer</th>
-            {% for question in questions %}
-                <th>{{question.number}}</th>
-            {% endfor %}
-        <tr>
-            <td>{{Quizzer}}</td>
-            {% for question in questions %}
-                <td>{{quizzer result per question}}</td>
-            {% endfor %}
-        </tr>
-    </table>
+    for team in current_quiz.get_teams():
+        # How do you separate the teams?
 
-</form>
+        for quizzer in TeamMembership.objects.filter(team=team):
+            HTML += '<tr>'
 
+            HTML += f'<td>{quizzer}</td>'
+            for question in current_quiz.get_questions():
+                # Create checkbox span things per question
+                HTML += f'<span class="checkbox-img" style="height:25px;"></span>'
 
-"""
+            HTML += '</tr>'
 
-HTML = ''
+    HTML += '''\
+        </table>
+    </form>
+    '''
 
-# current_quiz = Quiz.objects.get(pk=1)
-#
-# for team in current_quiz.getTeams():
-#     for quizzer in team:
-#         for question in current_quiz.getQuestions():
-#             ...
+    return render(request, 'Quiz/quiz.html', {'question_form': HTML})
