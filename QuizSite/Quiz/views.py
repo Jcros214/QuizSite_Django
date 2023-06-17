@@ -44,7 +44,6 @@ def quiz(request):
 
     HTML = f'''\
 <form>
-    <div class="table-div">
     <table>
         <thead>
             <tr>
@@ -55,13 +54,13 @@ def quiz(request):
 
     for team in current_quiz.get_teams():
         HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th> <th><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
+        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
 
         for team_membership in TeamMembership.objects.filter(team=team):
             quizzer = team_membership.individual
             HTML += f'        <tr>{NEW_LINE}'
 
-            HTML += f'            <th class="headcol individual-name">{quizzer}</th> <td class="individual-score" ></td>   {NEW_LINE}'
+            HTML += f'            <th class="headcol individual-name">{quizzer}</th> <td class="score-col individual-score" ></td>   {NEW_LINE}'
             for question in sorted(current_quiz.get_questions(), key=lambda x: x.question_number):
                 # Create checkbox span things per question
                 span_class = 'checkbox-img '
@@ -80,7 +79,6 @@ def quiz(request):
 
     HTML += '''\
         </table>
-        </div>
     </form>
     '''
 
