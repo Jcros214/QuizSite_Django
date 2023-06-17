@@ -44,6 +44,12 @@ table {
     border-color: #c74545;
 }
 
+.disabled-checkbox {
+    background-color: lightgray;
+    border-color: gray;
+}
+
+
 .label {
     font-weight: bold;
     vertical-align: middle;

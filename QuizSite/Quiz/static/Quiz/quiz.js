@@ -1,6 +1,5 @@
 function setCheckBox(checkbox, value) {
     // value = 'positive', 'negative', or 'neutral'
-
     if (value === 'positive') {
         checkbox.removeClass('negative');
         checkbox.addClass('positive');
@@ -13,6 +12,8 @@ function setCheckBox(checkbox, value) {
         checkbox.removeClass('positive');
         checkbox.removeClass('negative');
         checkbox.html('');
+    } else {
+        console.log('Error: value must be "positive", "negative", or "neutral"');
     }
 }
 
@@ -24,6 +25,7 @@ function updateAllScores() {
 
         // update the score
         $(this).parent().find(".individual-score").html(correct + ":" + incorrect);
+
     });
 
     $(".team-name").each(function () {
@@ -34,7 +36,6 @@ function updateAllScores() {
         $(this).parent().parent().find(".individual-score")
             .each(function () {
                     const score = $(this).html().split(":");
-                    console.log(score)
                     teamScore += parseInt(score[0]) * 20;
                     teamScore += parseInt(score[1]) * -10;
                 }
@@ -45,20 +46,42 @@ function updateAllScores() {
     });
 }
 
+function disableAnyUnusableCheckboxes() {
+    // remove disabled-checkbox from all checkboxes
+    $('.checkbox-img').each(function () {
+        $(this).removeClass('disabled-checkbox')
+    });
 
-$('.checkbox-img').each(function () {
-    if ($(this).hasClass('positive')) {
-        $(this).html('✓');
-    } else if ($(this).hasClass('negative')) {
-        $(this).html('X');
-    } else {
-        $(this).html('');
-    }
-})
 
-updateAllScores()
+    // Disable any checkboxes that are in the same row with 4 answered questions
+    $('.checkbox-img:not(.positive):not(.negative)').each(function () {
+        const quizzer_id = this.dataset.quizzerId;
+        const quizzerCheckboxes = $('.checkbox-img[data-quizzer-id="' + quizzer_id + '"]');
+        const answeredCheckboxes = quizzerCheckboxes.filter('.positive, .negative');
+        const unansweredCheckboxes = quizzerCheckboxes.filter(':not(.positive):not(.negative)');
+        const answered = answeredCheckboxes.length;
+        if (answered === 4) {
+            unansweredCheckboxes.each(function () {
+                $(this).addClass('disabled-checkbox');
+            });
+        }
+    });
+
+    // Disable any checkboxes that are in the same column as an answered question
+    $('.checkbox-img.positive, .checkbox-img.negative').each(function () {
+        const question_id = this.dataset.questionId;
+        $('.checkbox-img[data-question-id="' + question_id + '"]:not([data-quizzer-id="' + this.dataset.quizzerId + '"])').each(function () {
+            $(this).addClass('disabled-checkbox');
+        });
+    });
+}
 
 $('.checkbox-img').click(function () {
+
+    if ($(this).hasClass('disabled-checkbox')) {
+        return;
+    }
+
     const quizzer_id = this.dataset.quizzerId;
     const question_id = this.dataset.questionId;
 
@@ -88,18 +111,29 @@ $('.checkbox-img').click(function () {
             result: result,
         },
         success: function (data, status, xhr) {
-            console.log(data);
-            console.log(status);
-            console.log(xhr);
+            // console.log(data, status, xhr);
         },
         error: function (xhr, status, error) {
-            console.log(xhr);
-            console.log(status);
-            console.log(error);
+            console.log(xhr, status, error);
         }
     });
 
 //     update scores
     updateAllScores();
+    disableAnyUnusableCheckboxes();
 
 });
+
+// Run on page load
+$('.checkbox-img').each(function () {
+    if ($(this).hasClass('positive')) {
+        setCheckBox($(this), 'positive');
+    } else if ($(this).hasClass('negative')) {
+        setCheckBox($(this), 'negative');
+    } else {
+        setCheckBox($(this), 'neutral');
+    }
+})
+
+updateAllScores()
+disableAnyUnusableCheckboxes()
