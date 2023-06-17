@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.db.models import QuerySet
 
 
 class Orginization(models.Model):
@@ -90,7 +91,7 @@ class Quiz(models.Model):
     def __str__(self) -> str:
         return f"{self.event} - {self.room}{self.round}"
 
-    def get_questions(self):
+    def get_questions(self) -> QuerySet['AskedQuestion']:
         return AskedQuestion.objects.filter(quiz_id=self.pk)
 
     def get_teams(self):
@@ -128,12 +129,14 @@ class QuizParticipants(models.Model):
 
 class AskedQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    question_number = models.IntegerField()
     individual = models.ForeignKey(Individual, on_delete=models.CASCADE, blank=True, null=True)
-    ruleing = models.CharField(max_length=100, blank=True, null=True)
+
+    question_number = models.IntegerField()
+    ruling = models.CharField(max_length=100, blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
-    bonusDescription = models.CharField(max_length=100, null=True, blank=True)
+
     bonusValue = models.IntegerField(null=True, blank=True)
+    bonusDescription = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.quiz} - {self.individual}: {self.ruleing}"
+        return f"{self.quiz} - {self.individual}: {self.ruling}"

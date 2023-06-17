@@ -24,6 +24,10 @@ table {
 
 }
 
+.table-div {
+    width: 100%
+}
+
 
 .checkbox-img svg {
     margin-top: 6px;
@@ -47,4 +51,61 @@ table {
 
 .d-flex {
     display: flex;
+}
+
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    padding-left: 5rem;
+    width: 100%;
+}
+
+td,
+th {
+    margin: 0;
+    white-space: nowrap;
+    border-top-width: 0px;
+}
+
+div {
+    width: 500px;
+    overflow-x: scroll;
+    margin-left: 5em;
+    overflow-y: visible;
+    padding: 0;
+}
+
+.headcol {
+    position: absolute;
+    left: 0;
+    top: auto;
+    /*only relevant for first row*/
+
+    /*compensate for top border*/
+}
+
+.score-col {
+    padding-right: 40px;
+}
+
+.long {
+    background: yellow;
+    letter-spacing: 1em;
+}
+
+.team-name {
+    font-weight: bold;
+}
+
+tbody {
+    padding: 0 30px;
+
+    border: black solid 1px;
+
+
+}
+
+.individual-name {
+    font-weight: normal;
 }
