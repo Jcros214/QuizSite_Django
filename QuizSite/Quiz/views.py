@@ -44,6 +44,7 @@ def quiz(request):
 
     HTML = f'''\
 <form>
+<div class="table-div">
     <table>
         <thead>
             <tr>
@@ -72,13 +73,14 @@ def quiz(request):
                     elif question.ruling == 'incorrect':
                         span_class += 'negative'
 
-                HTML += f'            <td><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="height:25px;"></span></td>{NEW_LINE}'
+                HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
 
             HTML += '        </tr>\n'
         HTML += '        </tbody>\n'
 
     HTML += '''\
         </table>
+    </div>
     </form>
     '''
 

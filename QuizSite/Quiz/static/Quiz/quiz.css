@@ -41,8 +41,12 @@ table {
 table {
     border-collapse: separate;
     border-spacing: 0;
-    padding-left: 5rem;
+    /*padding-left: 5rem;*/
     width: 100%;
+}
+
+.table-div {
+    overflow-x: scroll;
 }
 
 td,
@@ -52,21 +56,25 @@ th {
     border-top-width: 0px;
 }
 
+.question-td {
+    max-width: 40px;
+}
+
 tr {
     background: white;
 }
 
-div {
-    width: 500px;
-    overflow-x: scroll;
-    margin-left: 5em;
-    overflow-y: visible;
-    padding: 0;
-}
+/*div {*/
+/*    width: 500px;*/
+/*    overflow-x: scroll;*/
+/*    margin-left: 5em;*/
+/*    overflow-y: visible;*/
+/*    padding: 0;*/
+/*}*/
 
 .headcol {
     position: sticky;
-    /*width: 600px;*/
+    width: 165px;
     /*padding-right: 30%;*/
     margin: auto;
     left: 0;
@@ -78,7 +86,7 @@ div {
 
 .score-col {
     position: sticky;
-    left: 15%;
+    left: 165px;
     top: auto;
     background: #fff;
     padding: 0 20px;
