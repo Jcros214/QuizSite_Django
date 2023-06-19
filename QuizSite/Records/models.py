@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models import QuerySet
 
 
-class Orginization(models.Model):
+class Organization(models.Model):
     name = models.CharField(max_length=100)
     short_name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
@@ -22,15 +22,15 @@ class League(models.Model):
 
 class LeagueMembership(models.Model):
     league = models.ForeignKey(League, on_delete=models.CASCADE)
-    orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.orginization.name} - {self.league.name}"
+        return f"{self.organization.name} - {self.league.name}"
 
 
 class Individual(models.Model):
     name = models.CharField(max_length=100)
-    birthday = models.DateField((""), auto_now=False, auto_now_add=False, default=None, blank=True)
+    birthday = models.DateField("", auto_now=False, auto_now_add=False, default=None, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -51,7 +51,7 @@ class Season(models.Model):
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
-    orginization = models.ForeignKey(Orginization, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -76,7 +76,7 @@ class Event(models.Model):
     # name = models.CharField(max_length=100)
     date = models.DateField("", auto_now=False, auto_now_add=False)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
-    location = models.ForeignKey(Orginization, on_delete=models.CASCADE)
+    location = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.season} - {self.date.month}"
@@ -84,7 +84,8 @@ class Event(models.Model):
 
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE)
+    quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="quizmaster")
+    scorekeeper = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="scorekeeper")
     room = models.CharField(max_length=10)
     round = models.CharField(max_length=10)
 
@@ -118,10 +119,20 @@ class Quiz(models.Model):
 
         return results
 
+    def have_all_teams_validated(self):
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+
+        for participant in participants:
+            if not participant.isValidated:
+                return False
+
+        return True
+
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    isValidated = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.quiz} - {self.team}"
