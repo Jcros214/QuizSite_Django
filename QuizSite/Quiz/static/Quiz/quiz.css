@@ -99,3 +99,7 @@ tr {
 .individual-name {
     font-weight: normal;
 }
+
+.invisible {
+    visibility: hidden;
+}

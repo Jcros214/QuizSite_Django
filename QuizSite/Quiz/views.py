@@ -50,6 +50,9 @@ def quiz(request):
             <tr>
                 <th class="headcol">Quizzer</th>   <th class="score-col">Score</th>   {NEW_LINE}{''.join([f'            <th>{_}</th>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()) + 1)])} 
             </tr>
+            <tr>
+                <th class="headcol"></th>   <th class="score-col"></th>   {NEW_LINE}{''.join([f'            <th class="not-answered invisible">Not Answered</th>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()) + 1)])} 
+            </tr>
         </thead>
     '''
 
