@@ -4,21 +4,32 @@
     border-radius: 4px;
     cursor: pointer;
     display: inline-block;
-    height: 32px;
-    margin-right: 2rem;
+    height: 40px;
+    width: 40px;
+    margin: auto;
     text-align: center;
-    width: 32px;
     vertical-align: middle;
 }
 
 .positive {
     background-color: #4aca65;
     border-color: #43b45b;
+    font-size: 24px;
 }
 
 .negative {
     background-color: #dc4e4e;
     border-color: #c74545;
+    font-size: 24px;
+
+}
+
+.positive:before {
+    content: "✓";
+}
+
+.negative:before {
+    content: "X";
 }
 
 .disabled-checkbox {
@@ -54,7 +65,9 @@ th {
     margin: 0;
     white-space: nowrap;
     border-top-width: 0px;
+    text-align: center;
 }
+
 
 .question-td {
     max-width: 40px;
@@ -64,13 +77,6 @@ tr {
     background: white;
 }
 
-/*div {*/
-/*    width: 500px;*/
-/*    overflow-x: scroll;*/
-/*    margin-left: 5em;*/
-/*    overflow-y: visible;*/
-/*    padding: 0;*/
-/*}*/
 
 .headcol {
     position: sticky;
@@ -94,12 +100,29 @@ tr {
 
 .team-name {
     font-weight: bold;
+    text-align: left;
 }
 
 .individual-name {
     font-weight: normal;
+    text-align: left;
 }
 
 .invisible {
+    /*display: none;*/
     visibility: hidden;
+}
+
+.not-answered {
+    font-size: 10px;
+    /*height: 40px;*/
+    overflow: initial;
+    word-break: break-all;
+    text-align: center;
+    cursor: pointer;
+}
+
+.was-not-answered {
+    height: 40px;
+    background: gray;
 }

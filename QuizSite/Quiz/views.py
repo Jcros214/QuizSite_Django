@@ -40,6 +40,8 @@ def quiz(request):
     except AttributeError as e:
         return render(request, 'Quiz/quiz.html', {'question_form': e})
 
+    quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
+
     NEW_LINE = '\n'
 
     HTML = f'''\
@@ -48,24 +50,25 @@ def quiz(request):
     <table>
         <thead>
             <tr>
-                <th class="headcol">Quizzer</th>   <th class="score-col">Score</th>   {NEW_LINE}{''.join([f'            <th>{_}</th>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()) + 1)])} 
+                <th class="headcol">Quizzer</th> <th></th>   <th class="score-col">Score</th>   {NEW_LINE}{''.join([f'            <th data-question-id="{question.pk}">{question.question_number}</th>{NEW_LINE}' for question in quiz_questions])} 
             </tr>
             <tr>
-                <th class="headcol"></th>   <th class="score-col"></th>   {NEW_LINE}{''.join([f'            <th class="not-answered invisible">Not Answered</th>{NEW_LINE}' for _ in range(1, len(current_quiz.get_questions()) + 1)])} 
+                <th class="headcol"></th> <th></th>   <th class="score-col"></th>
+                {''.join([f'            <th class="not-answered {"""was-not-answered""" if question.ruling == """not answered""" else """"""}" data-question-id="{question.pk}">Not<br>Answered</th>{NEW_LINE}' for question in quiz_questions])} 
             </tr>
         </thead>
     '''
 
     for team in current_quiz.get_teams():
         HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
+        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
 
         for team_membership in TeamMembership.objects.filter(team=team):
             quizzer = team_membership.individual
             HTML += f'        <tr>{NEW_LINE}'
 
-            HTML += f'            <th class="headcol individual-name">{quizzer}</th> <td class="score-col individual-score" ></td>   {NEW_LINE}'
-            for question in sorted(current_quiz.get_questions(), key=lambda x: x.question_number):
+            HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td><input type="checkbox"/></td> <td class="score-col individual-score" ></td>   {NEW_LINE}'
+            for question in quiz_questions:
                 # Create checkbox span things per question
                 span_class = 'checkbox-img '
 
@@ -75,6 +78,8 @@ def quiz(request):
                         span_class += 'positive'
                     elif question.ruling == 'incorrect':
                         span_class += 'negative'
+                    elif question.ruling == 'not answered':
+                        ...  # Handled above
 
                 HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
 
@@ -109,40 +114,44 @@ def quiz_backend(request):
         current_quizzer = Individual.objects.filter(pk=request.POST.get('quizzer_id')).first()
         current_question = AskedQuestion.objects.filter(pk=request.POST.get('question_id')).first()
         result = request.POST.get('result')
-        if any([_ is None for _ in [current_quizzer, current_question, result]]):
+        if any([_ is None for _ in [current_question, result]]):
             raise AttributeError(401)
     except Exception as e:
+        if quizzer := request.POST.get('quiz_validated_by_quizzer'):
+            current_quiz.validated_by(quizzer)
+        elif scorekeeper := request.POST.get('quiz_validated_by_scorekeeper'):
+            current_quiz.validated_by(scorekeeper)
+
         return HttpResponse(401)
 
-    print(current_quizzer, current_question, result)
+    result_options = {
+        'positive': [
+            current_quizzer,
+            'correct',
+            20
+        ],
+        'negative': [
+            current_quizzer,
+            'incorrect',
+            -10
+        ],
+        'neutral': [
+            None,
+            '',
+            None
+        ],
+        'not answered': [
+            None,
+            'not answered',
+            None
+        ]
+    }
 
-    if result == 'positive':
-        current_question.individual = current_quizzer
-        current_question.ruling = 'correct'
-        current_question.value = 20
+    if result in result_options.keys():
+        current_question.individual = result_options[result][0]
+        current_question.ruling = result_options[result][1]
+        current_question.value = result_options[result][2]
         current_question.save()
-        print(current_quizzer, current_question, result, '')
-
         return HttpResponse(200)
-
-    elif result == 'negative':
-        current_question.individual = current_quizzer
-        current_question.ruling = 'incorrect'
-        current_question.value = -10
-        current_question.save()
-        print(current_quizzer, current_question, result, '')
-
-        return HttpResponse(200)
-
-    elif result == 'neutral':
-
-        current_question.individual = None
-        current_question.ruling = ''
-        current_question.value = None
-        current_question.save()
-        print(current_quizzer, current_question, result, '')
-
-        return HttpResponse(200)
-
     else:
         return HttpResponse(401)

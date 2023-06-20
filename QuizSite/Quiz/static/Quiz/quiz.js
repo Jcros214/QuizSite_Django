@@ -15,15 +15,12 @@ function setCheckBox(checkbox, value) {
     if (value === 'positive') {
         checkbox.removeClass('negative');
         checkbox.addClass('positive');
-        checkbox.html('✓');
     } else if (value === 'negative') {
         checkbox.removeClass('positive');
         checkbox.addClass('negative');
-        checkbox.html('X');
     } else if (value === 'neutral') {
         checkbox.removeClass('positive');
         checkbox.removeClass('negative');
-        checkbox.html('');
     } else {
         console.log('Error: value must be "positive", "negative", or "neutral"');
     }
@@ -65,31 +62,59 @@ function disableAnyUnusableCheckboxes() {
     });
 
 
-    // Enable all checkboxes in the column of the first unasked question
+    // Disable all checkboxes not in the column of the first unasked question
     // Find the first unasked question
-
     let first_unasked_question = [...question_ids];
 
+    let question_counter = 0;
 
-    for (let i = 0; i < question_ids.length; i++) {
+    for (question_counter; question_counter < question_ids.length; question_counter++) {
         // find all checkboxes with that question_id
-        const questionCheckboxes = $('.checkbox-img[data-question-id="' + question_ids[i] + '"]');
+        const questionCheckboxes = $('.checkbox-img[data-question-id="' + question_ids[question_counter] + '"]');
 
         // find the first checkbox in that list that is not positive or negative
-        const firstUnaskedCheckbox = questionCheckboxes.filter('.positive, .negative').first();
+        const doesNotContainResponse = (questionCheckboxes.filter('.positive, .negative').length === 0) && ($('.not-answered.was-not-answered[data-question-id="' + question_ids[question_counter] + '"]').length === 0);
 
-        // if there is a checkbox that is not positive or negative
-        if (firstUnaskedCheckbox.length) {
-            if (first_unasked_question === null) {
-                first_unasked_question = question_ids[i];
-            } else if (question_ids[i] < first_unasked_question) {
-                first_unasked_question = question_ids[i];
-            }
+        if (doesNotContainResponse) {
+            break;
+        } else {
+            questionCheckboxes.each(function () {
+                if ($(this).hasClass('positive') || $(this).hasClass('negative')) {
+
+                } else {
+                    $(this).addClass('disabled-checkbox');
+                }
+            });
         }
     }
 
-    console.log(first_unasked_question);
+    const current_question_id = question_ids[question_counter];
 
+    ++question_counter;
+
+    for (question_counter; question_counter < question_ids.length; question_counter++) {
+        // find all checkboxes with that question_id
+        const questionCheckboxes = $('.checkbox-img[data-question-id="' + question_ids[question_counter] + '"]');
+
+        questionCheckboxes.each(function () {
+            if ($(this).hasClass('positive') || $(this).hasClass('negative')) {
+
+            } else {
+                $(this).addClass('disabled-checkbox');
+            }
+        });
+
+    }
+
+    // Enable the not-answered checkboxes for the current question
+    //      disable the others
+    $('.not-answered:not(.was-not-answered)').each(function () {
+        $(this).addClass('invisible');
+    });
+
+    $('.not-answered[data-question-id="' + current_question_id + '"]').each(function () {
+        $(this).removeClass('invisible');
+    });
 
     // Disable any checkboxes that are in the same row with 4 answered questions
     $('.checkbox-img:not(.positive):not(.negative)').each(function () {
@@ -165,6 +190,17 @@ allCheckboxes.click(function () {
 });
 
 $('.not-answered').click(function () {
+
+    let result;
+
+    if ($(this).hasClass('was-not-answered')) {
+        result = 'neutral';
+    } else {
+        result = 'not answered';
+    }
+
+    $(this).toggleClass('was-not-answered');
+
     const quizzer_id = this.dataset.quizzerId;
     const question_id = this.dataset.questionId;
 
@@ -179,10 +215,10 @@ $('.not-answered').click(function () {
         data: {
             quizzer_id: quizzer_id,
             question_id: question_id,
-            result: 'none',
+            result: result,
         },
         success: function (data, status, xhr) {
-            // console.log(data, status, xhr);
+            console.log(data, status, xhr);
         },
         error: function (xhr, status, error) {
             console.log(xhr, status, error);

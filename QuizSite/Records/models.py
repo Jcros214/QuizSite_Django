@@ -88,6 +88,7 @@ class Quiz(models.Model):
     scorekeeper = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="scorekeeper")
     room = models.CharField(max_length=10)
     round = models.CharField(max_length=10)
+    isValidated = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return f"{self.event} - {self.room}{self.round}"
@@ -128,6 +129,22 @@ class Quiz(models.Model):
 
         return True
 
+    def validated_by(self, individual: Individual):
+        if individual == self.scorekeeper:
+            self.isValidated = True
+            self.save()
+            return
+
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+
+        for participant in participants:
+            if participant.team.isMember(individual):
+                participant.isValidated = True
+                participant.save()
+                return
+        else:
+            raise Exception(f"{individual} is not the scorekeeper nor a member of any team in {self}")
+
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -140,7 +157,7 @@ class QuizParticipants(models.Model):
 
 class AskedQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    individual = models.ForeignKey(Individual, on_delete=models.CASCADE, blank=True, null=True)
+    individual = models.ForeignKey(Individual, on_delete=models.CASCADE, blank=True, null=True, default='')
 
     question_number = models.IntegerField()
     ruling = models.CharField(max_length=100, blank=True, null=True)
