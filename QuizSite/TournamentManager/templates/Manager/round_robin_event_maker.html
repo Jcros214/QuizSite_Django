@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}
+    Event Maker
+{% endblock title %}
+{% block content %}
+    <h1>Spectacular-Style Event Generator</h1>
+    <form id="detailsForm" method="post" action="{% url 'manager:event_generator' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <h3>Teams</h3>
+            <div class="team">
+                <label>
+                    Team name:
+                    <input type="text" class="team-name" placeholder="team name"/>
+                </label>
+                <label>
+                    Quizzer 1:
+                    <input type="text" class="team-name" placeholder="name"/>
+                </label>
+                <label>
+                    Quizzer 2:
+                    <input type="text" class="team-name" placeholder="name"/>
+                </label>
+            </div>
+            <button type="button" class="btn btn-secondary" id="addTeam">Add team</button>
+
+        </div>
+        <div class="mb-3">
+            <h3>Rooms</h3>
+            <div class="room">
+                <label>
+                    Room Letter:
+                    <input type="text" maxlength="1" class="room-letter" placeholder="room letter"/>
+                </label>
+                <label>
+                    Quizmaster:
+                    <input type="text" class="quizmaster" placeholder="name"/>
+                </label>
+                <label>
+                    Scorekeeper:
+                    <input type="text" class="scorekeeper" placeholder="name"/>
+                </label>
+            </div>
+            <button type="button" class="btn btn-secondary" id="addRoom">Add Room</button>
+        </div>
+        <div class="mb-3">
+            <h3>Schedule</h3>
+            <label>
+                Number of rounds:
+                <input type="number" value="12"/>
+            </label>
+
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Event</button>
+
+        {#        <div class="spinner-border text-primary d-none" role="status" id="loadingIndicator">#}
+        {#            <span class="visually-hidden">Loading...</span>#}
+        {#        </div>#}
+
+    </form>
+{% endblock content %}

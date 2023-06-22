@@ -1,7 +1,16 @@
 const allCheckboxes = $('.checkbox-img');
+const quizzerValidateCheckboxes = $('.quizzer-validate');
 
 // Get only the unique question_ids from all checkboxes
 const question_ids = [];
+
+const team_ids = [];
+quizzerValidateCheckboxes.each(function () {
+    if (!team_ids.includes(this.dataset.teamId)) {
+        team_ids.push(this.dataset.teamId);
+    }
+});
+
 allCheckboxes.each(function () {
     if (!question_ids.includes(this.dataset.questionId)) {
         question_ids.push(this.dataset.questionId);
@@ -89,6 +98,37 @@ function disableAnyUnusableCheckboxes() {
     }
 
     const current_question_id = question_ids[question_counter];
+
+    if (question_counter === question_ids.length) {
+        quizzerValidateCheckboxes.each(function () {
+            $(this).removeClass('invisible');
+        });
+    } else {
+        quizzerValidateCheckboxes.each(function () {
+            $(this).addClass('invisible');
+        });
+    }
+
+    // TODO:
+    // // If somone on a team has validated, then add 'invisible' class the the other teamate's validate checkbox
+    // $('.quizzer-validate').each(function () {
+    //
+    // }
+
+    // Enable the submit button, then if any team hasn't validated, disable the submit button
+    $('#submit').removeAttr('disabled');
+
+    for (let i = 0; i < team_ids.length; i++) {
+        const team_id = team_ids[i];
+        const teamValidates = $('.quizzer-validate[data-team-id="' + team_id + '"]');
+        const teamValidatesChecked = teamValidates.filter(':checked');
+        if (teamValidatesChecked.length === 0) {
+            $('#submit').attr('disabled', true);
+        }
+
+
+        const teamCheckboxes = $('.checkbox-img[data-team-id="' + team_id + '"]');
+    }
 
     ++question_counter;
 
@@ -230,6 +270,8 @@ $('.not-answered').click(function () {
     disableAnyUnusableCheckboxes();
 });
 
+quizzerValidateCheckboxes.click(disableAnyUnusableCheckboxes);
+
 // Run on page load
 allCheckboxes.each(function () {
     if ($(this).hasClass('positive')) {
@@ -240,6 +282,50 @@ allCheckboxes.each(function () {
         setCheckBox($(this), 'neutral');
     }
 })
+
+
+$('#submit').click(function () {
+    const csrftoken = Cookies.get('csrftoken');
+
+    $.ajax({
+        url: window.location.href,
+        type: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        data: {
+            quiz_validated_by_scorekeeper: true,
+        },
+        success: function (data, status, xhr) {
+            location.reload();
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr, status, error);
+        }
+    });
+});
+
+quizzerValidateCheckboxes.click(function () {
+    const csrftoken = Cookies.get('csrftoken');
+    const quizzer_id = this.dataset.quizzerId;
+
+    $.ajax({
+        url: window.location.href,
+        type: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        data: {
+            quiz_validated_by_quizzer: quizzer_id,
+        },
+        success: function (data, status, xhr) {
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr, status, error);
+        }
+    });
+});
+
 
 updateAllScores()
 disableAnyUnusableCheckboxes()

@@ -1,28 +1,29 @@
 {% extends "base.html" %}
 {% block title %}
-Round Robin Generator
+    Round Robin Generator
 {% endblock title %}
 {% block content %}
-<h1>Team Matchups Generator</h1>
-<form id="matchupForm" method="post" action="{% url 'manager:round_robin' %}">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label for="teamNames" class="form-label">Comma-separated team names:</label>
-    <input type="text" class="form-control" id="teamNames" name="team_names" required value="RA,RB,RC,RD,RE,RF,RG,RH,RI,RJ,RK,RL,RM,RN,RO,RP,RQ,RR">
-  </div>
-  <div class="mb-3">
-    <label for="rounds" class="form-label">Number of rounds:</label>
-    <input type="number" class="form-control" id="rounds" name="rounds" min="1" required value="12">
-  </div>
-  <div class="mb-3">
-    <label for="rooms" class="form-label">Number of rooms:</label>
-    <input type="number" class="form-control" id="rooms" name="rooms" min="1" required value="3">
-  </div>
-  <button type="submit" class="btn btn-primary">Generate Matchups</button>
+    <h1>Team Matchups Generator</h1>
+    <form id="matchupForm" method="post" action="{% url 'manager:round_robin' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="teamNames" class="form-label">Comma-separated team names:</label>
+            <input type="text" class="form-control" id="teamNames" name="team_names" required
+                   value="RA,RB,RC,RD,RE,RF,RG,RH,RI,RJ,RK,RL,RM,RN,RO,RP,RQ,RR">
+        </div>
+        <div class="mb-3">
+            <label for="rounds" class="form-label">Number of rounds:</label>
+            <input type="number" class="form-control" id="rounds" name="rounds" min="1" required value="12">
+        </div>
+        <div class="mb-3">
+            <label for="rooms" class="form-label">Number of rooms:</label>
+            <input type="number" class="form-control" id="rooms" name="rooms" min="1" required value="3">
+        </div>
+        <button type="submit" class="btn btn-primary">Generate Matchups</button>
 
-  <div class="spinner-border text-primary d-none" role="status" id="loadingIndicator">
-    <span class="visually-hidden">Loading...</span>
-  </div>
+        <div class="spinner-border text-primary d-none" role="status" id="loadingIndicator">
+            <span class="visually-hidden">Loading...</span>
+        </div>
 
-</form>
+    </form>
 {% endblock content %}

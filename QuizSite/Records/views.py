@@ -86,47 +86,87 @@ def make_context(*args, **kwargs):
 
 
 # List of leagues
-@login_required
+# @login_required
 def index(request):
     return render(request, "Records/league_list.html", make_context())
 
 
 # List of seasons
-@login_required
+# @login_required
 def league(request, league_id):
     return render(request, "Records/league.html", make_context(league_id))
 
 
 # List of events
-@login_required
+# @login_required
 def season(request, league_id, season_id):
     # List of teams
     return render(request, "Records/season.html", make_context(league_id, season_id))
 
 
 # List of quizes
-@login_required
+# @login_required
 def event(request, league_id, season_id, event_id):
-    return render(request, "Records/event.html", make_context(league_id, season_id, event_id))
+    # get list of quizzes
+    quizzes = Quiz.objects.filter(event_id=event_id)
+
+    rooms = set()
+    rounds = set()
+
+    # find rounds
+    for current_quiz in quizzes:
+        rounds.add(int(current_quiz.round))
+        rooms.add(current_quiz.room)
+
+    quizzes_by_room = {}
+
+    for room in sorted(rooms):
+        quizzes_by_room[room] = []
+        for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
+            quizzes_by_room[room].append(current_quiz)
+
+    NEW_LINE = "\n"
+
+    HTML = f'''
+<table>
+    <tr>
+        <th style="width: 60px">Room</th>
+        {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
+    </tr>
+        
+    '''
+
+    for room in quizzes_by_room:
+        HTML += f"""<tr><td>{room}</td>"""
+        for current_quiz in quizzes_by_room[room]:
+            HTML += f"""<td><a href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz.room}{current_quiz.round}</a></td>"""
+        HTML += "</tr>"
+    HTML += "</table>"
+
+    context = make_context(league_id, season_id, event_id)
+
+    context['schedule'] = HTML
+
+    return render(request, "Records/event.html", context)
 
 
 # List of questions
-@login_required
+# @login_required
 def quiz(request, league_id, season_id, event_id, quiz_id):
     return render(request, "Records/quiz.html", make_context(league_id, season_id, event_id, quiz_id))
 
 
-@login_required
+# @login_required
 def question(request, league_id, season_id, event_id, quiz_id, question_id):
     return render(request, "Records/question.html", make_context(league_id, season_id, event_id, quiz_id, question_id))
 
 
-@login_required
+# @login_required
 def team(request, league_id, season_id, team_id):
     return render(request, "Records/team.html", make_context(league_id, season_id, team_id, team=True))
 
 
-@login_required
+# @login_required
 def individual(request, individual_id):
     individual = get_object_or_404(Individual, pk=individual_id)
     teams = [_.team for _ in TeamMembership.objects.filter(individual_id=individual_id)]

@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from Records.models import Quiz, AskedQuestion, Team, TeamMembership, Individual, User
+from django.utils import timezone
+
 from .models import ActiveScoreKeepers
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -22,8 +24,44 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
     return current_scorekeeper.quiz
 
 
+@login_required
 def index(request):
-    return render(request, 'Quiz/index.html')
+    def render_quiz_as_accordion_item(quiz: Quiz, show: bool = False):
+        return f"""
+<div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{quiz.room}{quiz.round}" aria-expanded="true" aria-controls="collapse{quiz.room}{quiz.round}">
+        {quiz}
+      </button>
+    </h2>
+    <div id="collapse{quiz.room}{quiz.round}" class="accordion-collapse collapse {'show' if show else ''}" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <table>
+          <tr>
+            <th>Quizmaster</th>
+            <td>{quiz.quizmaster}</td>
+          </tr>
+          <tr>
+            <th>Scorekeeper</th>
+            <td>{quiz.scorekeeper}</td>
+          </tr>
+          <tr>
+            <th>Teams</th>
+            <td>{', '.join([team.name for team in quiz.get_teams()])}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+        """
+
+    HTML = f"""
+<div class="accordion" id="accordionExample">
+    {''.join([render_quiz_as_accordion_item(live_quiz) for live_quiz in sorted(Quiz.objects.filter(event__date__gte=timezone.now().date()), key=lambda q: (1000 * ord(q.room)) + int(q.round))])}
+</div>
+    """
+
+    return render(request, 'Quiz/index.html', {'quiz_list': HTML})
 
 
 @login_required
@@ -67,7 +105,7 @@ def quiz(request):
             quizzer = team_membership.individual
             HTML += f'        <tr>{NEW_LINE}'
 
-            HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td><input type="checkbox"/></td> <td class="score-col individual-score" ></td>   {NEW_LINE}'
+            HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td><input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/></td> <td class="score-col individual-score" ></td>   {NEW_LINE}'
             for question in quiz_questions:
                 # Create checkbox span things per question
                 span_class = 'checkbox-img '
@@ -117,10 +155,16 @@ def quiz_backend(request):
         if any([_ is None for _ in [current_question, result]]):
             raise AttributeError(401)
     except Exception as e:
-        if quizzer := request.POST.get('quiz_validated_by_quizzer'):
+        if quizzer_id := request.POST.get('quiz_validated_by_quizzer'):
+            quizzer = Individual.objects.filter(pk=quizzer_id).first()
             current_quiz.validated_by(quizzer)
-        elif scorekeeper := request.POST.get('quiz_validated_by_scorekeeper'):
+        elif request.POST.get('quiz_validated_by_scorekeeper'):
+            scorekeeper = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
             current_quiz.validated_by(scorekeeper)
+
+            ActiveScoreKeepers.objects.filter(scorekeeper=scorekeeper.individual).delete()
+
+            return HttpResponse(205)
 
         return HttpResponse(401)
 

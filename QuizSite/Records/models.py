@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
+import django.utils.timezone
+from django.utils.functional import SimpleLazyObject
 
 
 class Organization(models.Model):
@@ -54,11 +56,22 @@ class Team(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
+    short_name = models.CharField(max_length=20, blank=True, null=True)
+
     def __str__(self):
         return self.name
 
+    def try_short_name(self):
+        if self.short_name:
+            return self.short_name
+        else:
+            return self.name
+
     def isMember(self, individual):
-        return TeamMembership.objects.filter(team_id=self.pk, individual_id=individual.pk).exists()
+        if individual:
+            return TeamMembership.objects.filter(team_id=self.pk, individual_id=individual.pk).exists()
+        else:
+            return False
 
     def url(self):
         return f"/records/{self.season.league.pk}/{self.season.pk}/team/{self.pk}"
@@ -81,6 +94,9 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.season} - {self.date.month}"
 
+    def date_is_today(self):
+        return self.date == django.utils.timezone.datetime.date.today()
+
 
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
@@ -91,7 +107,7 @@ class Quiz(models.Model):
     isValidated = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return f"{self.event} - {self.room}{self.round}"
+        return f"{self.room}{self.round} - " + ' v '.join([str(team.try_short_name()) for team in self.get_teams()])
 
     def get_questions(self) -> QuerySet['AskedQuestion']:
         return AskedQuestion.objects.filter(quiz_id=self.pk)
@@ -129,8 +145,8 @@ class Quiz(models.Model):
 
         return True
 
-    def validated_by(self, individual: Individual):
-        if individual == self.scorekeeper:
+    def validated_by(self, individual: User):
+        if individual == self.scorekeeper.user:
             self.isValidated = True
             self.save()
             return
