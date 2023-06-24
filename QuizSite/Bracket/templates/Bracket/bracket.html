@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}
+    {{ bracket.name }}
+{% endblock title %}
+
+{% comment %} {% load bracket_filters %} {% endcomment %}
+
+{% load bracket_filters %}
+{% load static %}
+
+{% block content %}
+    {#    import stylesheets #}
+    <link rel="stylesheet" href="{% static 'Bracket/bracket.css' %}">
+
+    <div style="display: none" class="alert alert-danger" role="alert" id="ajax_error"></div>
+
+    {% render_bracket bracket %}
+
+
+    <script>
+        // Add event listeners to all objects of class score
+        // when after edited, send the new score to the server at /bracket/update_score/?match_id=match_id&team_id=team_id&score=score
+
+        let score_fields = document.getElementsByClassName("score");
+
+        Array.from(score_fields).forEach(function (element) {
+            element.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+            element.addEventListener('blur', function (score) {
+                let score_value = element.innerHTML;
+
+                let match_id = element.dataset.match;
+                let team_id = element.dataset.team;
+
+
+                $.ajax({
+                    url:
+                        '{% url 'bracket:update' %}',
+                    type: "POST",
+                    data: {
+                        match: match_id,
+                        team: team_id,
+                        score: score_value
+                    },
+                    headers: {
+                        'X-CSRFToken': "{{ csrf_token }}"
+                    },
+                    error: function (error) {
+                        console.log(`Error ${error}`);
+                        let error_element = document.getElementById("ajax_error");
+
+                        if (error.responseText !== "user misclick; ignore") {
+                            location.reload();
+                            error_element.innerHTML = "Something went wrong. Please refresh the page and try again.";
+                            error_element.style.display = "block";
+                        }
+
+                    },
+                    success: function (data, status, xhr) {
+                        console.log(`Success ${data}`);
+
+                        if (xhr.status === 205) {
+                            location.reload();
+                        }
+                    }
+                });
+
+            });
+        });
+
+    </script>
+
+{% endblock content %}

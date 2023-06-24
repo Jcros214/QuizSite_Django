@@ -1,0 +1,72 @@
+{% extends "base.html" %} 
+{% block title %} Home {% endblock title %}
+{% block content %}
+<h2>Create</h2>
+
+<style>
+  input {
+    margin: 5px;
+  }
+  b {
+    padding-right: 50px;
+  }
+</style>
+
+<form method="post">
+  {% csrf_token %}
+
+  {{ form.as_p }}
+
+  {{ formset.management_form }}
+
+  <div id="formset">
+    {% for form in formset %}
+      {{ form }}
+    {% endfor %}
+  </div>
+
+  <input type="submit" value="Save" />
+</form>
+<script>
+  function setNumTeams() {
+    // Get value of select#id_num_teams
+    const num_teams = document.getElementById("id_num_teams").value;
+    document.getElementById("id_form-TOTAL_FORMS").value = num_teams;
+
+    const form = document.getElementById("formset");
+
+    let HTML = "<table>";
+    console.log(num_teams);
+    for (let formCount = 0; formCount < num_teams; formCount++) {
+      HTML += `
+            <tr>
+                <td><label for="id_form-${formCount}-team">Team:</label></td>
+                
+                <td>
+                    <select name="form-${formCount}-team" id="id_form-${formCount}-team">
+                    <option value="">---------</option>
+                
+                    {% for team in teams %}
+                        <option value="{{ team.pk }}" ${ {{ team.pk }} === formCount+1 ? 'selected' : ''}>{{ team.name }}</option>
+                    {% endfor %}
+                
+                    </select>
+                </td>
+                
+                <td><label for="id_form-${formCount}-seed">Seed:</label></td>
+                <td><input type="number" name="form-${formCount}-seed" min="1" max="${num_teams}" value="${formCount + 1}" id="id_form-${formCount}-seed" readonly></td>
+            <tr>`;
+    }
+    HTML += "</table>";
+    form.innerHTML = HTML;
+  }
+
+  document
+    .getElementById("id_num_teams")
+    .addEventListener("change", setNumTeams);
+
+  setNumTeams();
+</script>
+
+{%comment%} formCount % 2 === 0 ? '<br />' : '' {%endcomment%} 
+{% endblock content %}

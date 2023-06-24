@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}
+    Home
+{% endblock title %}
+{% block content %}
+
+<style>
+.frame {
+  border: 10px solid blue;
+  width: 500px;
+  height: 500px;
+  pointer-events: none;
+  -webkit-transform: translate(-200px,-200px) scale(.2, .2);
+  -moz-transform: translate(-200px,-200px) scale(.2, .2);
+  -o-transform: translate(-200px,-200px) scale(.2, .2);
+  -ms-transform: translate(-200px,-200px) scale(.2, .2);
+  transform: translate(-200px,-200px) scale(.2, .2);
+  overflow: hidden;
+}
+
+</style>
+
+<h2>Index</h2>
+{% for bracket in object_list %}
+    <li><a href="{% url 'bracket:bracket' bracket.id %}">{{ bracket }}</a></li>
+{% empty %}
+    <li>No brackets yet. <a href="{% url 'bracket:bracket_create' %}">Create one</a></li>
+{% endfor %}
+
+{% endblock content %}

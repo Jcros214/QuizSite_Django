@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}
+    Home
+{% endblock title %}
+{% block content %}
+<h2>Create Team</h2>
+
+<form method="post" action="{% url 'bracket:team_create' %}">{% csrf_token %}
+    {{ form.as_p }}
+    {{ formset.management_form }}
+
+    {% for form in formset %}
+        {{ form }}
+    {% endfor %}
+
+
+    <input type="submit" name='submit' value="Save">
+    <input type="submit" name='submit_and_add_another' value="Add another">
+    
+</form>
+
+{% endblock content %}

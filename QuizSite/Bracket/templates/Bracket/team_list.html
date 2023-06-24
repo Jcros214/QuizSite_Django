@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Teams</h2>
+{% for team in object_list %}
+    <li><a href="{% url 'bracket:team' team.id %}">{{ team }}</a></li>
+{% empty %}
+    <li>No teams yet.</li>
+{% endfor %}
+<br>
+<a href="{% url 'bracket:team_create' %}">Add a team.</a>
+
+{% endblock content %}
