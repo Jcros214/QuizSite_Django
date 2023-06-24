@@ -37,46 +37,17 @@
     border-color: gray;
 }
 
-table {
-    margin: 0 auto;
-    overflow-x: scroll;
-    white-space: nowrap;
-}
-
-
 .d-flex {
     display: flex;
-}
-
-
-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    /*padding-left: 5rem;*/
-    width: 100%;
 }
 
 .table-div {
     overflow-x: scroll;
 }
 
-td,
-th {
-    margin: 0;
-    white-space: nowrap;
-    border-top-width: 0px;
-    text-align: center;
-}
-
-
 .question-td {
     max-width: 40px;
 }
-
-tr {
-    background: white;
-}
-
 
 .headcol {
     position: sticky;
@@ -100,12 +71,12 @@ tr {
 
 .team-name {
     font-weight: bold;
-    text-align: left;
+    text-align: left !important;
 }
 
 .individual-name {
     font-weight: normal;
-    text-align: left;
+    text-align: left !important;
 }
 
 .invisible {
@@ -126,3 +97,27 @@ tr {
     height: 40px;
     background: gray;
 }
+
+.quiz-table {
+    margin: 0 auto;
+    overflow-x: scroll;
+    white-space: nowrap;
+    border-collapse: separate;
+    border-spacing: 0;
+    /*padding-left: 5rem;*/
+    width: 100%;
+}
+
+
+.quiz-table td,
+.quiz-table th {
+    margin: 0;
+    white-space: nowrap;
+    border-top-width: 0;
+    text-align: center;
+}
+
+.quiz-table tr {
+    background: white;
+}
+

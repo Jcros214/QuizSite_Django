@@ -31,9 +31,13 @@ class LeagueMembership(models.Model):
 
 
 class Individual(models.Model):
+    MALE = True
+    FEMALE = False
+
     name = models.CharField(max_length=100)
     birthday = models.DateField("", auto_now=False, auto_now_add=False, default=None, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    gender = models.BooleanField(choices=((MALE, "Male"), (FEMALE, "Female")))
 
     def __str__(self):
         return self.name
@@ -49,6 +53,9 @@ class Season(models.Model):
 
     def get_teams(self):
         return Team.objects.filter(season_id=self.pk)
+
+    def get_individuals(self):
+        return Individual.objects.filter(teammembership__team__season_id=self.pk).distinct()
 
 
 class Team(models.Model):
@@ -92,10 +99,13 @@ class Event(models.Model):
     location = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.season} - {self.date.month}"
+        return f"{self.season}"
 
     def date_is_today(self):
         return self.date == django.utils.timezone.datetime.date.today()
+
+    def get_absolute_url(self):
+        return f"/records/{self.season.league.pk}/{self.season.pk}/{self.pk}"
 
 
 class Quiz(models.Model):
@@ -107,7 +117,7 @@ class Quiz(models.Model):
     isValidated = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return f"{self.room}{self.round} - " + ' v '.join([str(team.try_short_name()) for team in self.get_teams()])
+        return '  v  '.join([str(team.try_short_name()) for team in self.get_teams()])
 
     def get_questions(self) -> QuerySet['AskedQuestion']:
         return AskedQuestion.objects.filter(quiz_id=self.pk)

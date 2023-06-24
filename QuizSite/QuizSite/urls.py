@@ -14,14 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import path, include
 from django.contrib.flatpages import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
+from Records.models import Event
+
 
 def index(request):
-    return render(request, 'home/index.html')
+    # return render(request, 'home/index.html')
+    return redirect(Event.objects.last())
 
 
 urlpatterns = [

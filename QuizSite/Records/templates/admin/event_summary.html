@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Event Summary for "{{ event }}"</h1>
+<table>
+    <tr>
+        <th>Individual</th>
+        <th>Total Points</th>
+        <th>Total Questions</th>
+        <th>Correct Questions</th>
+        <th>Accuracy</th>
+    </tr>
+    {% for individual, data in pivot_table.items %}
+    <tr>
+        <td>{{ individual }}</td>
+        <td>{{ data.total_points }}</td>
+        <td>{{ data.total_questions }}</td>
+        <td>{{ data.correct_questions }}</td>
+        <td>{{ data.accuracy|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

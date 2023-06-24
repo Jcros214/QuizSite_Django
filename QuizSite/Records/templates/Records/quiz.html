@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}
     Quiz
 {% endblock title %}
 {% block content %}
+    <link rel="stylesheet" href="{% static 'Quiz/quiz.css' %}"/>
     <h1>{{ quiz }}</h1>
     <h2>Quiz details:</h2>
     <table>
@@ -29,29 +31,6 @@
             <td>{{ quiz.round }}</td>
         </tr>
     </table>
-    <h2>Results:</h2>
-    <table>
-        <tr>
-            <th>Team</th>
-            <th>Score</th>
-        </tr>
-        {% for team,score in results.items %}
-            <tr>
-                <td>{{ team }}</td>
-                <td>{{ score }}</td>
-            </tr>
-        {% endfor %}
-    </table>
-    <h2>object_list of questions:</h2>
-    {% if object_list %}
-        <ul>
-            {% for l in object_list %}
-                <li>
-                    <a href=" {% url 'records:question' league.id season.id event.id quiz.id l.id %} ">{{ l }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No questions are available.</p>
-    {% endif %}
+    <h2>Questions:</h2>
+    {{ quiz_chart|safe }}
 {% endblock content %}
