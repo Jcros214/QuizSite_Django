@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
-from Records.models import Quiz, AskedQuestion, Team, TeamMembership, Individual, User
+from django.shortcuts import render, redirect, reverse
+
+try:
+    from Records.models import *
+except ImportError:
+    from ..Records.models import *
 from django.utils import timezone
 
-from .models import ActiveScoreKeepers
+# from .models import ActiveScoreKeepers
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
@@ -15,16 +19,16 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
         raise AttributeError(
             'You have created an account, but it has not been setup to be a scorekeeper. Please contact your administer to get your account setup.')
 
-    current_scorekeeper = ActiveScoreKeepers.objects.filter(scorekeeper=current_individual).first()
+    current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False).filter(
+        round=str(CurrentRound.objects.first().round))
 
-    if current_scorekeeper is None:
+    if current_quiz.exists():
+        return current_quiz.first()
+    else:
         raise AttributeError(
             "You're all setup, but you haven't been assigned to a quiz. This is probably because the next round hasn't started yet.")
 
-    return current_scorekeeper.quiz
 
-
-@login_required
 def index(request):
     def render_quiz_as_accordion_item(quiz: Quiz, show: bool = False):
         return f"""
@@ -48,6 +52,13 @@ def index(request):
           <tr>
             <th>Teams</th>
             <td>{', '.join([team.name for team in quiz.get_teams()])}</td>
+          </tr>
+          <tr>
+          </tr>
+          <tr>
+            <td>
+              <a href="{quiz.get_uri()}">See more...</a>
+            </td>
           </tr>
         </table>
       </div>
@@ -161,8 +172,6 @@ def quiz_backend(request):
         elif request.POST.get('quiz_validated_by_scorekeeper'):
             scorekeeper = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
             current_quiz.validated_by(scorekeeper)
-
-            ActiveScoreKeepers.objects.filter(scorekeeper=scorekeeper.individual).delete()
 
             return HttpResponse(205)
 

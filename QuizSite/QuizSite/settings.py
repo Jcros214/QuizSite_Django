@@ -46,6 +46,7 @@ AUTHENTICATION_BACKENDS = [
 INSTALLED_APPS = [
     'Records.apps.RecordsConfig',
     'Quiz.apps.QuizConfig',
+    'Bracket.apps.BracketConfig',
     # 'Auth.apps.AuthConfig',
     'api.apps.ApiConfig',
     'Material.apps.MaterialConfig',

@@ -7,11 +7,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 try:
-    from Records.models import Organization, League, LeagueMembership, Individual, Season, Team, TeamMembership, \
-        Event, Quiz, QuizParticipants, AskedQuestion
+    from Records.models import *
 except ImportError:
-    from ..Records.models import Organization, League, LeagueMembership, Individual, Season, Team, TeamMembership, \
-        Event, Quiz, QuizParticipants, AskedQuestion
+    from ..Records.models import *
 
 
 # Create your views here.

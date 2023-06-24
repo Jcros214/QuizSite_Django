@@ -3,8 +3,7 @@ from django.contrib import admin
 # Register your models here.
 
 
-from .models import Organization, Team, Individual, Season, Event, Quiz, AskedQuestion, League, QuizParticipants, \
-    TeamMembership, LeagueMembership
+from .models import *
 
 admin.site.register(League)
 admin.site.register(Season)
@@ -20,3 +19,4 @@ admin.site.register(AskedQuestion)
 admin.site.register(QuizParticipants)
 admin.site.register(TeamMembership)
 admin.site.register(LeagueMembership)
+admin.site.register(CurrentRound)

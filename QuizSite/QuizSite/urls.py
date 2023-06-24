@@ -33,16 +33,15 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('material/', include('Material.urls')),
     path('manager/', include('TournamentManager.urls')),
+    path('bracket/', include('Bracket.urls')),
     path('games/', include('quiz_games.urls')),
 ]
 urlpatterns += staticfiles_urlpatterns()
-
 
 urlpatterns += [
     path('about-us/', views.flatpage, {'url': '/about/'}, name='about'),
     path('privacy/', views.flatpage, {'url': '/privacy/'}, name='privacy'),
 ]
-
 
 '''
 REST API stuff

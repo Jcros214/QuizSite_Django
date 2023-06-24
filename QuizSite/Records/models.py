@@ -161,6 +161,17 @@ class Quiz(models.Model):
         else:
             raise Exception(f"{individual} is not the scorekeeper nor a member of any team in {self}")
 
+    def get_uri(self):
+        return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
+
+
+class CurrentRound(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    round = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.event} - {self.round}"
+
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)

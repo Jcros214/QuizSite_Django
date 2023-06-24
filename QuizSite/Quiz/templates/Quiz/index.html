@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% block title %}
-    Quiz Index
+    Quizzes
 {% endblock title %}
 {% block content %}
-    <h1>Quiz Index</h1>
-    <a href="{% url 'quiz:quiz' %}">Quiz</a>
+    <h1>Quizzes</h1>
+    <br>
+    <br>
 
     {{ quiz_list|safe }}
 

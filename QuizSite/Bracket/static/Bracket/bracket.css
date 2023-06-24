@@ -1,0 +1,163 @@
+.tournament {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 50%;
+    margin: 0 auto;
+    height: calc(100vh - 56px);
+}
+
+.round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 20%;
+}
+
+
+/* Borders */
+
+.match.left .team-spacer, .match.left .team.bottom {
+    border-right: 1px solid #AAA;
+}
+
+.match.right .team-spacer, .match.right .team.bottom {
+    border-left: 1px solid #AAA;
+}
+
+.round .match {
+    border-bottom: 1px solid #AAA;
+}
+
+
+.team-spacer {
+    border-top: 1px solid #AAA;
+}
+
+.round .final, .round .final * {
+    border: none !important;
+    text-align: center;
+}
+
+.team {
+    white-space: nowrap;
+    overflow: hidden;
+    /*text-overflow: ellipsis;*/
+    font-size: 14px;
+}
+
+
+/* Spacing */
+.match {
+    margin: 6px 0;
+}
+
+.round-1 .match .team-spacer {
+    padding: 220px 0;
+}
+
+.round-2 .match .team-spacer {
+    padding: 105px 0;
+}
+
+.round-3 .match .team-spacer {
+    padding: 45px 0;
+}
+
+.round-4 .match .team-spacer {
+    padding: 18px 0;
+}
+
+.round-5 .match .team-spacer {
+    padding: 0 0;
+}
+
+.round-0 {
+}
+
+.round-1 {
+    height: 100%;
+}
+
+.round-2 {
+    height: 100%;
+}
+
+.round-3 {
+    height: 100%;
+}
+
+
+.round-4 {
+    height: 100%;
+}
+
+
+.round-5 {
+    height: 100%;
+}
+
+.score {
+    width: 25%;
+    display: inline-block;
+}
+
+.winner {
+    font-weight: 600;
+}
+
+.loser  {
+    color: rgba(.6875, .6875, .6875, .5);
+}
+
+
+
+/*
+.round-0 {
+}
+
+.round-0 .match {
+}
+
+
+.round-1 .match {
+}
+
+.round-3 .match {
+}
+
+.round-2 > .match > .team.top {
+}
+
+.round-2 > .match > .team.bottom {
+}
+
+.round-3 > .match > .team.top {
+}
+
+.round-3 > .match > .team.bottom {
+}
+
+.round-4 > .match > .team.top {
+}
+
+.round-4 > .match > .team.bottom {
+}
+
+.round-1 .team {
+}
+
+.team.top {
+}
+
+.team-spacer {
+}
+
+.team.bottom {
+}
+
+.right-border {
+}
+
+.content {
+}
