@@ -83,7 +83,7 @@ def populate_round_robbin_event(request):
     teams = []
 
     for bracket in ["R", "B"]:
-        for letter in LETTERS[:19]:
+        for letter in LETTERS[:18]:
             teams.append(Team(short_name=bracket + letter, name='', organization=organization, season=season))
 
     Team.objects.bulk_create(teams)
