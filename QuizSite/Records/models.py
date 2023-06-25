@@ -66,7 +66,7 @@ class Team(models.Model):
     short_name = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.short_name
 
     def __repr__(self):
         return f"<Team {self.short_name}>"

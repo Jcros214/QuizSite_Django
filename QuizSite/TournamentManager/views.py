@@ -529,6 +529,88 @@ def populate_round_robbin_event(request):
 
     quizzes = []
 
+    individuals = [['BA', 'Adam Greene'],
+                   ['BA', 'Kari Greene'],
+                   ['BB', 'David Castlebury'],
+                   ['BB', 'Sawyer Castlebury'],
+                   ['BC', 'Mark Crosby'],
+                   ['BC', 'Esther Crosby'],
+                   ['BD', 'Noah Crosby'],
+                   ['BD', 'Logan Marunich'],
+                   ['BE', 'James Ballinger'],
+                   ['BE', 'Stevie Ballinger'],
+                   ['BF', 'Lydia Ballinger'],
+                   ['BF', 'Molly Carnell'],
+                   ['BG', 'Walton Hunsader'],
+                   ['BG', 'Micaiah Pipkin'],
+                   ['BH', 'Brytni Castlebury'],
+                   ['BH', 'Jodi Taylor'],
+                   ['BI', 'Roger Greene'],
+                   ['BI', 'Emma Carnell'],
+                   ['BJ', 'Justus Wells'],
+                   ['BJ', 'Landon Farmer'],
+                   ['BK', 'Bethany Carnell'],
+                   ['BK', 'Esther Tricquet'],
+                   ['BL', 'Amaryssa Paige'],
+                   ['BL', 'Landyn Marunich'],
+                   ['BM', 'Abigail Unger'],
+                   ['BM', 'Lydia Pipkin'],
+                   ['BN', 'Gabriel Unger'],
+                   ['BN', 'Ben Crosby'],
+                   ['BO', 'Timothy Crosby'],
+                   ['BO', 'Amelia Wells'],
+                   ['BP', 'Eric Carnell'],
+                   ['BP', 'Jonathan Carnell'],
+                   ['BQ', 'Josiah Wells'],
+                   ['BQ', 'Gabriel Ballinger'],
+                   ['BR', 'Joshua Grimm'],
+                   ['BR', 'Jonathan C Crosby'],
+                   ['RA', 'Tammy Grimm'],
+                   ['RA', 'Adam W '],
+                   ['RB', 'Berean Cutler'],
+                   ['RB', 'Breagan Cutler'],
+                   ['RC', 'Emma Eastland'],
+                   ['RC', 'Lydia Crosby'],
+                   ['RD', 'Destiny Wells'],
+                   ['RD', 'Bethany Cutler'],
+                   ['RE', 'Paul Crosby'],
+                   ['RE', 'Adam Eastlnd'],
+                   ['RF', 'Samuel Unger'],
+                   ['RF', 'Megan Carnell'],
+                   ['RG', 'Charity Unger'],
+                   ['RG', 'Rachel Carnell'],
+                   ['RH', 'David Jones'],
+                   ['RH', 'Jonah Unger'],
+                   ['RI', 'James Crosby'],
+                   ['RI', 'Joy Carnell'],
+                   ['RJ', 'Abigail Greene'],
+                   ['RJ', 'MaryGrace Carnell'],
+                   ['RK', 'David Smith'],
+                   ['RK', 'Matthew Crosby'],
+                   ['RL', 'Brigitta Cutler'],
+                   ['RL', 'Bellhannah Cutler'],
+                   ['RM', 'Moriah Pipkin'],
+                   ['RM', 'Grace Carnell'],
+                   ['RN', 'Aimee Crosby'],
+                   ['RN', 'Zachariah Crosby'],
+                   ['RO', 'Joshua Unger'],
+                   ['RO', 'Natalie Unger'],
+                   ['RP', 'Chris Carnell'],
+                   ['RP', 'Gloria Carnell'],
+                   ['RQ', 'Miriam Carnell'],
+                   ['RQ', 'Stephanie Farmer'],
+                   ['RR', 'Josiah Ballinger'],
+                   ['RR', 'Jaxon Wells'], ]
+
+    team_memberships = []
+
+    for individual in individuals:
+        person = Individual.objects.create(name=individual[1],
+                                           user=User.objects.create_user(individual[1], password="password"))
+        team_memberships.append(TeamMembership(team=Team.objects.get(short_name=individual[0]), individual=person))
+
+    TeamMembership.objects.bulk_create(team_memberships)
+
     def get_individual_by_name(name):
         try:
             return Individual.objects.get(name=name)
