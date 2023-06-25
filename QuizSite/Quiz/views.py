@@ -19,9 +19,6 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
         raise AttributeError(
             'You have created an account, but it has not been setup to be a scorekeeper. Please contact your administer to get your account setup.')
 
-    if not CurrentRound.objects.first().exists():
-        raise AttributeError("CurrentRound hasn't been setup yet. Please contact your administer.")
-
     current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False)
 
     if current_quiz.exists():
