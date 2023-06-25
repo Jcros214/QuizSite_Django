@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1', '161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app', 'localhost'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app']
+CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app', 'https://quizbox.app']
 
 # Application definition
 
