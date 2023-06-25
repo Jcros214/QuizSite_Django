@@ -37,7 +37,7 @@ class Individual(models.Model):
     name = models.CharField(max_length=100)
     birthday = models.DateField("", auto_now=False, auto_now_add=False, default=None, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
-    gender = models.BooleanField(choices=((MALE, "Male"), (FEMALE, "Female")))
+    gender = models.BooleanField(choices=((MALE, "Male"), (FEMALE, "Female")), null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -67,6 +67,9 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return f"<Team {self.short_name}>"
 
     def try_short_name(self):
         if self.short_name:

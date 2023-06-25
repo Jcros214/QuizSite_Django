@@ -529,18 +529,19 @@ def populate_round_robbin_event(request):
 
     quizzes = []
 
-    for match in matches:
-        quiz = Quiz.objects.create(event=event, quizmaster=match['room'][1], scorekeeper=match['room'][2],
-                                   room=match['room'][0], round=match['round'])
-        for team in match['teams']:
-            quiz.teams.add(Team.objects.get(name=team))
-
     def get_individual_by_name(name):
         try:
             return Individual.objects.get(name=name)
         except Individual.DoesNotExist:
-            Individual.objects.create(name=new_individual,
-                                      user=User.objects.create_user(new_individual, password="password"))
+            return Individual.objects.create(name=name,
+                                             user=User.objects.create_user(name, password="password"))
+
+    for match in matches:
+        quiz = Quiz.objects.create(event=event, quizmaster=get_individual_by_name(match['room'][1]),
+                                   scorekeeper=get_individual_by_name(match['room'][2]),
+                                   room=match['room'][0], round=match['round'])
+        for team in match['teams']:
+            QuizParticipants.objects.create(quiz=quiz, team=Team.objects.get(short_name=team))
 
     # for room in rooms:
     #     # create users
