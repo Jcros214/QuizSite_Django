@@ -48,185 +48,48 @@ def populate_round_robbin_event(request):
     # teams = request.POST.get("teams")
     # event = request.POST.get("event")
     # TODO: TMP; RM
-    teams = {
-
-        "Grapes and Figs ": [
-            "Abigail Unger",
-            "Lydia Pipkin"
-        ],
-        "Opposites Attract ": [
-            "Adam Greene",
-            "Kari Greene"
-        ],
-        "_team-3_": [
-            "James Crosby",
-            "Joy Carnell"
-        ],
-        "The Apostle and The Regicide": [
-            "Berean Cutler",
-            "Breagan Cutler"
-        ],
-        "Serene Chaos": [
-            "Brigitta Cutler",
-            "Bellhannah Cutler"
-        ],
-        "_team-6_": [
-            "Chris Carnell",
-            "Gloria Carnell"
-        ],
-        "Truth-Seekers ": [
-            "Jodi Taylor",
-            "Brytni Castlebury"
-        ],
-        "_team-8_": [
-            "David Castlebury",
-            "Sawyer Castlebury"
-        ],
-        "David and Jonahthan": [
-            "David Jones",
-            "Jonah Unger"
-        ],
-        "_team-10_": [
-            "David Smith",
-            "Matthew Crosby"
-        ],
-        "Pearls of Grace ": [
-            "Destiny Wells",
-            "Bethany Cutler"
-        ],
-        "Sky's the Limit ": [
-            "Emma Carnell",
-            "Roger Greene"
-        ],
-        "Go Up Thou Bald Head": [
-            "Eric Carnell",
-            "Jonathan Carnell"
-        ],
-        "_team-14_": [
-            "Esther Tricquet",
-            "Bethany Carnell"
-        ],
-        "_team-15_": [
-            "Gabriel Unger",
-            "Ben Crosby"
-        ],
-        "Overwhelmingly Mediocre? ": [
-            "James Ballinger",
-            "Stevie Ballinger"
-        ],
-        "Sons of Thunder": [
-            "Jonathan Crosby",
-            "Paul Crosby"
-        ],
-        "_team-18_": [
-            "Joshua Grimm",
-            "Jonathan C Crosby"
-        ],
-        "_team-19_": [
-            "Joshua Unger",
-            "Natalie Unger"
-        ],
-        "Trailblazers ": [
-            "Josiah Ballinger",
-            "Jaxon Wells"
-        ],
-        "Torches ": [
-            "Josiah Wells",
-            "Gabriel Ballinger"
-        ],
-        "_team-22_": [
-            "Justus Wells",
-            "Landon Farmer"
-        ],
-        "_team-23_": [
-            "Landyn Marunich",
-            "Amaryssa Paige"
-        ],
-        "Smarties ": [
-            "Lydia Ballinger",
-            "Molly Carnell"
-        ],
-        "_team-25_": [
-            "Mark Crosby",
-            "Esther Crosby"
-        ],
-        "_team-26_": [
-            "MaryGrace Carnell",
-            "Abigail Greene"
-        ],
-        "_team-27_": [
-            "Micaiah Pipkin",
-            "Walton Hunsader"
-        ],
-        "Sinners with Pearls ": [
-            "Miriam Carnell",
-            "Stephanie Farmer"
-        ],
-        "_team-29_": [
-            "Moriah Pipkin",
-            "Grace Carnell"
-        ],
-        "_team-30_": [
-            "Noah Crosby",
-            "Logan Marunich"
-        ],
-        "_team-31_": [
-            "Aimee Crosby",
-            "Zachariah Crosby"
-        ],
-        "_team-32_": [
-            "Rachel Carnell",
-            "Charity Unger"
-        ],
-        "_team-33_": [
-            "Samuel Unger",
-            "Megan Carnell"
-        ],
-        "_team-34_": [
-            "Sherri Crosby",
-            "Tammy Grimm"
-        ],
-        "_team-35_": [
-            "Timothy Crosby",
-            "Amelia Wells"
-        ],
-        "Love is Blind ": [
-            "Adam Eastland",
-            "Emma Eastland"
-        ],
-
-    }
     season = Season.objects.first()
     organization = Organization.objects.first()
     event = Event.objects.get(pk=4)
 
-    def get_team_by_name(team_name_str: str):
-        try:
-            return Team.objects.get(name=team_name_str)
-        except (IntegrityError, Team.DoesNotExist):
-            return Team.objects.create(name=team_name_str, organization=organization, season=season)
+    # def get_team_by_name(team_name_str: str):
+    #     try:
+    #         return Team.objects.get(name=team_name_str)
+    #     except (IntegrityError, Team.DoesNotExist):
+    #         return Team.objects.create(name=team_name_str, organization=organization, season=season)
+    #
+    # def get_individual_by_name(name: str):
+    #     try:
+    #         return Individual.objects.get(name=name)
+    #     except (IntegrityError, Individual.DoesNotExist):
+    #         return Individual.objects.create(name=name, user=User.objects.create_user(name, password="password"))
+    #
+    # def get_team_membership(team_name_str: Team, individual: Individual):
+    #     try:
+    #         return TeamMembership.objects.get(team=team_name_str, individual=individual)
+    #     except (IntegrityError, TeamMembership.DoesNotExist):
+    #         return TeamMembership.objects.create(team=team_name_str, individual=individual)
+    #
+    # for team_name, team in zip(teams.keys(), teams.values()):
+    #     new_team = get_team_by_name(team_name.strip())
+    #     new_individuals = [
+    #         get_individual_by_name(individual.strip()) for
+    #         individual in team]
+    #     [get_team_membership(new_team, individual) for individual in
+    #      new_individuals]
 
-    def get_individual_by_name(name: str):
-        try:
-            return Individual.objects.get(name=name)
-        except (IntegrityError, Individual.DoesNotExist):
-            return Individual.objects.create(name=name, user=User.objects.create_user(name, password="password"))
+    LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-    def get_team_membership(team_name_str: Team, individual: Individual):
-        try:
-            return TeamMembership.objects.get(team=team_name_str, individual=individual)
-        except (IntegrityError, TeamMembership.DoesNotExist):
-            return TeamMembership.objects.create(team=team_name_str, individual=individual)
+    teams = []
 
-    for team_name, team in zip(teams.keys(), teams.values()):
-        new_team = get_team_by_name(team_name.strip())
-        new_individuals = [
-            get_individual_by_name(individual.strip()) for
-            individual in team]
-        [get_team_membership(new_team, individual) for individual in
-         new_individuals]
+    for bracket in ["R", "B"]:
+        for letter in LETTERS[:19]:
+            teams.append(Team(short_name=bracket + letter, name='', organization=organization, season=season))
+
+    Team.objects.bulk_create(teams)
 
     rooms = [
+        [],  # Started counting from 1...
         ['A', "Nathan Crosby", "Abigail Crosby"],
         ['B', "Jim Cutler", "Jacqueline Cutler"],
         ['C', "Daniel Jones", "Debbie Eastland"],
@@ -236,7 +99,441 @@ def populate_round_robbin_event(request):
         ['G', "Adam Eastland", "Emma Eastland"]
     ]
 
-    NUM_ROUNDS = 12
+    matches = [
+        {
+            'room': rooms[1],
+            'round': 1,
+            'teams': ["RB", "RJ", "RR"]
+        },
+        {
+            'room': rooms[1],
+            'round': 2,
+            'teams': ["BH", "BP", "BF"]
+        },
+        {
+            'room': rooms[1],
+            'round': 3,
+            'teams': ["RH", "RP", "RC"]
+        },
+        {
+            'room': rooms[1],
+            'round': 4,
+            'teams': ["BE", "BK", "BQ"]
+        },
+        {
+            'room': rooms[1],
+            'round': 5,
+            'teams': ["RM", "RE", "RI"]
+        },
+        {
+            'room': rooms[1],
+            'round': 6,
+            'teams': ["BA", "BJ", "BP"]
+        },
+        {
+            'room': rooms[1],
+            'round': 7,
+            'teams': ["RN", "RC", "RJ"]
+        },
+        {
+            'room': rooms[1],
+            'round': 8,
+            'teams': ["RB", "RD", "RF"]
+        },
+        {
+            'room': rooms[1],
+            'round': 9,
+            'teams': ["RA", "RG", "RM"]
+        },
+        {
+            'room': rooms[1],
+            'round': 10,
+            'teams': ["BG", "BO", "BB"]
+        },
+        {
+            'room': rooms[1],
+            'round': 11,
+            'teams': ["RD", "RG", "RM"]
+        },
+        {
+            'room': rooms[1],
+            'round': 12,
+            'teams': ["RN", "RP", "RR"]
+        },
+
+        {
+            'room': rooms[2],
+            'round': 1,
+            'teams': ["RC", "RK", "RM"]
+        },
+        {
+            'room': rooms[2],
+            'round': 2,
+            'teams': ["RL", "RH", "RJ"]
+        },
+        {
+            'room': rooms[2],
+            'round': 3,
+            'teams': ["RI", "RQ", "RD"]
+        },
+        {
+            'room': rooms[2],
+            'round': 4,
+            'teams': ["BF", "BL", "BR"]
+        },
+        {
+            'room': rooms[2],
+            'round': 5,
+            'teams': ["RN", "RF", "RJ"]
+        },
+        {
+            'room': rooms[2],
+            'round': 6,
+            'teams': ["BB", "BK", "BQ"]
+        },
+        {
+            'room': rooms[2],
+            'round': 7,
+            'teams': ["RO", "RD", "RK"]
+        },
+        {
+            'room': rooms[2],
+            'round': 8,
+            'teams': ["BR", "BA", "BH"]
+        },
+        {
+            'room': rooms[2],
+            'round': 9,
+            'teams': ["RB", "RH", "RN"]
+        },
+        {
+            'room': rooms[2],
+            'round': 10,
+            'teams': ["BH", "BP", "BC"]
+        },
+        {
+            'room': rooms[2],
+            'round': 11,
+            'teams': ["RE", "RH", "RN"]
+        },
+        {
+            'room': rooms[2],
+            'round': 12,
+            'teams': ["BO", "BA", "BK"]
+        },
+
+        {
+            'room': rooms[3],
+            'round': 1,
+            'teams': ["RD", "RL", "RN"]
+        },
+        {
+            'room': rooms[3],
+            'round': 2,
+            'teams': ["BI", "BQ", "BA"]
+        },
+        {
+            'room': rooms[3],
+            'round': 3,
+            'teams': ["RJ", "RR", "RE"]
+        },
+        {
+            'room': rooms[3],
+            'round': 4,
+            'teams': ["RA", "RC", "RE"]
+        },
+        {
+            'room': rooms[3],
+            'round': 5,
+            'teams': ["BN", "BP", "BR"]
+        },
+        {
+            'room': rooms[3],
+            'round': 6,
+            'teams': ["BC", "BL", "BR"]
+        },
+        {
+            'room': rooms[3],
+            'round': 7,
+            'teams': ["RP", "RE", "RL"]
+        },
+        {
+            'room': rooms[3],
+            'round': 8,
+            'teams': ["BM", "BB", "BI"]
+        },
+        {
+            'room': rooms[3],
+            'round': 9,
+            'teams': ["RC", "RI", "RO"]
+        },
+        {
+            'room': rooms[3],
+            'round': 10,
+            'teams': ["BI", "BQ", "BD"]
+        },
+        {
+            'room': rooms[3],
+            'round': 11,
+            'teams': ["RF", "RI", "RO"]
+        },
+        {
+            'room': rooms[3],
+            'round': 12,
+            'teams': ["BP", "BB", "BL"]
+        },
+
+        {
+            'room': rooms[4],
+            'round': 1,
+            'teams': ["RE", "RG", "RO"]
+        },
+        {
+            'room': rooms[4],
+            'round': 2,
+            'teams': ["BJ", "BR", "BB"]
+        },
+        {
+            'room': rooms[4],
+            'round': 3,
+            'teams': ["RK", "RM", "RF"]
+        },
+        {
+            'room': rooms[4],
+            'round': 4,
+            'teams': ["BA", "BG", "BM"]
+        },
+        {
+            'room': rooms[4],
+            'round': 5,
+            'teams': ["RO", "RA", "RK"]
+        },
+        {
+            'room': rooms[4],
+            'round': 6,
+            'teams': ["BD", "BG", "BM"]
+        },
+        {
+            'room': rooms[4],
+            'round': 7,
+            'teams': ["RQ", "RF", "RG"]
+        },
+        {
+            'room': rooms[4],
+            'round': 8,
+            'teams': ["BN", "BC", "BJ"]
+        },
+        {
+            'room': rooms[4],
+            'round': 9,
+            'teams': ["RD", "RJ", "RP"]
+        },
+        {
+            'room': rooms[4],
+            'round': 10,
+            'teams': ["BJ", "BR", "BE"]
+        },
+        {
+            'room': rooms[4],
+            'round': 11,
+            'teams': ["BG", "BI", "BK"]
+        },
+        {
+            'room': rooms[4],
+            'round': 12,
+            'teams': ["BQ", "BC", "BG"]
+        },
+
+        {
+            'room': rooms[5],
+            'round': 1,
+            'teams': ["RF", "RH", "RP"]
+        },
+        {
+            'room': rooms[5],
+            'round': 2,
+            'teams': ["BK", "BM", "BC"]
+        },
+        {
+            'room': rooms[5],
+            'round': 3,
+            'teams': ["BO", "BQ", "BM"]
+        },
+        {
+            'room': rooms[5],
+            'round': 4,
+            'teams': ["BB", "BH", "BN"]
+        },
+        {
+            'room': rooms[5],
+            'round': 5,
+            'teams': ["RP", "RB", "RL"]
+        },
+        {
+            'room': rooms[5],
+            'round': 6,
+            'teams': ["BE", "BH", "BN"]
+        },
+        {
+            'room': rooms[5],
+            'round': 7,
+            'teams': ["BB", "BD", "BF"]
+        },
+        {
+            'room': rooms[5],
+            'round': 8,
+            'teams': ["BO", "BD", "BK"]
+        },
+        {
+            'room': rooms[5],
+            'round': 9,
+            'teams': ["RE", "RK", "RQ"]
+        },
+        {
+            'room': rooms[5],
+            'round': 10,
+            'teams': ["BK", "BM", "BF"]
+        },
+        {
+            'room': rooms[5],
+            'round': 11,
+            'teams': ["RA", "RJ", "RP"]
+        },
+        {
+            'room': rooms[5],
+            'round': 12,
+            'teams': ["BR", "BD", "BH"]
+        },
+
+        {
+            'room': rooms[6],
+            'round': 1,
+            'teams': ["BL", "BH", "BJ"]
+        },
+        {
+            'room': rooms[6],
+            'round': 2,
+            'teams': ["BL", "BN", "BD"]
+        },
+        {
+            'room': rooms[6],
+            'round': 3,
+            'teams': ["RL", "RN", "RA"]
+        },
+        {
+            'room': rooms[6],
+            'round': 4,
+            'teams': ["BC", "BI", "BO"]
+        },
+        {
+            'room': rooms[6],
+            'round': 5,
+            'teams': ["RQ", "RC", "RG"]
+        },
+        {
+            'room': rooms[6],
+            'round': 6,
+            'teams': ["BF", "BI", "BO"]
+        },
+        {
+            'room': rooms[6],
+            'round': 7,
+            'teams': ["RR", "RA", "RH"]
+        },
+        {
+            'room': rooms[6],
+            'round': 8,
+            'teams': ["BP", "BE", "BL"]
+        },
+        {
+            'room': rooms[6],
+            'round': 9,
+            'teams': ["RF", "RL", "RR"]
+        },
+        {
+            'room': rooms[6],
+            'round': 10,
+            'teams': ["RO", "RQ", "RM"]
+        },
+        {
+            'room': rooms[6],
+            'round': 11,
+            'teams': ["RB", "RK", "RQ"]
+        },
+        {
+            'room': rooms[6],
+            'round': 12,
+            'teams': ["BM", "BE", "BI"]
+        },
+
+        {
+            'room': rooms[7],
+            'round': 1,
+            'teams': ["RI", "RQ", "RA"]
+        },
+        {
+            'room': rooms[7],
+            'round': 2,
+            'teams': ["BG", "BO", "BE"]
+        },
+        {
+            'room': rooms[7],
+            'round': 3,
+            'teams': ["RG", "RO", "RB"]
+        },
+        {
+            'room': rooms[7],
+            'round': 4,
+            'teams': ["BD", "BJ", "BP"]
+        },
+        {
+            'room': rooms[7],
+            'round': 5,
+            'teams': ["RR", "RD", "RH"]
+        },
+        {
+            'room': rooms[7],
+            'round': 6,
+            'teams': ["RG", "RI", "RK"]
+        },
+        {
+            'room': rooms[7],
+            'round': 7,
+            'teams': ["RM", "RB", "RI"]
+        },
+        {
+            'room': rooms[7],
+            'round': 8,
+            'teams': ["BQ", "BF", "BG"]
+        },
+        {
+            'room': rooms[7],
+            'round': 9,
+            'teams': ["BA", "BC", "BE"]
+        },
+        {
+            'room': rooms[7],
+            'round': 10,
+            'teams': ["BL", "BN", "BA"]
+        },
+        {
+            'room': rooms[7],
+            'round': 11,
+            'teams': ["RC", "RL", "RR"]
+        },
+        {
+            'room': rooms[7],
+            'round': 12,
+            'teams': ["BN", "BF", "BJ"]
+        }]
+
+    quizzes = []
+
+    for match in matches:
+        quiz = Quiz.objects.create(event=event, quizmaster=match['room'][1], scorekeeper=match['room'][2],
+                                   room=match['room'][0], round=match['round'])
+        for team in match['teams']:
+            quiz.teams.add(Team.objects.get(name=team))
 
     def get_individual_by_name(name):
         try:
@@ -245,18 +542,18 @@ def populate_round_robbin_event(request):
             Individual.objects.create(name=new_individual,
                                       user=User.objects.create_user(new_individual, password="password"))
 
-    for room in rooms:
-        # create users
-
-        for new_individual in room[1:]:
-            get_individual_by_name(name=new_individual)
-
-        # add quizzes and questions per round
-
-        for round_num in range(1, NUM_ROUNDS + 1):
-            quiz = Quiz.objects.create(event=event, quizmaster=get_individual_by_name(room[1]),
-                                       scorekeeper=get_individual_by_name(room[2]), room=room[0], round=round_num)
-            for question in range(1, 15 + 1):
-                AskedQuestion.objects.create(quiz=quiz, question_number=question)
+    # for room in rooms:
+    #     # create users
+    #
+    #     for new_individual in room[1:]:
+    #         get_individual_by_name(name=new_individual)
+    #
+    #     # add quizzes and questions per round
+    #
+    #     for round_num in range(1, NUM_ROUNDS + 1):
+    #         quiz = Quiz.objects.create(event=event, quizmaster=get_individual_by_name(room[1]),
+    #                                    scorekeeper=get_individual_by_name(room[2]), room=room[0], round=round_num)
+    #         for question in range(1, 15 + 1):
+    #             AskedQuestion.objects.create(quiz=quiz, question_number=question)
 
     return HttpResponse("Done")
