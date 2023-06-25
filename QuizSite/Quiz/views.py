@@ -22,8 +22,7 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
     if not CurrentRound.objects.first().exists():
         raise AttributeError("CurrentRound hasn't been setup yet. Please contact your administer.")
 
-    current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False).filter(
-        round=str(CurrentRound.objects.first().round))
+    current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False)
 
     if current_quiz.exists():
         return current_quiz.first()
