@@ -52,6 +52,8 @@ def populate_round_robbin_event(request):
     organization = Organization.objects.first()
     event = Event.objects.get(pk=4)
 
+    NUM_ROUND = 15
+
     # def get_team_by_name(team_name_str: str):
     #     try:
     #         return Team.objects.get(name=team_name_str)
@@ -625,6 +627,9 @@ def populate_round_robbin_event(request):
         for team in match['teams']:
             QuizParticipants.objects.create(quiz=quiz, team=Team.objects.get(short_name=team))
 
+        for question in range(1, 15 + 1):
+            AskedQuestion.objects.create(quiz=quiz, question_number=question)
+
     # for room in rooms:
     #     # create users
     #
@@ -633,10 +638,10 @@ def populate_round_robbin_event(request):
     #
     #     # add quizzes and questions per round
     #
-    #     for round_num in range(1, NUM_ROUNDS + 1):
-    #         quiz = Quiz.objects.create(event=event, quizmaster=get_individual_by_name(room[1]),
-    #                                    scorekeeper=get_individual_by_name(room[2]), room=room[0], round=round_num)
-    #         for question in range(1, 15 + 1):
-    #             AskedQuestion.objects.create(quiz=quiz, question_number=question)
+    # for round_num in range(1, NUM_ROUNDS + 1):
+    #     quiz = Quiz.objects.create(event=event, quizmaster=get_individual_by_name(room[1]),
+    #                                scorekeeper=get_individual_by_name(room[2]), room=room[0], round=round_num)
+    #     for question in range(1, 15 + 1):
+    #         AskedQuestion.objects.create(quiz=quiz, question_number=question)
 
     return HttpResponse("Done")
