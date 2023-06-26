@@ -56,7 +56,7 @@ def index(request):
           </tr>
           <tr>
             <td>
-              <a href="{quiz.get_uri()}">See more...</a>
+              <a href="{quiz.get_absolute_url()}">See more...</a>
             </td>
           </tr>
         </table>
@@ -227,7 +227,7 @@ def quiz_view_only(quiz_id) -> str:
             <thead>
                 <tr>
                     <th class="headcol">Quizzer</th> <th class="score-col">Score</th>   
-                    {''.join([f'            <th data-question-id="{question.pk}"><a href="{question.quiz.get_uri()}/{question.pk}">{question.question_number}</a></th>{NEW_LINE}' for question in quiz_questions])} 
+                    {''.join([f'            <th data-question-id="{question.pk}"><a href="{question.quiz.get_absolute_url()}/{question.pk}">{question.question_number}</a></th>{NEW_LINE}' for question in quiz_questions])} 
                 </tr>
                 <tr>
                     <th class="headcol"></th> <th class="score-col"></th>
