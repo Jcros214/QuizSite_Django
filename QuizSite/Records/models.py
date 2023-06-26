@@ -165,13 +165,52 @@ class Event(models.Model):
     def get_next_round(self) -> int | None:
         return self.get_current_round() + 1 if self.get_current_round() else None
 
+    def get_event_view_data(self):
+        raw_query = '''        
+select t.short_name
+, t.name as teamname
+, t.division as division
+, cr.id as currentround
+, nr.id as nextround
+, i.id as individualid
+, i.name as individualname
+, sum(coalesce(aq.value)) as points
+from "Records_team" t
+left join "Records_teammembership" tm on tm.team_id = t.id
+left join "Records_individual" i on tm.individual_id = i.id
+left join "Records_askedquestion" aq on aq.individual_id = tm.individual_id
+left join "Records_quizparticipants" qp on aq.quiz_id = qp.quiz_id and qp.team_id = t.id
+left join "Records_quiz" rq on qp.quiz_id = rq.id
+left join "Records_event" e on rq.event_id = e.id
+left join (SELECT qp.team_id, rqc.id
+    from "Records_quizparticipants" qp
+    left join "Records_quiz" rqc on qp.quiz_id = rqc.id
+    where cast(round as int) = (select min(cast(rq1.round as int)) from "Records_quiz" rq1 where rq1."isValidated" = false)) as cr on cr.team_id = t.id
+left join (SELECT qp.team_id, rqn.id
+    from "Records_quizparticipants" qp
+    left join "Records_quiz" rqn on qp.quiz_id = rqn.id
+    where cast(round as int) = ((select min(cast(rq2.round as int)) from "Records_quiz" rq2 where rq2."isValidated" = false) + 1)) as nr on nr.team_id = t.id
+where e.date = '2023-07-01'
+--and e.istournament = 0
+group by t.short_name
+, t.name
+, t.division
+, cr.id
+, nr.id
+, i.id
+, i.name
+        
+        '''
+
+        return self.objects.raw(raw_query)
+
 
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="quizmaster")
     scorekeeper = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="scorekeeper")
     room = models.CharField(max_length=10)
-    round = models.CharField(max_length=10)
+    round = models.IntegerField()
     isValidated = models.BooleanField(default=False)
 
     def __str__(self) -> str:
