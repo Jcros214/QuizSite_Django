@@ -686,7 +686,7 @@ def populate_round_robbin_event(request):
     team_memberships = []
 
     for team in teams:
-        Team.objects.create(short_name=team[0], long_name=team[1], team_type=team[2])
+        Team.objects.create(short_name=team[0], name=team[1], team_type=team[2])
 
     for individual in individuals:
         person = Individual.objects.create(name=individual[1],
