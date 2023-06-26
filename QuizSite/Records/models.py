@@ -69,6 +69,8 @@ class Team(models.Model):
     short_name = models.CharField(max_length=20, blank=True, null=True)
     division = models.CharField(max_length=2, blank=True, null=True)
 
+    type = models.CharField(max_length=20, blank=True, null=True)
+
     def __str__(self):
         return self.short_name
 
