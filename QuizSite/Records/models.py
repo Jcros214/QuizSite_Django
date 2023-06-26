@@ -275,7 +275,7 @@ class Quiz(models.Model):
         return AskedQuestion.objects.filter(quiz_id=self.pk)
 
     def get_teams(self):
-        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk).order_by('team__short_name')
 
         return [p.team for p in participants]
 
@@ -325,6 +325,27 @@ class Quiz(models.Model):
 
     def get_absolute_url(self):
         return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
+
+    def add_team(self, team: Team):
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+
+        for participant in participants:
+            if participant.team == team:
+                raise ValueError(f"{team} is already a participant in {self}")
+
+        QuizParticipants.objects.create(quiz_id=self.pk, team=team)
+
+    def replace_team(self, old_team: Team, new_team: Team):
+        participants = QuizParticipants.objects.filter(quiz_id=self.pk)
+
+        for participant in participants:
+            if participant.team == old_team:
+                participant.delete()
+                break
+        else:
+            raise ValueError(f"{new_team} is not a participant in {self}")
+
+        self.add_team(new_team)
 
 
 class CurrentRound(models.Model):

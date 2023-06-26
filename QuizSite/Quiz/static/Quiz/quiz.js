@@ -1,3 +1,5 @@
+const csrftoken = Cookies.get('csrftoken');
+
 const allCheckboxes = $('.checkbox-img');
 const quizzerValidateCheckboxes = $('.quizzer-validate');
 
@@ -202,8 +204,6 @@ allCheckboxes.click(function () {
 
     setCheckBox($(this), result);
 
-    const csrftoken = Cookies.get('csrftoken');
-
     $.ajax({
         url: window.location.href,
         type: 'POST',
@@ -244,7 +244,6 @@ $('.not-answered').click(function () {
     const quizzer_id = this.dataset.quizzerId;
     const question_id = this.dataset.questionId;
 
-    const csrftoken = Cookies.get('csrftoken');
 
     $.ajax({
         url: window.location.href,
@@ -285,7 +284,6 @@ allCheckboxes.each(function () {
 
 
 $('#submit').click(function () {
-    const csrftoken = Cookies.get('csrftoken');
 
     $.ajax({
         url: window.location.href,
@@ -306,7 +304,6 @@ $('#submit').click(function () {
 });
 
 quizzerValidateCheckboxes.click(function () {
-    const csrftoken = Cookies.get('csrftoken');
     const quizzer_id = this.dataset.quizzerId;
 
     $.ajax({
@@ -325,6 +322,39 @@ quizzerValidateCheckboxes.click(function () {
         }
     });
 });
+
+
+(function () {
+    let previous;
+
+    $('.team-select').on('focus', function () {
+        // Store the current value on focus and on change
+        previous = this.value;
+    }).change(function () {
+        // Do something with the previous value after the change
+        $.ajax({
+            url: window.location.href,
+            type: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            data: {
+                team_select: true,
+                previous_team_id: previous,
+                new_team_id: this.value,
+            },
+            success: function (data, status, xhr) {
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+            }
+        });
+
+
+        // Make sure the previous value is updated
+        previous = this.value;
+    });
+})();
 
 
 updateAllScores()

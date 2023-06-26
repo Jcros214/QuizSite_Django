@@ -109,8 +109,12 @@ def quiz(request):
     '''
 
     for team in current_quiz.get_teams():
+        team_name_select = '<select class="team-select">'
+        for selectable_team in Team.objects.filter(season=current_quiz.event.season):
+            team_name_select += f'<option value="{selectable_team.pk}" {"selected" if selectable_team == team else ""}>{selectable_team.name}</option>'
+        team_name_select += '</select>'
         HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
+        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
 
         for team_membership in TeamMembership.objects.filter(team=team):
             quizzer = team_membership.individual
@@ -173,6 +177,21 @@ def quiz_backend(request):
             scorekeeper = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
             current_quiz.validated_by(scorekeeper)
 
+            return HttpResponse(205)
+        elif request.POST.get('team_select'):
+            previous_team_id = request.POST.get('previous_team_id')
+            new_team_id = request.POST.get('new_team_id')
+
+            if previous_team_id and new_team_id:
+                previous_team = Team.objects.get(pk=previous_team_id)
+                new_team = Team.objects.get(pk=new_team_id)
+
+                current_quiz.replace_team(previous_team, new_team)
+
+                return HttpResponse(205)
+
+            team = Team.objects.filter(pk=request.POST.get('team_select')).first()
+            current_quiz.set_team(team)
             return HttpResponse(205)
 
         return HttpResponse(401)
@@ -237,6 +256,7 @@ def quiz_view_only(quiz_id) -> str:
         '''
 
     for team in current_quiz.get_teams():
+
         HTML += f'        <tbody>{NEW_LINE}'
         HTML += f'          <tr> <th class="headcol team-name">{team.name}</th>  <th class="score-col team-score"><span class="team-score">{current_quiz.get_results()[team]}<span></th>  </tr> {NEW_LINE}'
 
