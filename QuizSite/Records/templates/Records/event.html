@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
+{% load records_filters %}
 {% block title %}
     Event
 {% endblock title %}
 {% block content %}
-    {% load static %}
     <link rel="stylesheet" href="{% static 'Records/event.css' %}"/>
 
 
@@ -25,6 +26,18 @@
             <td>{{ event.location }}</td>
         </tr>
     </table>
+
+    <br>
+    <br>
+
+    <h2>Current Round: {{ current_round }}</h2>
+    <br>
+    <br>
+
+    <h2>Rankings:</h2>
+    {% ranked_teams_table event %}
+
+
 
     <h2>Quizzes:</h2>
     {{ schedule|safe }}

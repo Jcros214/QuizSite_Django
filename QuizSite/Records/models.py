@@ -64,6 +64,7 @@ class Team(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     short_name = models.CharField(max_length=20, blank=True, null=True)
+    division = models.CharField(max_length=2, blank=True, null=True)
 
     def __str__(self):
         return self.short_name
@@ -83,8 +84,11 @@ class Team(models.Model):
         else:
             return False
 
-    def url(self):
+    def get_absolute_url(self):
         return f"/records/{self.season.league.pk}/{self.season.pk}/team/{self.pk}"
+
+    def get_individuals(self):
+        return Individual.objects.filter(teammembership__team_id=self.pk)
 
 
 class TeamMembership(models.Model):
@@ -107,8 +111,59 @@ class Event(models.Model):
     def date_is_today(self):
         return self.date == django.utils.timezone.datetime.date.today()
 
+    def get_team_rank_in_division(self, team: Team):
+        teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
+
+        rank = 1
+
+        for ranked_team in teams:
+            if team == ranked_team:
+                return rank
+            elif ranked_team.division == team.division:
+                rank += 1
+        else:
+            raise ValueError(f"Team {team} is not in this event")
+
+    def get_team_rank(self, team: Team):
+        teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
+
+        if team in teams:
+            return teams.index(team) + 1
+        else:
+            return None
+
+    def get_team_score(self, team: Team):
+        individuals = Individual.objects.filter(teammembership__team=team)
+        questions = AskedQuestion.objects.filter(quiz__event_id=self.pk, individual__in=individuals)
+
+        return sum([q.value for q in questions])
+
+    def get_individual_score(self, individual: Individual):
+        return sum([q.value for q in AskedQuestion.objects.filter(quiz__event_id=self.pk, individual=individual)])
+
+    def get_team_current_quiz(self, team: Team):
+        participants = QuizParticipants.objects.filter(team=team, quiz__event_id=self.pk)
+        return Quiz.objects.filter(quizparticipants__in=participants).filter(isValidated=False).order_by(
+            'round').first()
+
+    def get_team_next_quiz(self, team: Team):
+        participants = QuizParticipants.objects.filter(team=team, quiz__event_id=self.pk)
+        return Quiz.objects.filter(quizparticipants__in=participants).filter(isValidated=False).order_by(
+            'round')[1]
+
     def get_absolute_url(self):
         return f"/records/{self.season.league.pk}/{self.season.pk}/{self.pk}"
+
+    def get_current_round(self) -> int | None:
+        last_quiz = Quiz.objects.filter(event_id=self.pk).filter(isValidated=False).order_by('round').first()
+
+        if last_quiz:
+            return last_quiz.round
+        else:
+            return None
+
+    def get_next_round(self) -> int | None:
+        return self.get_current_round() + 1 if self.get_current_round() else None
 
 
 class Quiz(models.Model):
@@ -174,7 +229,7 @@ class Quiz(models.Model):
         else:
             raise Exception(f"{individual} is not the scorekeeper nor a member of any team in {self}")
 
-    def get_uri(self):
+    def get_absolute_url(self):
         return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
 
 
