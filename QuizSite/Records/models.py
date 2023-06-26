@@ -3,7 +3,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
 import django.utils.timezone
-from django.utils.functional import SimpleLazyObject
+from django.db import connection
+
+
+# from django.utils.functional import SimpleLazyObject
 
 
 class Organization(models.Model):
@@ -166,43 +169,95 @@ class Event(models.Model):
         return self.get_current_round() + 1 if self.get_current_round() else None
 
     def get_event_view_data(self):
-        raw_query = '''        
-select t.short_name
-, t.name as teamname
-, t.division as division
-, cr.id as currentround
-, nr.id as nextround
-, i.id as individualid
-, i.name as individualname
-, sum(coalesce(aq.value)) as points
+        raw_query = '''
+        select
+    t.short_name,
+    t.name as teamname,
+    t.division as division,
+    cr.id as currentround,
+    nr.id as nextround,
+    i.id as individualid,
+    i.name as individualname,
+    sum(coalesce(aq.value, 0)) as points
 from "Records_team" t
 left join "Records_teammembership" tm on tm.team_id = t.id
 left join "Records_individual" i on tm.individual_id = i.id
-left join "Records_askedquestion" aq on aq.individual_id = tm.individual_id
-left join "Records_quizparticipants" qp on aq.quiz_id = qp.quiz_id and qp.team_id = t.id
+left join "Records_quizparticipants" qp on qp.team_id = t.id
 left join "Records_quiz" rq on qp.quiz_id = rq.id
 left join "Records_event" e on rq.event_id = e.id
-left join (SELECT qp.team_id, rqc.id
+left join "Records_askedquestion" aq on aq.individual_id = i.id and aq.quiz_id = rq.id
+left join (
+    SELECT qp.team_id, rqc.id
     from "Records_quizparticipants" qp
     left join "Records_quiz" rqc on qp.quiz_id = rqc.id
-    where cast(round as int) = (select min(cast(rq1.round as int)) from "Records_quiz" rq1 where rq1."isValidated" = false)) as cr on cr.team_id = t.id
-left join (SELECT qp.team_id, rqn.id
+    where cast(round as int) = (select min(cast(rq1.round as int)) from "Records_quiz" rq1 where rq1."isValidated" = false)
+) as cr on cr.team_id = t.id
+left join (
+    SELECT qp.team_id, rqn.id
     from "Records_quizparticipants" qp
     left join "Records_quiz" rqn on qp.quiz_id = rqn.id
-    where cast(round as int) = ((select min(cast(rq2.round as int)) from "Records_quiz" rq2 where rq2."isValidated" = false) + 1)) as nr on nr.team_id = t.id
+    where cast(round as int) = ((select min(cast(rq2.round as int)) from "Records_quiz" rq2 where rq2."isValidated" = false) + 1)
+) as nr on nr.team_id = t.id
 where e.date = '2023-07-01'
---and e.istournament = 0
-group by t.short_name
-, t.name
-, t.division
-, cr.id
-, nr.id
-, i.id
-, i.name
+group by
+    t.short_name,
+    t.name,
+    t.division,
+    cr.id,
+    nr.id,
+    i.id,
+    i.name
+order by short_name
+
         
         '''
 
-        return self.objects.raw(raw_query)
+        teams = []
+
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+
+            is_team_mate = False
+
+            for row in cursor.fetchall():
+                if not is_team_mate:
+                    team = {
+                        'code': row[0],
+                        'name': row[1],
+                        'score': row[7],
+                        'division': row[2],
+                        'current_round': row[3],
+                        'next_round': row[4], 'individuals': [
+                            {
+                                'name': row[6],
+                                'score': row[7],
+                            },
+                        ]}
+                    teams.append(team)
+                else:
+                    teams[-1]['individuals'].append({
+                        'name': row[6],
+                        'score': row[7],
+                    })
+
+                    teams[-1]['score'] += row[7]
+                is_team_mate = not is_team_mate
+
+        sorted_teams = sorted(teams, key=lambda t: (t['division'], t['score'], t['code']), reverse=True)
+
+        # assign a rank to each team per division, and make each team tie that has the same score
+        for division in set([t['division'] for t in sorted_teams]):
+            division_teams = [t for t in sorted_teams if t['division'] == division]
+
+            for i in range(len(division_teams)):
+                if i > 0 and division_teams[i]['score'] == division_teams[i - 1]['score']:
+                    division_teams[i]['rank'] = division_teams[i - 1]['rank']
+                else:
+                    division_teams[i]['rank'] = i + 1
+
+        sorted_teams = sorted(teams, key=lambda t: (t['division'], t['rank'], t['code']))
+
+        return sorted_teams
 
 
 class Quiz(models.Model):

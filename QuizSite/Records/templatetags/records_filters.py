@@ -30,6 +30,8 @@ def render_team(team: Team, event: Event) -> str:
 
 @register.simple_tag()
 def ranked_teams_table(event: Event):
+    data = event.get_event_view_data()
+
     HTML = '''
 <table class="table">
     <tr>
@@ -43,6 +45,32 @@ def ranked_teams_table(event: Event):
         <th>Score</th>
     </tr>
 '''
-    HTML += '\n    '.join([render_team(team, event) for team in event.season.get_teams()]) + '\n</table>'
+
+    for team in data:
+        current_round_object = Quiz.objects.filter(pk=team['current_round'])
+        if current_round_object.exists():
+            current_round_object = current_round_object.first()
+            current_round = f"<a href='{current_round_object.get_absolute_url()}'>{current_round_object}</a>"
+        else:
+            current_round = "None"
+
+        next_round_object = Quiz.objects.filter(pk=team['next_round'])
+        if next_round_object.exists():
+            next_round_object = next_round_object.first()
+            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object}</a>"
+        else:
+            next_round = "None"
+
+        HTML += "\n<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>".format(
+            team['rank'],
+            team['code'],
+            team['name'],
+            team['score'],
+            current_round,
+            next_round,
+            '<br>'.join([str(quizzer['name']) for quizzer in team['individuals']]),
+            '<br>'.join([str(quizzer['score']) for quizzer in team['individuals']]))
+
+    HTML += '\n</table>'
 
     return format_html(HTML)
