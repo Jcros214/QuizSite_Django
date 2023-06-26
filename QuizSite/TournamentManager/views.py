@@ -84,13 +84,13 @@ def populate_round_robbin_event(request):
 
     teams = []
 
-    for division in ["R", "B"]:
-        for letter in LETTERS[:18]:
-            teams.append(
-                Team(short_name=division + letter, name='', organization=organization, season=season,
-                     division=division))
-
-    Team.objects.bulk_create(teams)
+    # for division in ["R", "B"]:
+    #     for letter in LETTERS[:18]:
+    #         teams.append(
+    #             Team(short_name=division + letter, name='', organization=organization, season=season,
+    #                  division=division))
+    #
+    # Team.objects.bulk_create(teams)
 
     rooms = [
         [],  # Started counting from 1...
@@ -686,7 +686,11 @@ def populate_round_robbin_event(request):
     team_memberships = []
 
     for team in teams:
-        Team.objects.create(short_name=team[0], name=team[1], type=team[2], organization=organization, season=season)
+        if Team.objects.filter(short_name=team[0]).exists():
+            continue
+        else:
+            Team.objects.create(short_name=team[0], name=team[1], type=team[2], organization=organization,
+                                season=season)
 
     for individual in individuals:
         person = Individual.objects.create(name=individual[1],
