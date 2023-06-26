@@ -142,7 +142,7 @@ def event(request, league_id, season_id, event_id):
     for room in quizzes_by_room:
         HTML += f"""<tr><th>{room}</th>"""
         for current_quiz in quizzes_by_room[room]:
-            HTML += f"""<td><a href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz.room}{current_quiz.round}</a></td>"""
+            HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz}</a></td>"""
         HTML += "</tr>"
     HTML += "</table></div>"
 
