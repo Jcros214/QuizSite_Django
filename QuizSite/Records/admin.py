@@ -19,7 +19,6 @@ admin.site.register(AskedQuestion)
 admin.site.register(QuizParticipants)
 admin.site.register(TeamMembership)
 admin.site.register(LeagueMembership)
-admin.site.register(CurrentRound)
 
 
 class IndividualInline(NonrelatedTabularInline):

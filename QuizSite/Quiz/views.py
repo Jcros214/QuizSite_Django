@@ -110,7 +110,7 @@ def quiz(request):
 
     for team in current_quiz.get_teams():
         team_name_select = '<select class="team-select">'
-        for selectable_team in Team.objects.filter(season=current_quiz.event.season):
+        for selectable_team in Team.objects.filter(season=current_quiz.event.season).order_by('name'):
             team_name_select += f'<option value="{selectable_team.pk}" {"selected" if selectable_team == team else ""}>{selectable_team.name}</option>'
         team_name_select += '</select>'
         HTML += f'        <tbody>{NEW_LINE}'
