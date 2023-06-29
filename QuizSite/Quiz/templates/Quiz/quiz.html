@@ -6,6 +6,10 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'Quiz/quiz.css' %}"/>
 
+    <script>
+        var num_teams = {{  }};
+    </script>
+
     {{ question_form|safe }}
 
     <div style="padding-top: 70px">

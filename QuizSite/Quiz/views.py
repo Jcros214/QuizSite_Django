@@ -88,64 +88,9 @@ def quiz(request):
     except AttributeError as e:
         return render(request, 'Quiz/quiz.html', {'question_form': e})
 
-    quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
+    context = {'quiz': current_quiz}
 
-    NEW_LINE = '\n'
-
-    HTML = f'''\
-<form>
-<div class="table-div">
-    <table>
-        <thead>
-            <tr>
-                <th class="headcol">Quizzer</th> <th></th>   <th class="score-col">Score</th>   
-                {''.join([f'            <th data-question-id="{question.pk}">{question.question_number}</th>{NEW_LINE}' for question in quiz_questions])} 
-            </tr>
-            <tr>
-                <th class="headcol"></th> <th></th>   <th class="score-col"></th>
-                {''.join([f'            <th class="not-answered {"""was-not-answered""" if question.ruling == """not answered""" else """"""}" data-question-id="{question.pk}">Not<br>Answered</th>{NEW_LINE}' for question in quiz_questions])} 
-            </tr>
-        </thead>
-    '''
-
-    for team in current_quiz.get_teams():
-        team_name_select = '<select class="team-select">'
-        for selectable_team in Team.objects.filter(season=current_quiz.event.season).order_by('name'):
-            team_name_select += f'<option value="{selectable_team.pk}" {"selected" if selectable_team == team else ""}>{selectable_team.name}</option>'
-        team_name_select += '</select>'
-        HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
-
-        for team_membership in TeamMembership.objects.filter(team=team):
-            quizzer = team_membership.individual
-            HTML += f'        <tr>{NEW_LINE}'
-
-            HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td><input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/></td> <td class="score-col individual-score" ></td>   {NEW_LINE}'
-            for question in quiz_questions:
-                # Create checkbox span things per question
-                span_class = 'checkbox-img '
-
-                if question.individual == quizzer:
-
-                    if question.ruling == 'correct':
-                        span_class += 'positive'
-                    elif question.ruling == 'incorrect':
-                        span_class += 'negative'
-                    elif question.ruling == 'not answered':
-                        ...  # Handled above
-
-                HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
-
-            HTML += '        </tr>\n'
-        HTML += '        </tbody>\n'
-
-    HTML += '''\
-        </table>
-    </div>
-    </form>
-    '''
-
-    return render(request, 'Quiz/quiz.html', {'question_form': HTML})
+    return render(request, 'Quiz/quiz.html', context)
 
 
 @login_required

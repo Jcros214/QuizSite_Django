@@ -1,3 +1,5 @@
+if
+
 const csrftoken = Cookies.get('csrftoken');
 
 const allCheckboxes = $('.checkbox-img');

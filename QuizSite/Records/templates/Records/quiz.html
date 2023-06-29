@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
+{% load quiz_filters %}
+
 {% block title %}
     Quiz
 {% endblock title %}
@@ -32,5 +34,5 @@
         </tr>
     </table>
     <h2>Questions:</h2>
-    {{ quiz_chart|safe }}
+    {% render_scoresheet False %}
 {% endblock content %}

@@ -2,7 +2,6 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
 from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual, Team
 from django.contrib.auth.decorators import login_required
-from Quiz.views import quiz_view_only
 
 
 # Create your views here.
@@ -157,11 +156,7 @@ def event(request, league_id, season_id, event_id):
 # List of questions
 # @login_required
 def quiz(request, league_id, season_id, event_id, quiz_id):
-    context = make_context(league_id, season_id, event_id, quiz_id)
-
-    context['quiz_chart'] = quiz_view_only(quiz_id)
-
-    return render(request, "Records/quiz.html", context)
+    return render(request, "Records/quiz.html", make_context(league_id, season_id, event_id, quiz_id))
 
 
 # @login_required
