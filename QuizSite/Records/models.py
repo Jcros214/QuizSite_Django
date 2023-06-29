@@ -270,6 +270,8 @@ class Quiz(models.Model):
     round = models.IntegerField()
     isValidated = models.BooleanField(default=False)
 
+    num_teams = models.IntegerField(default=3)
+
     def __str__(self) -> str:
         return '  v  '.join([str(team.try_short_name()) for team in self.get_teams()])
 

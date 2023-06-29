@@ -4,9 +4,10 @@ from django.shortcuts import render, redirect
 from django.db import transaction
 
 from .round_robin_scheduler import RoundRobinScheduler, tabulate_rounds, find_fairness
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
 
 # from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 
 try:
     from Records.models import *
@@ -41,7 +42,7 @@ def generate_matchups(request):
     return render(request, 'Manager/round_robin.html')
 
 
-@login_required
+@user_passes_test(lambda u: u.is_superuser)
 def populate_round_robbin_event(request):
     if request.method != 'POST':
         return render(request, 'Manager/round_robin_event_maker.html')
@@ -53,9 +54,6 @@ def populate_round_robbin_event(request):
     season = Season.objects.first()
     organization = Organization.objects.first()
     event = Event.objects.get(pk=4)
-
-    NUM_ROUND = 15
-    LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     rooms = [
         ['A', 'Nathan Crosby', 'Debbie Eastland'],
@@ -150,7 +148,43 @@ def populate_round_robbin_event(request):
                    'G9': ['BA', 'BC', 'BE'],
                    'G10': ['BL', 'BN', 'BA'],
                    'G11': ['RC', 'RL', 'RR'],
-                   'G12': ['BN', 'BF', 'BJ']}
+                   'G12': ['BN', 'BF', 'BJ'],
+
+                   }
+
+    afternoon_matches = (('A13', ('R2', 'R3', 'B5')),
+                         ('A14', ('R1', 'R4', 'B6')),
+                         ('A15', ('HA1', 'MB1', 'MA2')),
+                         ('A16', ('HA2', 'HB3', 'MA3')),
+                         ('A17', ('HA4/HB4', 'MA4', 'MB4')),
+                         ('A18', ('HA4/HB4', 'HA5', 'MA5')),
+                         ('A19', ('HA6', 'MA6')),  # 2-team match
+                         ('B13', ('B2', 'B3', 'R5')),
+                         ('B14', ('B1', 'B4', 'R6')),
+                         ('B15', ('HB1', 'MA1', 'MB2')),
+                         ('B16', ('HB2', 'HA3', 'MB3')),
+                         ('C13', ('R8', 'R9', 'B11')),
+                         ('C14', ('R7', 'R10', 'B12')),
+                         ('C15', ('HC1', 'MD1', 'MC2')),
+                         ('C16', ('HC2', 'HD3', 'MC3')),
+                         ('C17', ('HC4/HD4', 'MC4', 'MD4')),
+                         ('C18', ('HC4/HD4', 'HC5', 'MC5')),
+                         ('C19', ('HC6', 'MC6')),  # 2-team match
+                         ('D13', ('B8', 'B9', 'R11')),
+                         ('D14', ('B7', 'B10', 'R12')),
+                         ('D15', ('HD1', 'MC1', 'MD2')),
+                         ('D16', ('HD2', 'HC3', 'MD3')),
+                         ('E13', ('B14', 'B16', 'R17')),
+                         ('E14', ('R13', 'HG1', 'MF1')),
+                         ('E15', ('HE2', 'MF2', 'MG2')),
+                         ('E16', ('HE3/HF3', 'ME3', 'MF3')),
+                         ('E17', ('HE3/HF3', 'HE4', 'ME4')),
+                         ('E18', ('HE5', 'ME5')),  # 2-team match
+                         ('F13', ('R15', 'B17', 'R18')),
+                         ('F14', ('B13', 'HF1', 'ME1')),
+                         ('F15', ('HF2', 'HG2', 'ME2')),
+                         ('G13', ('B15', 'R16', 'B18')),
+                         ('G14', ('R14', 'HE1', 'MG1')),)
 
     teams = {
         'BA': ['Taking no Thought', 'Sibling', ['Bethany Carnell', 'Esther Tricquet']],
@@ -192,13 +226,6 @@ def populate_round_robbin_event(request):
     }
 
     team_memberships = []
-
-    # TODO: Create Teams
-    # TODO: Create TeamMemberships
-    # TODO: Create Individuals (Quizzers and Officials)
-
-    # TODO: Create Quizzes
-    # TODO: Create QuizParticipants
 
     user_objects = []
     individuals_objects = []
@@ -246,6 +273,9 @@ def populate_round_robbin_event(request):
     asked_question_objects = []
     quiz_participant_objects = []
 
+    scorekeeper_group = Group.objects.get(name='scorekeeper')
+    quizmaster_group = Group.objects.get(name='quizmaster')
+
     for room in rooms:
         for individual_name in room[1:]:
             if User.objects.filter(username=individual_name).exists():
@@ -253,11 +283,14 @@ def populate_round_robbin_event(request):
             if Individual.objects.filter(name=individual_name).exists():
                 Individual.objects.filter(name=individual_name).delete()
 
-            user_objects.append(User(username=individual_name, password="secret", is_staff=True))
+            user_objects.append(User(username=individual_name, password="secret"))
             individuals_objects.append(Individual(name=individual_name, user=user_objects[-1]))
 
         quizmaster = individuals_objects[-2]
         scorekeeper = individuals_objects[-1]
+
+        # scorekeeper_group.user_set.add(scorekeeper.user)
+        # quizmaster_group.user_set.add(quizmaster.user)
 
         for rnd in range(1, 12 + 1):
             quiz_objects.append(
@@ -277,8 +310,51 @@ def populate_round_robbin_event(request):
         QuizParticipants.objects.bulk_create(quiz_participant_objects)
         AskedQuestion.objects.bulk_create(asked_question_objects)
 
+    user_objects = []
+    individuals_objects = []
+    quiz_objects = []
+    quiz_participant_objects = []
+    asked_question_objects = []
+
+    # TODO: Fix this........
+    afternoon_event = event
+
+    for match in afternoon_matches:
+        room = {
+            'A': rooms[0],
+            'B': rooms[1],
+            'C': rooms[2],
+            'D': rooms[3],
+            'E': rooms[4],
+            'F': rooms[5],
+            'G': rooms[6],
+        }[match[0][0]]
+
+        quizmaster_name = room[1]
+        scorekeeper_name = room[2]
+
+        quizmaster = Individual.objects.get(name=quizmaster_name)
+        scorekeeper = Individual.objects.get(name=scorekeeper_name)
+
+        quiz_objects.append(
+            Quiz(event=afternoon_event, quizmaster=quizmaster, scorekeeper=scorekeeper, room=room[0],
+                 round=match[0][1:]))
+
+        asked_question_objects += [
+            AskedQuestion(quiz=quiz_objects[-1], question_number=question_num) for question_num in range(1, 15 + 1)]
+        #
+        # quiz_participant_objects += [
+        #     QuizParticipants(quiz=quiz_objects[-1], team=Team.objects.get(short_name=team_code)) for team_code in
+        #     match[1:]]
+
+    with transaction.atomic():
+        User.objects.bulk_create(user_objects)
+        Individual.objects.bulk_create(individuals_objects)
+        Quiz.objects.bulk_create(quiz_objects)
+        QuizParticipants.objects.bulk_create(quiz_participant_objects)
+        AskedQuestion.objects.bulk_create(asked_question_objects)
+
     for user in User.objects.order_by('-id')[:len(user_objects)]:
         user.set_password("secret")
         user.save()
-
     return redirect('/')
