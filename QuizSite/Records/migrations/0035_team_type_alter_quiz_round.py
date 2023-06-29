@@ -4,17 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('Records', '0034_team_division'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='team',
-            name='type',
-            field=models.CharField(blank=True, max_length=20, null=True),
-        ),
+        # migrations.AddField(
+        #     model_name='team',
+        #     name='type',
+        #     field=models.CharField(blank=True, max_length=20, null=True),
+        # ),
         migrations.AlterField(
             model_name='quiz',
             name='round',
