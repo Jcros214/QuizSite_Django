@@ -133,8 +133,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'quizdb_prod',
-        'USER': 'quizbox.app',
-        'PASSWORD': 'AVNS_48PeGdQHobZ1zszC0un',
+        'USER': 'doadmin',
+        'PASSWORD': 'AVNS_inpSFP2HTHFolJTB4EY',
         'HOST': 'quizbox-dbs-do-user-12108150-0.b.db.ondigitalocean.com',
         'PORT': 25060,
         # 'OPTIONS': {
