@@ -132,11 +132,17 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('QUIZDB_database'),
-        'USER': os.getenv('QUIZDB_username'),
-        'PASSWORD': os.getenv('QUIZDB_password'),
-        'HOST': os.getenv('QUIZDB_host'),
-        'PORT': os.getenv('QUIZDB_port'),
+        'NAME': 'quizdb_prod',
+        'USER': 'quizbox.app',
+        'PASSWORD': 'AVNS_48PeGdQHobZ1zszC0un',
+        'HOST': 'quizbox-dbs-do-user-12108150-0.b.db.ondigitalocean.com',
+        'PORT': 25060,
+        # 'OPTIONS': {
+        #     'sslmode': 'require',
+        #     'sslrootcert': BASE_DIR / 'ca-certificate.crt',
+        #
+        # },
+
     }
 }
 
