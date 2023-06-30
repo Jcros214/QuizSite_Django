@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'Quiz/quiz.css' %}"/>
 
     <script>
-        var num_teams = {{  }};
+        var num_teams = {{ quiz.num_teams }};
     </script>
 
     {{ question_form|safe }}

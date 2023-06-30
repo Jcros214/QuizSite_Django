@@ -223,3 +223,10 @@ def event_summary(request, event_id):
         'pivot_table': pivot_table,
     }
     return render(request, 'admin/event_summary.html', context)
+
+
+@staff_member_required
+def live_event_display(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    return render(request, 'admin/live_event_display.html', {'event': event})

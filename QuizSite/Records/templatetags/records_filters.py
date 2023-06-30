@@ -69,14 +69,17 @@ def ranked_teams_table(event: Event):
         current_round_object = Quiz.objects.filter(pk=team['current_round'])
         if current_round_object.exists():
             current_round_object = current_round_object.first()
-            current_round = f"<a href='{current_round_object.get_absolute_url()}'>{current_round_object}</a>"
+
+            current_round_repr = f"{current_round_object.room}{current_round_object.round}"
+
+            current_round = f"<a href='{current_round_object.get_absolute_url()}'>{current_round_repr}</a>"
         else:
             current_round = "None"
 
         next_round_object = Quiz.objects.filter(pk=team['next_round'])
         if next_round_object.exists():
             next_round_object = next_round_object.first()
-            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object}</a>"
+            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object.room}{next_round_object.round}</a>"
         else:
             next_round = "None"
 
@@ -125,3 +128,105 @@ def ranked_teams_table(event: Event):
     '''
 
     return format_html(HTML)
+
+
+@register.simple_tag(takes_context=True)
+def live_event(context):
+    event = context['event']
+
+    data = event.get_event_view_data()
+
+    caches = {}
+
+    HTML = f'''
+    <div class="row">
+        '''
+
+    division = None
+
+    prv_score = None
+
+    for team in data:
+        if team['division'] != division:
+            color = 'danger' if team['division'] == 'R' else 'primary'
+            close_tag = '</table></div>' if division is not None else ''
+            HTML += f'''
+            {close_tag}        
+        <div class="col-md-6">
+            <table class="table table-{color}">
+                <tr>
+                    <th>Rank</th>
+                    <th>Code</th>
+                    <th>Team Name</th>
+                    <th>Score</th>
+                    <th>Quizzers</th>
+                </tr>                
+
+            '''
+
+            division = team['division']
+
+        if team['rank'] > 6 and caches.get(team['division'] + 'champ') is None:
+            caches[team['division'] + 'champ'] = prv_score
+        elif team['rank'] > 12 and caches.get(team['division'] + 'champ') is None:
+            caches[team['division'] + 'cons1'] = prv_score
+
+        current_round_object = Quiz.objects.filter(pk=team['current_round'])
+        if current_round_object.exists():
+            current_round_object = current_round_object.first()
+            current_round = f"<a href='{current_round_object.get_absolute_url()}'>{current_round_object}</a>"
+        else:
+            current_round = "None"
+
+        next_round_object = Quiz.objects.filter(pk=team['next_round'])
+        if next_round_object.exists():
+            next_round_object = next_round_object.first()
+            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object}</a>"
+        else:
+            next_round = "None"
+
+        HTML += "\n<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
+            team['rank'],
+            team['code'],
+            team['name'],
+            team['score'],
+            '<br>'.join([str(quizzer['name']) for quizzer in team['individuals']]),
+        )
+
+        prv_score = team['score']
+
+    HTML += '\n</table></div></div>'
+
+    HTML += f'''
+    <h3>Points to get into a bracket</h3>
+    <table class="table">
+        <tr>
+            <th>Division</th>
+            <th>Points</th>
+        </tr>
+        <tr class="table-primary">
+            <td>Blue - Championship</td>
+            <td>{caches.get('B' + 'champ')}</td>
+        </tr>
+        <tr class="table-primary">
+            <td>Blue - Consolation 1</td>
+            <td>{caches.get('B' + 'cons1')}</td>
+        </tr>
+        <tr class="table-danger">
+            <td>Red - Championship</td>
+            <td>{caches.get('R' + 'champ')}</td>
+        </tr>
+        <tr class="table-danger">
+            <td>Red - Consolation 1</td>
+            <td>{caches.get('R' + 'champ')}</td>
+        </tr>
+
+        </table>
+
+
+
+    '''
+
+    return format_html(HTML)
+
+    return format_html(html)
