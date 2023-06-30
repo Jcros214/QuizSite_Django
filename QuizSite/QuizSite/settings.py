@@ -121,11 +121,11 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'quizdb',
-        'USER': 'django_user',
-        'PASSWORD': 'dfe073ba5ed7e86b6a47a83d3e197100',
-        'HOST': 'localhost',
-        'PORT': '',
+        'NAME': os.getenv('QUIZDB_database'),
+        'USER': os.getenv('QUIZDB_username'),
+        'PASSWORD': os.getenv('QUIZDB_password'),
+        'HOST': os.getenv('QUIZDB_host'),
+        'PORT': os.getenv('QUIZDB_port'),
     }
 }
 
