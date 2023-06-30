@@ -8,4 +8,11 @@
     <p>... is not ready for use yet! It is avaliable for testing purposes only.</p>
     <a href="{% url 'manager:round_robin' %}">Round Robin Bracket Generator</a>
 
-    {% endblock content %}
+    <div class="alert alert-danger" role="alert">
+        This command is extremely dangerous!!!!!
+        <a href="{% url 'manager:event_generator' %}">Generate Event</a>
+        It will delete all data in the database and start fresh.
+    </div>
+
+
+{% endblock content %}

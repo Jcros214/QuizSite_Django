@@ -28,10 +28,21 @@ SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
-    '127.0.0.1', '161.35.252.20', '104.248.224.128', 'www.quizbox.app', 'quizbox.app', 'localhost'
+    '127.0.0.1',
+    '161.35.252.20',
+    '104.248.224.128',
+    'www.quizbox.app',
+    'quizbox.app',
+    '*.quizbox.app',
+    'localhost',
+    'quizbox-site-wzdyo.ondigitalocean.app',
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://www.quizbox.app', 'https://quizbox.app']
+CSRF_TRUSTED_ORIGINS = [
+    'https://www.quizbox.app',
+    'https://quizbox.app',
+    'https://quizbox-site-wzdyo.ondigitalocean.app',
+]
 
 # Application definition
 
