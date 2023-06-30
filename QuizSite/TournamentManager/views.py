@@ -53,7 +53,7 @@ def populate_round_robbin_event(request):
     # TODO: TMP; RM
     season = Season.objects.first()
     organization = Organization.objects.first()
-    event = Event.objects.get(pk=4)
+    event = Event.objects.create(date="2023-07-01", season=season, location=organization)
 
     rooms = [
         ['A', 'Nathan Crosby', 'Debbie Eastland'],
