@@ -237,13 +237,14 @@ order by short_name
                     team = {
                         'code': row[0],
                         'name': row[1],
-                        'score': row[7] + row[8],
+                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
                         'division': row[2],
                         'current_round': row[3],
-                        'next_round': row[4], 'individuals': [
+                        'next_round': row[4],
+                        'individuals': [
                             {
                                 'name': row[6],
-                                'score': row[7],
+                                'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
                             },
                         ]
                     }
@@ -251,10 +252,10 @@ order by short_name
                 else:
                     teams[-1]['individuals'].append({
                         'name': row[6],
-                        'score': row[7] + row[8],
+                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
                     })
 
-                    teams[-1]['score'] += row[7]
+                    teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
                 is_team_mate = not is_team_mate
 
         sorted_teams = sorted(teams, key=lambda t: (t['division'], t['score'], t['code']), reverse=True)
