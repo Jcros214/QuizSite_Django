@@ -110,6 +110,8 @@ class Event(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
     location = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
+    isTournament = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.season}"
 
@@ -172,7 +174,7 @@ class Event(models.Model):
 
     def get_event_view_data(self):
         raw_query = '''
-        select
+    select
     t.short_name,
     t.name as teamname,
     t.division as division,
@@ -232,7 +234,7 @@ order by short_name
                     team = {
                         'code': row[0],
                         'name': row[1],
-                        'score': row[7],
+                        'score': row[7] + row[8],
                         'division': row[2],
                         'current_round': row[3],
                         'next_round': row[4], 'individuals': [
@@ -240,12 +242,13 @@ order by short_name
                                 'name': row[6],
                                 'score': row[7],
                             },
-                        ]}
+                        ]
+                    }
                     teams.append(team)
                 else:
                     teams[-1]['individuals'].append({
                         'name': row[6],
-                        'score': row[7],
+                        'score': row[7] + row[8],
                     })
 
                     teams[-1]['score'] += row[7]

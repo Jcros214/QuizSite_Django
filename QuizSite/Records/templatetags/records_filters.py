@@ -138,9 +138,7 @@ def live_event(context):
 
     caches = {}
 
-    HTML = f'''
-    <div class="row">
-        '''
+    HTML = f'<div class="row" style="max-height: 80vh; overflow-y: scroll ">'
 
     division = None
 
