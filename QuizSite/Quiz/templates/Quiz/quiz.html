@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load quiz_filters %}
 {% block title %}
     Quiz
 {% endblock title %}
@@ -10,7 +11,7 @@
         var num_teams = {{ quiz.num_teams }};
     </script>
 
-    {{ question_form|safe }}
+    {% render_scoresheet %}
 
     <div style="padding-top: 70px">
         <button id="submit" class="btn btn-primary" disabled>Submit Scores</button>
