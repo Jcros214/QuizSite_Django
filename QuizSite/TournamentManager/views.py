@@ -205,7 +205,7 @@ def populate_round_robbin_event(request):
         'BP': ['Him That Knocketh Again', 'Friend', ['Elijah Crosby', 'Jason Farmer']],
         'BQ': ['Torches', 'Friend', ['Josiah Wells', 'Gabriel Ballinger']],
         'BR': ['Savory Salt', 'Cousin', ['Joshua Grimm', 'Jonathan C Crosby']],
-        'RA': ['mg squared', 'Friend', ['Moriah Pipkin', 'Grace Carnell']],
+        'RA': ['mg²', 'Friend', ['Moriah Pipkin', 'Grace Carnell']],
         'RB': ['David and Jonahthan', 'Friend', ['David Jones', 'Jonah Unger']],
         'RC': ['Lids and Pants', 'Friend', ['Emma Eastland', 'Lydia Crosby']],
         'RD': ['Mountain Men', 'Friend', ['David Smith', 'Matthew Crosby']],
