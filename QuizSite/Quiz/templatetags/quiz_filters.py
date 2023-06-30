@@ -40,9 +40,9 @@ def display_official_schedule(context):
     pass
 
 
-@register.simple_tag(name='render_scoresheet', takes_context=True)
-def render_scoresheet(context, mutable=True):
-    current_quiz: Quiz = context['quiz']
+@register.simple_tag(name='render_scoresheet')
+def render_scoresheet(quiz: Quiz, mutable=True):
+    current_quiz = quiz
 
     quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
 
