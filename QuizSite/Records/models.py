@@ -218,7 +218,8 @@ group by
     cr.id,
     nr.id,
     i.id,
-    i.name
+    i.name,
+    cr2.attendancepoints
 order by short_name
 
         
