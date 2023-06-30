@@ -5,4 +5,10 @@
 {% endblock title %}
 {% block content %}
     {% live_event %}
+
+    <script>
+        setTimeout(() => {
+            document.location.reload();
+        }, 1000);
+    </script>
 {% endblock content %}
