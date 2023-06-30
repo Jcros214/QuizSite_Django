@@ -226,6 +226,7 @@ def event_summary(request, event_id):
 
 
 def live_event_display(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-
-    return render(request, 'admin/live_event_display.html', {'event': event})
+    if (event := Event.objects.filter(id=event_id)).exists():
+        return render(request, 'admin/live_event_display.html', {'event': event.first()})
+    else:
+        return render(request, 'admin/live_event_display.html', {'event': Event.objects.first()})

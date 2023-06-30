@@ -92,8 +92,10 @@
                                 <hr class="dropdown-divider"/>
                             </li>
 
+                            {# TODO: Remove hard-coded event!! #}
+
                             <li>
-                                <a class="dropdown-item" href="{% url 'records:live_event_display' %}">Live Scores</a>
+                                <a class="dropdown-item" href="{% url 'records:live_event_display' 4 %}">Live Scores</a>
                             </li>
 
                             <li>
