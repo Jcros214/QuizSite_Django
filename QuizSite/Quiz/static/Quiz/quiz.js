@@ -1,3 +1,5 @@
+const num_questions_per_quizzer = num_teams === 3 ? 4 : 6;
+
 const csrftoken = Cookies.get('csrftoken');
 
 const allCheckboxes = $('.checkbox-img');
@@ -158,14 +160,14 @@ function disableAnyUnusableCheckboxes() {
         $(this).removeClass('invisible');
     });
 
-    // Disable any checkboxes that are in the same row with 4 answered questions
+    // Disable any checkboxes that are in the same row with 4 (or 6) answered questions
     $('.checkbox-img:not(.positive):not(.negative)').each(function () {
         const quizzer_id = this.dataset.quizzerId;
         const quizzerCheckboxes = $('.checkbox-img[data-quizzer-id="' + quizzer_id + '"]');
         const answeredCheckboxes = quizzerCheckboxes.filter('.positive, .negative');
         const unansweredCheckboxes = quizzerCheckboxes.filter(':not(.positive):not(.negative)');
         const answered = answeredCheckboxes.length;
-        if (answered === 4) {
+        if (answered === num_questions_per_quizzer) {
             unansweredCheckboxes.each(function () {
                 $(this).addClass('disabled-checkbox');
             });
