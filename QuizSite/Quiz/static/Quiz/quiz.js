@@ -5,6 +5,7 @@ const csrftoken = Cookies.get('csrftoken');
 const allCheckboxes = $('.checkbox-img');
 const quizzerValidateCheckboxes = $('.quizzer-validate');
 
+
 // Get only the unique question_ids from all checkboxes
 const question_ids = [];
 
@@ -282,6 +283,7 @@ allCheckboxes.each(function () {
     } else {
         setCheckBox($(this), 'neutral');
     }
+    location.reload();
 })
 
 

@@ -286,7 +286,8 @@ class Quiz(models.Model):
     num_teams = models.IntegerField(default=3)
 
     def __str__(self) -> str:
-        return '  v  '.join([str(team.try_short_name()) for team in self.get_teams()])
+        return self.room + str(self.round) + ' - ' + '  v  '.join(
+            [str(team.try_short_name()) for team in self.get_teams()])
 
     def get_questions(self) -> QuerySet['AskedQuestion']:
         return AskedQuestion.objects.filter(quiz_id=self.pk)

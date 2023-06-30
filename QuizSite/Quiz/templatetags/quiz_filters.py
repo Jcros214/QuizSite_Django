@@ -65,7 +65,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
         '''
 
     for team in current_quiz.get_teams():
-        if mutable:
+        if False and mutable:
             team_name_select = '<select class="team-select">'
             for selectable_team in Team.objects.filter(season=current_quiz.event.season).order_by('name'):
                 team_name_select += f'<option value="{selectable_team.pk}" {"selected" if selectable_team == team else ""}>{selectable_team.name} - {selectable_team.short_name}</option>'
