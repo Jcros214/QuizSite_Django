@@ -241,13 +241,16 @@ def populate_round_robbin_event(request):
                  type=team[1]))
 
         for individual_name in team[2]:
+
             if User.objects.filter(username=individual_name).exists():
-                User.objects.filter(username=individual_name).delete()
+                user = User.objects.get(username=individual_name)
+            else:
+                user = User.objects.create_user(username=individual_name, password="password")
+
             if Individual.objects.filter(name=individual_name).exists():
                 Individual.objects.filter(name=individual_name).delete()
 
-            user_objects.append(User(username=individual_name, password="password"))
-            individuals_objects.append(Individual(name=individual_name, user=user_objects[-1]))
+            individuals_objects.append(Individual(name=individual_name, user=user))
 
         team_memberships_objects += [TeamMembership(team=team_objects[-1], individual=individuals_objects[-_]) for _ in
                                      range(1, 3)]
@@ -279,12 +282,14 @@ def populate_round_robbin_event(request):
     for room in rooms:
         for individual_name in room[1:]:
             if User.objects.filter(username=individual_name).exists():
-                User.objects.filter(username=individual_name).delete()
+                user = User.objects.get(username=individual_name)
+            else:
+                user = User.objects.create_user(username=individual_name, password="secret")
+
             if Individual.objects.filter(name=individual_name).exists():
                 Individual.objects.filter(name=individual_name).delete()
 
-            user_objects.append(User(username=individual_name, password="secret"))
-            individuals_objects.append(Individual(name=individual_name, user=user_objects[-1]))
+            individuals_objects.append(Individual(name=individual_name, user=user))
 
         quizmaster = individuals_objects[-2]
         scorekeeper = individuals_objects[-1]
@@ -316,8 +321,8 @@ def populate_round_robbin_event(request):
     quiz_participant_objects = []
     asked_question_objects = []
 
-    # TODO: Fix this........
-    afternoon_event = event
+    afternoon_event = Event.objects.create(date=event.date, season=event.season, location=event.location,
+                                           isTournament=True)
 
     for match in afternoon_matches:
         room = {
