@@ -187,42 +187,79 @@ def populate_round_robbin_event(request):
                          ('G14', ('R14', 'HE1', 'MG1')),)
 
     teams = {
-        'BA': ['Taking no Thought', 'Sibling', ['Bethany Carnell', 'Esther Tricquet']],
-        'BB': ['Go Up Thou Bald Head', 'Sibling', ['Eric Carnell', 'Jonathan Carnell']],
-        'BC': ['Once Upon a Quiz', 'Couple', ['Mark Crosby', 'Esther Crosby']],
-        'BD': ['Baby G and Big B', 'Friend', ['Gabriel Unger', 'Ben Crosby']],
-        'BE': ['A City on a Hill', 'Friend', ['Justus Wells', 'Landon Farmer']],
-        'BF': ['Grapes and Figs', 'Friend', ['Abigail Unger', 'Lydia Pipkin']],
-        'BG': ['Sword of the Spirit Brothers', 'Friend', ['Walton Hunsader', 'Micaiah Pipkin']],
-        'BH': ['Truth-Seekers', 'Friend', ['Brytni Castlebury', 'Jodi Taylor']],
-        'BI': ['Sky\'s the Limit', 'Friend', ['Roger Greene', 'Emma Carnell']],
-        'BJ': ['Mr. and Mrs. B', 'Couple', ['James Ballinger', 'Stevie Ballinger']],
-        'BK': ['Opposites Attract', 'Couple', ['Adam Greene', 'Kari Greene']],
-        'BL': ['the L.A.M.P.s', 'Friend', ['Amaryssa Paige', 'Landyn Marunich']],
-        'BM': ['Cheese and Crackers', 'Friend', ['Lydia Ballinger', 'Molly Carnell']],
-        'BN': ['Prime Time', 'Friend', ['Noah Crosby', 'Logan Marunich']],
-        'BO': ['Artsy Smartsy', 'Friend', ['Timothy Crosby', 'Amelia Wells']],
-        'BP': ['Him That Knocketh Again', 'Friend', ['Elijah Crosby', 'Jason Farmer']],
-        'BQ': ['Torches', 'Friend', ['Josiah Wells', 'Gabriel Ballinger']],
-        'BR': ['Savory Salt', 'Cousin', ['Joshua Grimm', 'Jonathan C Crosby']],
-        'RA': ['mg²', 'Friend', ['Moriah Pipkin', 'Grace Carnell']],
-        'RB': ['David and Jonahthan', 'Friend', ['David Jones', 'Jonah Unger']],
-        'RC': ['Lids and Pants', 'Friend', ['Emma Eastland', 'Lydia Crosby']],
-        'RD': ['Mountain Men', 'Friend', ['David Smith', 'Matthew Crosby']],
-        'RE': ['Brothers of Lightning', 'Friend', ['Paul Crosby', 'Adam Eastland']],
-        'RF': ['The Attaining Twain', 'Friend', ['Samuel Unger', 'Megan Carnell']],
-        'RG': ['No stinkin’ thinkin’', 'Parent/Child', ['Charity Unger', 'Rachel Carnell']],
-        'RH': ['The Apostle and The Regicide', 'Sibling', ['Berean Cutler', 'Breagan Cutler']],
-        'RI': ['JC x 4', 'Cousin', ['James Crosby', 'Joy Carnell']],
-        'RJ': ['Grace and Joy', 'Friend', ['Abigail Greene', 'MaryGrace Carnell']],
-        'RK': ['Pearls of Grace', 'Friend', ['Destiny Wells', 'Bethany Cutler']],
-        'RL': ['Serene Chaos', 'Sibling', ['Brigitta Cutler', 'Bellhannah Cutler']],
-        'RM': ['Joyful Pilgrims', 'Friend', ['Tammy Grimm', 'Adam Wells']],
-        'RN': ['Peacemakers', 'Parent/Child', ['Aimee Crosby', 'Zachariah Crosby']],
-        'RO': ['Married yet Single', 'Couple', ['Joshua Unger', 'Natalie Unger']],
-        'RP': ['Wash Thy Face', 'Parent/Child', ['Chris Carnell', 'Gloria Carnell']],
-        'RQ': ['Sinners with Pearls', 'Friend', ['Miriam Carnell', 'Stephanie Farmer']],
-        'RR': ['Trailblazers', 'Friend', ['Josiah Ballinger', 'Jaxon Wells']],
+        'BA': ['Taking no Thought', 'Sibling', ['Bethany Carnell', False,'Esther Tricquet',False]],
+
+        'BB': ['Go Up Thou Bald Head', 'Sibling', ['Eric Carnell', True,'Jonathan Carnell',True]],
+
+        'BC': ['Once Upon a Quiz', 'Couple', ['Mark Crosby', True,'Esther Crosby',False]],
+
+        'BD': ['Baby G and Big B', 'Friend', ['Gabriel Unger', True,'Ben Crosby',True]],
+
+        'BE': ['A City on a Hill', 'Friend', ['Justus Wells', True,'Landon Farmer',True]],
+
+        'BF': ['Grapes and Figs', 'Friend', ['Abigail Unger', False,'Lydia Pipkin',False]],
+
+        'BG': ['Sword of the Spirit Brothers', 'Friend', ['Walton Hunsader', True,'Micaiah Pipkin',True]],
+
+        'BH': ['Truth-Seekers', 'Friend', ['Brytni Castlebury', False,'Jodi Taylor',False]],
+
+        'BI': ['Sky\'s the Limit', 'Friend', ['Roger Greene', True,'Emma Carnell',False]],
+
+        'BJ': ['Mr. and Mrs. B', 'Couple', ['James Ballinger', True,'Stevie Ballinger',False]],
+
+        'BK': ['Opposites Attract', 'Couple', ['Adam Greene', True,'Kari Greene',False]],
+
+        'BL': ['the L.A.M.P.s', 'Friend', ['Amaryssa Paige', False,'Landyn Marunich',True]],
+
+        'BM': ['Cheese and Crackers', 'Friend', ['Lydia Ballinger', False,'Molly Carnell',False]],
+
+        'BN': ['Prime Time', 'Friend', ['Noah Crosby', True,'Logan Marunich',True]],
+
+        'BO': ['Artsy Smartsy', 'Friend', ['Timothy Crosby', True,'Amelia Wells',False]],
+
+        'BP': ['Him That Knocketh Again', 'Friend', ['Elijah Crosby', True,'Jason Farmer',True]],
+
+        'BQ': ['Torches', 'Friend', ['Josiah Wells', True,'Gabriel Ballinger',True]],
+
+        'BR': ['Savory Salt', 'Cousin', ['Joshua Grimm', True,'Jonathan C Crosby',True]],
+
+        'RA': ['mg squared', 'Friend', ['Moriah Pipkin', False,'Grace Carnell',False]],
+
+        'RB': ['David and Jonahthan', 'Friend', ['David Jones', True,'Jonah Unger',True]],
+
+        'RC': ['Lids and Pants', 'Friend', ['Emma Eastland', False,'Lydia Crosby',False]],
+
+        'RD': ['Mountain Men', 'Friend', ['David Smith', True,'Matthew Crosby',True]],
+
+        'RE': ['Brothers of Lightning', 'Friend', ['Paul Crosby', True,'Adam Eastlnd',True]],
+
+        'RF': ['The Attaining Twain', 'Friend', ['Samuel Unger', True,'Megan Carnell',False]],
+
+        'RG': ['No stinkin’ thinkin’', 'Parent/Child', ['Charity Unger', False,'Rachel Carnell',False]],
+
+        'RH': ['The Apostle and The Regicide', 'Sibling', ['Berean Cutler', True,'Breagan Cutler',True]],
+
+        'RI': ['JC x 4', 'Cousin', ['James Crosby', True,'Joy Carnell',False]],
+
+        'RJ': ['Grace and Joy', 'Friend', ['Abigail Greene', False,'MaryGrace Carnell',False]],
+
+        'RK': ['Pearls of Grace', 'Friend', ['Destiny Wells', False,'Bethany Cutler',False]],
+
+        'RL': ['Serene Chaos', 'Sibling', ['Brigitta Cutler', False,'Bellhannah Cutler',False]],
+
+        'RM': ['Joyful Pilgrims', 'Friend', ['Tammy Grimm', False,'Adam Wells',False]],
+
+        'RN': ['Peacemakers', 'Parent/Child', ['Aimee Crosby', True,'Zachariah Crosby',True]],
+
+        'RO': ['Married yet Single', 'Couple', ['Joshua Unger', True,'Natalie Unger',False]],
+
+        'RP': ['Wash Thy Face', 'Parent/Child', ['Chris Carnell', True,'Gloria Carnell',False]],
+
+        'RQ': ['Sinners with Pearls', 'Friend', ['Miriam Carnell', False,'Stephanie Farmer',False]],
+
+        'RR': ['Trailblazers', 'Friend', ['Josiah Ballinger', False,'Jaxon Wells',False]],
+
+
     }
 
     team_memberships = []
