@@ -21,8 +21,8 @@ def render_team(team: Team, event: Event) -> str:
         'current': f"<a href='{current_quiz.get_absolute_url()}'>{current_quiz}</a>",
         'next': f"<a href='{next_quiz.get_absolute_url()}'>{next_quiz}</a>",
         'quizzers': '<br>'.join([str(team) for team in team.get_individuals()]),
-        'quizzer_scores': '<br>'.join(
-            [str(event.get_individual_score(individual)) for individual in team.get_individuals()]),
+        # 'quizzer_scores': '<br>'.join(
+        #     [str(event.get_individual_score(individual)) for individual in team.get_individuals()]),
     }
 
     return f"<tr>{''.join([f'<td>{value}</td>' for value in values.values()])}</tr>"
