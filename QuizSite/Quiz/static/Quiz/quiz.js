@@ -299,7 +299,7 @@ $('#submit').click(function () {
             quiz_validated_by_scorekeeper: true,
         },
         success: function (data, status, xhr) {
-            location.reload();
+            // location.reload();
         },
         error: function (xhr, status, error) {
             console.log(xhr, status, error);
@@ -348,7 +348,7 @@ quizzerValidateCheckboxes.click(function () {
                 new_team_id: this.value,
             },
             success: function (data, status, xhr) {
-                location.reload();
+                // location.reload();
             },
             error: function (xhr, status, error) {
             }
