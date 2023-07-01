@@ -220,7 +220,7 @@ group by
     i.id,
     i.name,
     cr2.attendancepoints
-order by short_name
+order by team.id, i.id
 
         
         '''
