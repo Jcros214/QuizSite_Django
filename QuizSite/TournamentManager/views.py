@@ -281,10 +281,10 @@ def populate_round_robbin_event(request):
             if individual_name in (False, True):
                 individuals_objects[-1].gender = individual_name
 
-            user = User.objects.get(username=individual_name)
-            # if User.objects.filter(username=individual_name).exists():
-            # else:
-            #     user = User.objects.create_user(username=individual_name, password="password")
+            if User.objects.filter(username=individual_name).exists():
+                user = User.objects.get(username=individual_name)
+            else:
+                user = User.objects.create_user(username=individual_name, password="password")
 
             if Individual.objects.filter(name=individual_name).exists():
                 Individual.objects.filter(name=individual_name).delete()
