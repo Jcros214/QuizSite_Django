@@ -283,7 +283,7 @@ allCheckboxes.each(function () {
     } else {
         setCheckBox($(this), 'neutral');
     }
-    location.reload();
+
 })
 
 
