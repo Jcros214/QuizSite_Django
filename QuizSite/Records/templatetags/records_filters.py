@@ -54,7 +54,6 @@ def ranked_teams_table(event: Event):
         <th>Current</th>
         <th>Next</th>
         <th>Quizzers</th>
-        <th>Score</th>
     </tr>
 
             '''
