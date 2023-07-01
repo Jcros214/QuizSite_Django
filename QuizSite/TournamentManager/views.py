@@ -280,6 +280,7 @@ def populate_round_robbin_event(request):
 
             if individual_name in (False, True):
                 individuals_objects[-1].gender = individual_name
+                continue
 
             if User.objects.filter(username=individual_name).exists():
                 user = User.objects.get(username=individual_name)
