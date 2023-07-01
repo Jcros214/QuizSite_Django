@@ -54,7 +54,6 @@ def ranked_teams_table(event: Event):
         <th>Current</th>
         <th>Next</th>
         <th>Quizzers</th>
-        <th>Score</th>
     </tr>
 
             '''
@@ -83,7 +82,7 @@ def ranked_teams_table(event: Event):
         else:
             next_round = "None"
 
-        html += "\n<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>".format(
+        html += "\n<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>".format(
             team['rank'],
             team['code'],
             team['name'],
@@ -91,7 +90,7 @@ def ranked_teams_table(event: Event):
             current_round,
             next_round,
             '<br>'.join([str(quizzer['name']) for quizzer in team['individuals']]),
-            '<br>'.join([str(quizzer['score']) for quizzer in team['individuals']]))
+        )
 
         prv_score = team['score']
 

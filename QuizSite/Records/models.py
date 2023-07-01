@@ -113,7 +113,7 @@ class Event(models.Model):
     isTournament = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.season}"
+        return f"{self.season} - {'afternoon' if self.isTournament else 'morning'}"
 
     def date_is_today(self):
         return self.date == django.utils.timezone.datetime.date.today()
