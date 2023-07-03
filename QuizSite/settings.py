@@ -35,13 +35,15 @@ ALLOWED_HOSTS = [
     'quizbox.app',
     '*.quizbox.app',
     'localhost',
-    'quizbox-site-wzdyo.ondigitalocean.app',
+    'quiz-box.azurewebsites.net',
+    '*.azurewebsites.net',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://www.quizbox.app',
     'https://quizbox.app',
     'https://quizbox-site-wzdyo.ondigitalocean.app',
+    'https://*.azurewebsites.net',
 ]
 
 # Application definition
