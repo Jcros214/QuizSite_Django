@@ -12,20 +12,17 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.management.utils import get_random_secret_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
-from django.core.management.utils import get_random_secret_key
 
-SECRET_KEY = os.getenv("DJANGO_SECRET", '7m2Tvxb7olx576cfupqURRWEcnlOhVdFNqyoVbfSYeFxDLORRL')
+SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # os.getenv("DJANGO_DEBUG", "False") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -134,17 +131,11 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'quizdb_prod',
-        'USER': 'doadmin',
-        'PASSWORD': 'AVNS_inpSFP2HTHFolJTB4EY',
-        'HOST': 'quizbox-dbs-do-user-12108150-0.b.db.ondigitalocean.com',
-        'PORT': 25060,
-        # 'OPTIONS': {
-        #     'sslmode': 'require',
-        #     'sslrootcert': BASE_DIR / 'ca-certificate.crt',
-        #
-        # },
-
+        'NAME': os.getenv('DJANGO_DB_NAME'),
+        'USER': os.getenv('DJANGO_DB_USER'),
+        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD'),
+        'HOST': os.getenv('DJANGO_DB_HOST'),
+        'PORT': os.getenv('DJANGO_DB_PORT'),
     }
 }
 
