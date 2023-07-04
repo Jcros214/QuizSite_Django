@@ -26,14 +26,14 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    '169.254.129.5',
     'www.quizbox.app',
     'quizbox.app',
     '*.quizbox.app',
     'localhost',
-    'quiz-box.azurewebsites.net',
-    '*.azurewebsites.net',
 ]
+
+if os.getenv('DJANGO_ALLOWED_HOSTS'):
+    ALLOWED_HOSTS += os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://www.quizbox.app',
