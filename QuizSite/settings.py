@@ -26,8 +26,7 @@ DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    '161.35.252.20',
-    '104.248.224.128',
+    '169.254.129.5',
     'www.quizbox.app',
     'quizbox.app',
     '*.quizbox.app',
