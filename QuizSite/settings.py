@@ -38,7 +38,6 @@ if os.getenv('DJANGO_ALLOWED_HOSTS'):
 CSRF_TRUSTED_ORIGINS = [
     'https://www.quizbox.app',
     'https://quizbox.app',
-    'https://quizbox-site-wzdyo.ondigitalocean.app',
     'https://*.azurewebsites.net',
 ]
 
