@@ -13,16 +13,21 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os
 from django.core.management.utils import get_random_secret_key
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.getenv("DJANGO_SECRET", get_random_secret_key())
+SECRET_KEY = env("DJANGO_SECRET", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
+DEBUG = env("DJANGO_DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -32,8 +37,8 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
-if os.getenv('DJANGO_ALLOWED_HOSTS'):
-    ALLOWED_HOSTS += os.getenv('DJANGO_ALLOWED_HOSTS').split(',')
+if env('DJANGO_ALLOWED_HOSTS'):
+    ALLOWED_HOSTS += env('DJANGO_ALLOWED_HOSTS').split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     'https://www.quizbox.app',
@@ -129,11 +134,11 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv('DJANGO_DB_NAME', ''),
-        'USER': os.getenv('DJANGO_DB_USER', ''),
-        'PASSWORD': os.getenv('DJANGO_DB_PASSWORD', ''),
-        'HOST': os.getenv('DJANGO_DB_HOST', ''),
-        'PORT': os.getenv('DJANGO_DB_PORT', ''),
+        'NAME': env('DJANGO_DB_NAME', ''),
+        'USER': env('DJANGO_DB_USER', ''),
+        'PASSWORD': env('DJANGO_DB_PASSWORD', ''),
+        'HOST': env('DJANGO_DB_HOST', ''),
+        'PORT': env('DJANGO_DB_PORT', ''),
     }
 }
 
