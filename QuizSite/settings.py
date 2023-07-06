@@ -15,7 +15,10 @@ import os
 from django.core.management.utils import get_random_secret_key
 import environ
 
-env = environ.Env()
+env = environ.Env(
+    DJANGO_DEBUG=(bool, False),
+    DJANGO_SECRET=(str, get_random_secret_key()),
+)
 environ.Env.read_env()
 
 
@@ -24,10 +27,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = env("DJANGO_SECRET", get_random_secret_key())
+SECRET_KEY = env("DJANGO_SECRET")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DJANGO_DEBUG", "False") == "True"
+DEBUG = env("DJANGO_DEBUG")
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
@@ -43,7 +46,6 @@ if env('DJANGO_ALLOWED_HOSTS'):
 CSRF_TRUSTED_ORIGINS = [
     'https://www.quizbox.app',
     'https://quizbox.app',
-    'https://*.azurewebsites.net',
 ]
 
 # Application definition
@@ -134,11 +136,11 @@ WSGI_APPLICATION = 'QuizSite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env('DJANGO_DB_NAME', ''),
-        'USER': env('DJANGO_DB_USER', ''),
-        'PASSWORD': env('DJANGO_DB_PASSWORD', ''),
-        'HOST': env('DJANGO_DB_HOST', ''),
-        'PORT': env('DJANGO_DB_PORT', ''),
+        'NAME': env('DJANGO_DB_NAME'),
+        'USER': env('DJANGO_DB_USER'),
+        'PASSWORD': env('DJANGO_DB_PASSWORD'),
+        'HOST': env('DJANGO_DB_HOST'),
+        'PORT': env('DJANGO_DB_PORT'),
     }
 }
 
