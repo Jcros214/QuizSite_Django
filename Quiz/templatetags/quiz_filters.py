@@ -43,6 +43,8 @@ def display_official_schedule(context):
 @register.simple_tag(name='render_scoresheet')
 def render_scoresheet(quiz: Quiz, mutable=True):
     current_quiz = quiz
+    if not isinstance(current_quiz, Quiz):
+        return "It looks like you don't haven't been assigned to any more quizzes. If you think
 
     quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
 
