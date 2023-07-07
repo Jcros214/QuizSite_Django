@@ -22,7 +22,7 @@ jobs:
         pip install -r requirements.txt
     - name: Set Env Vars From Secret
       run:
-        source QuizSite/.env
+        source /home/django/QuizSite_Django/QuizSite/.env
 
     - name: Run Tests
       run: |
