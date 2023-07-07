@@ -31,3 +31,4 @@ typing_extensions==4.5.0
 
 requests~=2.31.0
 django-environ==0.10.0
+whitenoise==6.5.0
