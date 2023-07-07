@@ -8,8 +8,7 @@ on:
 
 jobs:
   run_tests:
-
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - uses: actions/checkout@v3
@@ -24,3 +23,26 @@ jobs:
     - name: Run Tests
       run: |
         python QuizSite/manage.py test
+  deploy:
+    needs: run_tests
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update Local Git Repository
+        run: |
+          git fetch
+          git reset --hard origin/sandbox
+      - name: Set up Python Environment
+        run: | 
+          pip install -r requirements.txt
+      - name: Migrate Database
+        run: |
+          python3 manage.py migrate
+      - name: Collect Static Files
+        run: |
+          python3 manage.py collectstatic --noinput
+      - name: Restart Nginx and Gunicorn
+        run: |
+          sudo systemctl restart nginx 
+          sudo systemctl restart gunicorn
