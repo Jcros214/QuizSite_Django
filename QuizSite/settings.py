@@ -15,15 +15,16 @@ import os
 from django.core.management.utils import get_random_secret_key
 import environ
 
-env = environ.Env(
-    DJANGO_DEBUG=(bool, False),
-    DJANGO_SECRET=(str, get_random_secret_key()),
-)
-environ.Env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env = environ.Env(
+    DJANGO_DEBUG=(bool, False),
+    DJANGO_SECRET=(str, get_random_secret_key()),
+)
+environ.Env.read_env(overwrite=True, env_file=BASE_DIR / 'QuizSite/.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
