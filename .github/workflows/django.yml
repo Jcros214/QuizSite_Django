@@ -1,10 +1,10 @@
-name: Django CI
+name: Django CI/CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "sandbox" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "sandbox" ]
 
 jobs:
   run_tests:
