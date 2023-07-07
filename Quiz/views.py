@@ -174,63 +174,63 @@ def quiz_backend(request):
         return HttpResponse(401)
 
 
-def quiz_view_only(quiz_id) -> str:
-    try:
-        current_quiz = Quiz.objects.get(pk=quiz_id)
-    except Quiz.DoesNotExist:
-        raise ValueError(f'Quiz with id {quiz_id} does not exist')
-
-    quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
-
-    NEW_LINE = '\n'
-
-    HTML = f'''\
-    <form>
-    <div class="table-div">
-        <table class="quiz-table">
-            <thead>
-                <tr>
-                    <th class="headcol">Quizzer</th> <th class="score-col">Score</th>   
-                    {''.join([f'            <th data-question-id="{question.pk}"><a href="{question.quiz.get_absolute_url()}/{question.pk}">{question.question_number}</a></th>{NEW_LINE}' for question in quiz_questions])} 
-                </tr>
-                <tr>
-                    <th class="headcol"></th> <th class="score-col"></th>
-                    {''.join([f'            <th class="not-answered invisible" data-question-id="{question.pk}">Not<br>Answered</th>{NEW_LINE}' for question in quiz_questions])} 
-                </tr>
-            </thead>
-        '''
-
-    for team in current_quiz.get_teams():
-
-        HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team.name}</th>  <th class="score-col team-score"><span class="team-score">{current_quiz.get_results()[team]}<span></th>  </tr> {NEW_LINE}'
-
-        for team_membership in TeamMembership.objects.filter(team=team):
-            quizzer = team_membership.individual
-            HTML += f'        <tr>{NEW_LINE}'
-
-            HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td class="score-col individual-score" ></td>   {NEW_LINE}'
-            for question in quiz_questions:
-                # Create checkbox span things per question
-                span_class = 'checkbox-img '
-
-                if question.individual == quizzer:
-
-                    if question.ruling == 'correct':
-                        span_class += 'positive'
-                    elif question.ruling == 'incorrect':
-                        span_class += 'negative'
-                    elif question.ruling == 'not answered':
-                        ...  # Handled above
-
-                HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
-
-            HTML += '        </tr>\n'
-        HTML += '        </tbody>\n'
-
-    HTML += '''\
-            </table>
-        </div>
-        </form>
-        '''
-    return HTML
+# def quiz_view_only(quiz_id) -> str:
+#     try:
+#         current_quiz = Quiz.objects.get(pk=quiz_id)
+#     except Quiz.DoesNotExist:
+#         raise ValueError(f'Quiz with id {quiz_id} does not exist')
+#
+#     quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
+#
+#     NEW_LINE = '\n'
+#
+#     HTML = f'''\
+#     <form>
+#     <div class="table-div">
+#         <table class="quiz-table">
+#             <thead>
+#                 <tr>
+#                     <th class="headcol">Quizzer</th> <th class="score-col">Score</th>
+#                     {''.join([f'            <th data-question-id="{question.pk}"><a href="{question.quiz.get_absolute_url()}/{question.pk}">{question.question_number}</a></th>{NEW_LINE}' for question in quiz_questions])}
+#                 </tr>
+#                 <tr>
+#                     <th class="headcol"></th> <th class="score-col"></th>
+#                     {''.join([f'            <th class="not-answered invisible" data-question-id="{question.pk}">Not<br>Answered</th>{NEW_LINE}' for question in quiz_questions])}
+#                 </tr>
+#             </thead>
+#         '''
+#
+#     for team in current_quiz.get_teams():
+#
+#         HTML += f'        <tbody>{NEW_LINE}'
+#         HTML += f'          <tr> <th class="headcol team-name">{team.name}</th>  <th class="score-col team-score"><span class="team-score">{current_quiz.get_results()[team]}<span></th>  </tr> {NEW_LINE}'
+#
+#         for team_membership in TeamMembership.objects.filter(team=team):
+#             quizzer = team_membership.individual
+#             HTML += f'        <tr>{NEW_LINE}'
+#
+#             HTML += f'            <th class="headcol individual-name">{quizzer} </th> <td class="score-col individual-score" ></td>   {NEW_LINE}'
+#             for question in quiz_questions:
+#                 # Create checkbox span things per question
+#                 span_class = 'checkbox-img '
+#
+#                 if question.individual == quizzer:
+#
+#                     if question.ruling == 'correct':
+#                         span_class += 'positive'
+#                     elif question.ruling == 'incorrect':
+#                         span_class += 'negative'
+#                     elif question.ruling == 'not answered':
+#                         ...  # Handled above
+#
+#                 HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
+#
+#             HTML += '        </tr>\n'
+#         HTML += '        </tbody>\n'
+#
+#     HTML += '''\
+#             </table>
+#         </div>
+#         </form>
+#         '''
+#     return HTML
