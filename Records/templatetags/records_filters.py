@@ -30,7 +30,11 @@ def render_team(team: Team, event: Event) -> str:
 
 @register.simple_tag()
 def ranked_teams_table(event: Event):
+    print("started trying to get data")
+
     data = event.get_event_view_data()
+
+    print("successfully got data")
 
     caches = {}
 
