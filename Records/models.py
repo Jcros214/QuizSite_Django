@@ -1,3 +1,6 @@
+from typing import Optional, Dict
+
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from django.contrib.auth.models import User
@@ -37,7 +40,7 @@ class Individual(models.Model):
     MALE = True
     FEMALE = False
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     birthday = models.DateField("", auto_now=False, auto_now_add=False, default=None, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     gender = models.BooleanField(choices=((MALE, "Male"), (FEMALE, "Female")), null=True, blank=True)
@@ -62,6 +65,9 @@ class Season(models.Model):
 
 
 class Team(models.Model):
+    class Meta:
+        unique_together = (('name', 'organization', 'season'), ('short_name', 'season'))
+
     name = models.CharField(max_length=100)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
@@ -114,9 +120,6 @@ class Event(models.Model):
 
     def __str__(self):
         return f"{self.season} - {'afternoon' if self.isTournament else 'morning'}"
-
-    def date_is_today(self):
-        return self.date == django.utils.timezone.datetime.date.today()
 
     def get_team_rank_in_division(self, team: Team):
         teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
@@ -173,7 +176,7 @@ class Event(models.Model):
         return self.get_current_round() + 1 if self.get_current_round() else None
 
     def get_event_view_data(self):
-        raw_query = '''
+        raw_query = f'''
     select
     t.short_name,
     t.name as teamname,
@@ -210,7 +213,7 @@ left join (
     where cast(rqc2.round as int) <= (select min(cast(rq3.round as int)) from "Records_quiz" rq3 where rq3."isValidated" = false)
     group by qp.team_id
 ) as cr2 on cr2.team_id = t.id
-where e.date = '2023-07-01' and e."isTournament" = false
+where e.id = {self.pk}
 group by
     t.short_name,
     t.name,
@@ -275,18 +278,47 @@ order by t.short_name, i.id
         return sorted_teams
 
 
+class Room(models.Model):
+    class Meta:
+        unique_together = (('event', 'name'),)
+
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    name = models.CharField(max_length=10)
+    quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE,
+                                   related_name="quizmaster")  # , blank=True, null=True  ?
+    scorekeeper = models.ForeignKey(Individual, on_delete=models.CASCADE,
+                                    related_name="scorekeeper")  # , blank=True, null=True  ?
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Quiz(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    quizmaster = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="quizmaster")
-    scorekeeper = models.ForeignKey(Individual, on_delete=models.CASCADE, related_name="scorekeeper")
-    room = models.CharField(max_length=10)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     round = models.IntegerField()
     isValidated = models.BooleanField(default=False)
 
     num_teams = models.IntegerField(default=3)
 
+    ####
+    # Included for backwards compatibility
+    ####
+
+    @property
+    def quizmaster(self) -> Optional[Individual]:
+        return self.room.quizmaster
+
+    @property
+    def scorekeeper(self) -> Optional[Individual]:
+        return self.room.scorekeeper
+
+    ####
+    # /Included for backwards compatibility
+    ####
+
     def __str__(self) -> str:
-        return self.room + str(self.round) + ' - ' + '  v  '.join(
+        return str(self.room) + str(self.round) + ' - ' + '  v  '.join(
             [str(team.try_short_name()) for team in self.get_teams()])
 
     def get_questions(self) -> QuerySet['AskedQuestion']:
@@ -298,7 +330,7 @@ class Quiz(models.Model):
         return [p.team for p in participants]
 
     # Results should be: {team: model: score: int, ...}
-    def get_results(self):
+    def get_results(self) -> Dict[Team, int]:
         questions = self.get_questions()
         results = {}
 
@@ -365,6 +397,30 @@ class Quiz(models.Model):
 
         self.add_team(new_team)
 
+    def get_team_by_rank(self, rank: int) -> Team:
+        results = self.get_results()
+
+        if rank > len(results):
+            raise ValueError(f"Rank {rank} is greater than the number of teams in {self}")
+
+        return sorted(results.items(), key=lambda item: item[1])[rank - 1][0]
+
+    def advance_quizzes(self):
+        progression_objects = QuizProgression.objects.filter(event=self.event, room=self.room.name, round=self.round)
+
+        if not progression_objects.exists():
+            return
+
+        for progression_object in progression_objects:
+            # Get next quiz
+            try:
+                next_quiz = Quiz.objects.get(event=self.event, room__name=progression_object.next_room,
+                                             round=progression_object.next_round)
+            except Quiz.DoesNotExist:
+                raise ImproperlyConfigured(f"QuizProgression {progression_object} has no next quiz")
+
+            QuizParticipants.objects.create(quiz=next_quiz, team=self.get_team_by_rank(progression_object.rank))
+
 
 class QuizParticipants(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -388,3 +444,13 @@ class AskedQuestion(models.Model):
 
     def __str__(self):
         return f"{self.quiz} - {self.individual}: {self.ruling}"
+
+
+class QuizProgression(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    room = models.CharField(max_length=10)
+    round = models.IntegerField()
+    division = models.CharField(max_length=30)
+    rank = models.IntegerField()
+    next_room = models.CharField(max_length=10)
+    next_round = models.IntegerField()

@@ -23,8 +23,8 @@ from Records.models import Event
 
 
 def index(request):
-    return render(request, 'home/index.html')
-    # return redirect(Event.objects.get(pk=20))
+    # return render(request, 'home/index.html')
+    return redirect(Event.objects.get(pk=13))
 
 
 urlpatterns = [
