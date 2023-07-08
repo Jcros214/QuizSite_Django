@@ -19,7 +19,7 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
         raise AttributeError(
             'You have created an account, but it has not been setup to be a scorekeeper. Please contact your administer to get your account setup.')
 
-    current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False).order_by('round')
+    current_quiz = Quiz.objects.filter(room__scorekeeper=current_individual).filter(isValidated=False).order_by('round')
 
     if current_quiz.exists():
         return current_quiz.first()
@@ -172,7 +172,6 @@ def quiz_backend(request):
         return HttpResponse(200)
     else:
         return HttpResponse(401)
-
 
 # def quiz_view_only(quiz_id) -> str:
 #     try:
