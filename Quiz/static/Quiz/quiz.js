@@ -121,7 +121,7 @@ function disableAnyUnusableCheckboxes() {
     // }
 
     // Enable the submit button, then if any team hasn't validated, disable the submit button
-    submit_button.attr('disabled', false);
+    submit_button.removeAttr('disabled');
 
     for (let i = 0; i < team_ids.length; i++) {
         const team_id = team_ids[i];
