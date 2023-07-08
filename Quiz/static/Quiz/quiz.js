@@ -300,7 +300,7 @@ submit_button.click(function () {
             quiz_validated_by_scorekeeper: true,
         },
         success: function (data, status, xhr) {
-            // location.reload();
+            location.reload();
         },
         error: function (xhr, status, error) {
             console.log(xhr, status, error);
