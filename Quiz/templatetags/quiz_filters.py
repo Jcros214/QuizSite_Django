@@ -44,7 +44,7 @@ def display_official_schedule(context):
 def render_scoresheet(quiz: Quiz, mutable=True):
     current_quiz = quiz
     if not isinstance(current_quiz, Quiz):
-        return "It looks like you don't haven't been assigned to any more quizzes. If you think
+        return "It looks like you haven't been assigned to any more quizzes. If you think this is a mistake, please reach out to your administers."
 
     quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
 
