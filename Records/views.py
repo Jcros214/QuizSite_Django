@@ -121,7 +121,7 @@ def event(request, league_id, season_id, event_id):
 
     quizzes_by_room = {}
 
-    for room in sorted(rooms):
+    for room in sorted(rooms, key=lambda r: str(r.name)):
         quizzes_by_room[room] = []
         for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
             quizzes_by_room[room].append(current_quiz)

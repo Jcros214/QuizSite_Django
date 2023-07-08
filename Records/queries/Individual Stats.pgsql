@@ -41,7 +41,7 @@ left join (
     group by tm.individual_id
 ) as ip on ip.individual_id = i.id
 
-where e.id = {}
+where e.id = {} and aq.type = 'normal'
 group by t.short_name
     , t.name
     , i.name
