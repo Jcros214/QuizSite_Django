@@ -286,7 +286,7 @@ allCheckboxes.each(function () {
     // Not reload????
 })
 
-submit_button.attr('disabled', false);
+submit_button.removeAttr('disabled');
 submit_button.click(function () {
     $(this).attr('disabled', true);
 
