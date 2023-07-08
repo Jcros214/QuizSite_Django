@@ -176,7 +176,7 @@ class Event(models.Model):
         return self.get_current_round() + 1 if self.get_current_round() else None
 
     def get_event_view_data(self):
-        raw_query = '''
+        raw_query = f'''
     select
     t.short_name,
     t.name as teamname,
@@ -213,7 +213,7 @@ left join (
     where cast(rqc2.round as int) <= (select min(cast(rq3.round as int)) from "Records_quiz" rq3 where rq3."isValidated" = false)
     group by qp.team_id
 ) as cr2 on cr2.team_id = t.id
-where e.date = '2023-07-15' and e."isTournament" = false
+where e.id = {self.pk}
 group by
     t.short_name,
     t.name,
