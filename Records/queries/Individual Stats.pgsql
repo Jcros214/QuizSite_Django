@@ -19,12 +19,14 @@ left join (
     SELECT qp.team_id, rqc.id
     from "Records_quizparticipants" qp
     left join "Records_quiz" rqc on qp.quiz_id = rqc.id
+    left join "Records_event" e on rqc.event_id = e.id
     where e.id = {} and cast(rqc.round as int) = (select min(cast(rq1.round as int)) from "Records_quiz" rq1 where e.id = {} and rq1."isValidated" = false)
 ) as cr on cr.team_id = t.id
 left join (
     SELECT qp.team_id, rqn.id
     from "Records_quizparticipants" qp
     left join "Records_quiz" rqn on qp.quiz_id = rqn.id
+    left join "Records_event" e on rqn.event_id = e.id
     where e.id = {} and cast(rqn.round as int) = ((select min(cast(rq2.round as int)) from "Records_quiz" rq2 where e.id = {} and rq2."isValidated" = false) + 1)
 ) as nr on nr.team_id = t.id
 left join (
