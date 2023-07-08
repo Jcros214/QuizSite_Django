@@ -286,9 +286,9 @@ allCheckboxes.each(function () {
     // Not reload????
 })
 
-
+submit_button.attr('disabled', false);
 submit_button.click(function () {
-    $(this).addClass('disabled');
+    $(this).attr('disabled', true);
 
     $.ajax({
         url: window.location.href,
