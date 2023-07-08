@@ -4,7 +4,7 @@ const csrftoken = Cookies.get('csrftoken');
 
 const allCheckboxes = $('.checkbox-img');
 const quizzerValidateCheckboxes = $('.quizzer-validate');
-
+const submit_button = $('#submit-button');
 
 // Get only the unique question_ids from all checkboxes
 const question_ids = [];
@@ -121,14 +121,14 @@ function disableAnyUnusableCheckboxes() {
     // }
 
     // Enable the submit button, then if any team hasn't validated, disable the submit button
-    $('#submit').removeAttr('disabled');
+    submit_button.removeAttr('disabled');
 
     for (let i = 0; i < team_ids.length; i++) {
         const team_id = team_ids[i];
         const teamValidates = $('.quizzer-validate[data-team-id="' + team_id + '"]');
         const teamValidatesChecked = teamValidates.filter(':checked');
         if (teamValidatesChecked.length === 0) {
-            $('#submit').attr('disabled', true);
+            submit_button.attr('disabled', true);
         }
 
 
@@ -287,7 +287,8 @@ allCheckboxes.each(function () {
 })
 
 
-$('#submit').click(function () {
+submit_button.click(function () {
+    $(this).addClass('disabled');
 
     $.ajax({
         url: window.location.href,
