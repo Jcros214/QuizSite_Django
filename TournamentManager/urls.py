@@ -10,6 +10,6 @@ urlpatterns = [
     # Used to pick material
     path('', views.index, name='index'),
     path('round_robin/', views.generate_matchups, name='round_robin'),
-    path('event_generator/', views.populate_round_robbin_event, name='event_generator'),
+    # path('event_generator/', views.populate_round_robbin_event, name='event_generator'),
 
 ]
