@@ -373,16 +373,24 @@ class Quiz(models.Model):
                         score += question.value
                     elif question.type == AskedQuestion.TIEBREAKER:
                         tiebreaker_score += question.value
+                    elif question.type is None:
+                        score += question.value
+
                     else:
-                        raise NotImplementedError("Unknown question type")
+                        raise NotImplementedError(f"Unknown question type: {question.type}")
 
                     # Handle nulls
                     if question.bonusValue:
                         score += question.bonusValue
 
-            results[team] = (score, tiebreaker_score)
+            results[team] = (int(score), int(tiebreaker_score))
 
         return results
+
+    def get_team_results(self, team: Team) -> int:
+        results = self.get_results()
+
+        return results[team][0]  # + results[team][1]
 
     def have_all_teams_validated(self):
         participants = QuizParticipants.objects.filter(quiz_id=self.pk)
