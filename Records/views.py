@@ -111,45 +111,45 @@ def season(request, league_id, season_id):
 # @timed_wrapper('event', 'Event View')
 def event(request, league_id, season_id, event_id):
     # get list of quizzes
-    quizzes = Quiz.objects.filter(event_id=event_id)
-
-    rooms = set()
-    rounds = set()
-
-    # find rounds
-    for current_quiz in quizzes:
-        rounds.add(int(current_quiz.round))
-        rooms.add(current_quiz.room)
-
-    quizzes_by_room = {}
-
-    for room in sorted(rooms, key=lambda r: str(r.name)):
-        quizzes_by_room[room] = []
-        for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
-            quizzes_by_room[room].append(current_quiz)
-
-    NEW_LINE = "\n"
-
-    HTML = f'''
-    <div style="overflow: scroll;">
-<table>
-    <tr>
-        <th style="width: 40px"></th>
-        {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
-    </tr>
-        
-    '''
-
-    for room in quizzes_by_room:
-        HTML += f"""<tr><th>{room}</th>"""
-        for current_quiz in quizzes_by_room[room]:
-            HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz}</a></td>"""
-        HTML += "</tr>"
-    HTML += "</table></div>"
-
+    #     quizzes = Quiz.objects.filter(event_id=event_id)
+    #
+    #     rooms = set()
+    #     rounds = set()
+    #
+    #     # find rounds
+    #     for current_quiz in quizzes:
+    #         rounds.add(int(current_quiz.round))
+    #         rooms.add(current_quiz.room)
+    #
+    #     quizzes_by_room = {}
+    #
+    #     for room in sorted(rooms, key=lambda r: str(r.name)):
+    #         quizzes_by_room[room] = []
+    #         for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
+    #             quizzes_by_room[room].append(current_quiz)
+    #
+    #     NEW_LINE = "\n"
+    #
+    #     HTML = f'''
+    #     <div style="overflow: scroll;">
+    # <table>
+    #     <tr>
+    #         <th style="width: 40px"></th>
+    #         {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
+    #     </tr>
+    #
+    #     '''
+    #
+    #     for room in quizzes_by_room:
+    #         HTML += f"""<tr><th>{room}</th>"""
+    #         for current_quiz in quizzes_by_room[room]:
+    #             HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz}</a></td>"""
+    #         HTML += "</tr>"
+    #     HTML += "</table></div>"
+    #
     context = make_context(league_id, season_id, event_id)
-
-    context['schedule'] = HTML
+    #
+    #     context['schedule'] = HTML
 
     return render(request, "Records/event.html", context)
 
