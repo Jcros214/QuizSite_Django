@@ -67,6 +67,7 @@
     top: auto;
     background: #fff;
     padding: 0 20px;
+    text-align: center;
 }
 
 .team-name {
@@ -87,7 +88,7 @@
 .not-answered {
     font-size: 10px;
     /*height: 40px;*/
-    overflow: initial;
+    overflow: hidden;
     word-break: break-all;
     text-align: center;
     cursor: pointer;
@@ -114,10 +115,12 @@
     margin: 0;
     white-space: nowrap;
     border-top-width: 0;
-    text-align: center;
 }
 
 .quiz-table tr {
     background: white;
 }
 
+.question-number {
+    text-align: center !important;
+}
