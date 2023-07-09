@@ -46,7 +46,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
     if not isinstance(current_quiz, Quiz):
         return "It looks like you haven't been assigned to any more quizzes. If you think this is a mistake, please reach out to your administers."
 
-    quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
+    quiz_questions = current_quiz.get_questions().order_by('question_number')
 
     NEW_LINE = '\n'
 
