@@ -120,18 +120,18 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.season} - {'afternoon' if self.isTournament else 'morning'}"
 
-    def get_team_rank_in_division(self, team: Team):
-        teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
-
-        rank = 1
-
-        for ranked_team in teams:
-            if team == ranked_team:
-                return rank
-            elif ranked_team.division == team.division:
-                rank += 1
-        else:
-            raise ValueError(f"Team {team} is not in this event")
+    # def get_team_rank_in_division(self, team: Team):
+    #     teams: List[Team] = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
+    #
+    #     rank = 1
+    #
+    #     for ranked_team in teams:
+    #         if team == ranked_team:
+    #             return rank
+    #         elif ranked_team.division == team.division:
+    #             rank += 1
+    #     else:
+    #         raise ValueError(f"Team {team} is not in this event")
 
     def get_team_rank(self, team: Team):
         teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
