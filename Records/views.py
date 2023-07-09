@@ -2,6 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
 from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual, Team
 from django.contrib.auth.decorators import login_required
+from server_timing.middleware import TimedService, timed, timed_wrapper
 
 
 # Create your views here.
@@ -107,6 +108,7 @@ def season(request, league_id, season_id):
 
 # List of quizes
 # @login_required
+@timed_wrapper('event', 'Event View')
 def event(request, league_id, season_id, event_id):
     # get list of quizzes
     quizzes = Quiz.objects.filter(event_id=event_id)
