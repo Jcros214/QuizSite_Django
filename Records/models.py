@@ -73,8 +73,7 @@ class Team(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     short_name = models.CharField(max_length=20, blank=True, null=True)
-    division = models.CharField(max_length=2, blank=True, null=True)
-
+    
     type = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
@@ -454,3 +453,13 @@ class QuizProgression(models.Model):
     rank = models.IntegerField()
     next_room = models.CharField(max_length=10)
     next_round = models.IntegerField()
+
+
+class Division(models.Model):
+    class Meta:
+        unique_together = (('event','name'), )
+
+    name = models.CharField(max_length=100)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    teams = models.ManyToManyField(Team)    
+    
