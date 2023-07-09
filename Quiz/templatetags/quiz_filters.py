@@ -82,7 +82,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
             HTML += f'        <tr>{NEW_LINE}'
 
             if mutable:
-                validate_box = f'<input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/>'
+                validate_box = f'<input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/>'  # Once more validation is added, this field could be "remembered" between requests {"checked" if QuizParticipants.objects.get(quiz=current_quiz, team=team).isValidated else ""}
             else:
                 validate_box = ''
 
