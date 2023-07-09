@@ -108,6 +108,14 @@ def render_scoresheet(quiz: Quiz, mutable=True):
     HTML += '''\
             </table>
         </div>
-        </form>
         '''
+    if mutable:
+        HTML += '''
+        <div class="button-div"  style="margin-top: 70px">
+            <button id="submit" class="btn btn-primary" disabled>Submit Scores</button>
+            <button id="tiebreaker" class="btn btn-secondary" disabled>Add Tiebreaker</button>
+        </div>
+        '''
+    HTML += '</form>'
+
     return format_html(HTML)
