@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -293,6 +293,14 @@ class Room(models.Model):
 
 
 class Quiz(models.Model):
+    TIEBREAKER = 'tiebreaker'
+    NORMAL = 'normal'
+
+    QUIZ_TYPES = (
+        (TIEBREAKER, 'Tiebreaker'),
+        (NORMAL, 'Normal'),
+    )
+
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     round = models.IntegerField()
@@ -300,9 +308,30 @@ class Quiz(models.Model):
 
     num_teams = models.IntegerField(default=3)
 
+    type = models.CharField(max_length=10, choices=QUIZ_TYPES)
+
     ####
     # Included for backwards compatibility
     ####
+
+    def save(self, *args, **kwargs):
+        # Quiz Progression
+
+        # Event Progression
+        if Quiz.objects.filter(event=self.event, isValidated=False).exists():
+            return
+
+        # If there are ties...
+
+        breakpoints_within_division = [
+            15,
+
+        ]
+
+        # Get results
+        # look for ties at breakpoints
+
+        super().save(*args, **kwargs)
 
     @property
     def quizmaster(self) -> Optional[Individual]:
@@ -329,21 +358,28 @@ class Quiz(models.Model):
         return [p.team for p in participants]
 
     # Results should be: {team: model: score: int, ...}
-    def get_results(self) -> Dict[Team, int]:
+    def get_results(self) -> Dict[Team, Tuple[int, int]]:
         questions = self.get_questions()
         results = {}
 
         for team in self.get_teams():
-            score = 0
+            score = 40
+            tiebreaker_score = 0
 
             for question in questions:
                 if team.isMember(question.individual):
-                    score += question.value
+                    if question.type == AskedQuestion.NORMAL:
+                        score += question.value
+                    elif question.type == AskedQuestion.TIEBREAKER:
+                        tiebreaker_score += question.value
+                    else:
+                        raise NotImplementedError("Unknown question type")
+
                     # Handle nulls
                     if question.bonusValue:
                         score += question.bonusValue
 
-            results[team] = score
+            results[team] = (score, tiebreaker_score)
 
         return results
 
@@ -402,7 +438,7 @@ class Quiz(models.Model):
         if rank > len(results):
             raise ValueError(f"Rank {rank} is greater than the number of teams in {self}")
 
-        return sorted(results.items(), key=lambda item: item[1])[rank - 1][0]
+        return sorted(results.items(), key=lambda item: (item[1][0], item[1][1]))[rank - 1][0]
 
     def advance_quizzes(self):
         progression_objects = QuizProgression.objects.filter(event=self.event, room=self.room.name, round=self.round)
@@ -431,12 +467,26 @@ class QuizParticipants(models.Model):
 
 
 class AskedQuestion(models.Model):
+    CORRECT = 'correct'
+    INCORRECT = 'incorrect'
+    BONUS = 'bonus'
+
+    NORMAL = 'normal'
+    TIEBREAKER = 'tiebreaker'
+
+    TYPE_CHOICES = (
+        (NORMAL, 'Ok'),
+        (TIEBREAKER, 'Tiebreaker'),
+    )
+
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     individual = models.ForeignKey(Individual, on_delete=models.CASCADE, blank=True, null=True, default=None)
 
     question_number = models.IntegerField()
     ruling = models.CharField(max_length=100, blank=True, null=True)
     value = models.IntegerField(blank=True, null=True)
+
+    type = models.CharField(max_length=100, choices=TYPE_CHOICES, blank=True, null=True)
 
     bonusValue = models.IntegerField(null=True, blank=True)
     bonusDescription = models.CharField(max_length=100, null=True, blank=True)
@@ -446,9 +496,17 @@ class AskedQuestion(models.Model):
 
 
 class QuizProgression(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    room = models.CharField(max_length=10)
-    round = models.IntegerField()
+    TIEBREAKER = 'tiebreaker'
+    NORMAL = 'normal'
+
+    PROGRESSION_TYPES = (
+        (TIEBREAKER, 'Tiebreaker'),
+        (NORMAL, 'Normal'),
+    )
+
+    type = models.CharField(max_length=100, blank=True, null=True, choices=PROGRESSION_TYPES)
+
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     division = models.CharField(max_length=30)
     rank = models.IntegerField()
     next_room = models.CharField(max_length=10)
