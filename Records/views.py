@@ -150,7 +150,6 @@ def event(request, league_id, season_id, event_id):
     context = make_context(league_id, season_id, event_id)
 
     context['schedule'] = HTML
-    context['current_round'] = context['event'].get_current_round()
 
     return render(request, "Records/event.html", context)
 
