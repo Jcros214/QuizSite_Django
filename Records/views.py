@@ -108,7 +108,7 @@ def season(request, league_id, season_id):
 
 # List of quizes
 # @login_required
-@timed_wrapper('event', 'Event View')
+# @timed_wrapper('event', 'Event View')
 def event(request, league_id, season_id, event_id):
     # get list of quizzes
     quizzes = Quiz.objects.filter(event_id=event_id)
