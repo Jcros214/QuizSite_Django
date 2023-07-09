@@ -316,6 +316,8 @@ class Quiz(models.Model):
     ####
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
         # Quiz Progression
 
         # Event Progression
@@ -331,8 +333,6 @@ class Quiz(models.Model):
 
         # Get results
         # look for ties at breakpoints
-
-        super().save(*args, **kwargs)
 
     @property
     def quizmaster(self) -> Optional[Individual]:
