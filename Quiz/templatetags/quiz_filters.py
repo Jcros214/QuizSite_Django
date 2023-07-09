@@ -57,7 +57,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
             <thead>
                 <tr>
                     <th class="headcol">Quizzer</th> <th></th>   <th class="score-col">Score</th>   
-                    {''.join([f'            <th data-question-id="{question.pk}">{question.question_number}</th>{NEW_LINE}' for question in quiz_questions])} 
+                    {''.join([f'            <th class="question-number" data-question-id="{question.pk}">{question.question_number}</th>{NEW_LINE}' for question in quiz_questions])} 
                 </tr>
                 <tr>
                     <th class="headcol"></th> <th></th>   <th class="score-col"></th>
