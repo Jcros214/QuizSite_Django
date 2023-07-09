@@ -75,7 +75,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
         else:
             team_name_select = team.name
         HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
+        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">{current_quiz.get_team_results(team)}<span></th>  </tr> {NEW_LINE}'
 
         for team_membership in TeamMembership.objects.filter(team=team):
             quizzer = team_membership.individual
