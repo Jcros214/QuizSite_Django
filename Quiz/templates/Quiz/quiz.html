@@ -9,6 +9,7 @@
 
     <script>
         var num_teams = {{ quiz.num_teams }};
+        var allow_ties = {{ quiz.allow_ties|lower }};
     </script>
 
     <h2>Quiz {{ quiz.room }}{{ quiz.round }}</h2>

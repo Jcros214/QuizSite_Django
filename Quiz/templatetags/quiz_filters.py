@@ -100,7 +100,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
                     elif question.ruling == 'not answered':
                         ...  # Handled above
 
-                HTML += f'            <td class="question-td"><span data-question-type="{question.type}" data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
+                HTML += f'            <td class="question-td"><span data-question-type="{question.type}" data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
 
             HTML += '        </tr>\n'
         HTML += '        </tbody>\n'

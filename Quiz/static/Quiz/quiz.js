@@ -71,7 +71,58 @@ function updateAllScores() {
     });
 }
 
+
+function areScoresUnique() {
+    const team_scores = [];
+
+    $('.team-score').each(function () {
+        team_scores.push(parseInt($(this).html()));
+    });
+
+    let tiebreaker_value = 2;
+
+    $('.question-number').each(function () {
+        if ($(this).html() === 'TIE') {
+            const questions = $('.checkbox-img[data-question-id="' + $(this).data('question-id') + '"]');
+
+            questions.each(function () {
+                if ($(this).hasClass('positive')) {
+                    team_scores[team_ids.indexOf(String($(this).data('team-id')))] += tiebreaker_value;
+                    tiebreaker_value -= 1;
+                } else if ($(this).hasClass('negative')) {
+                    team_scores[team_ids.indexOf(String($(this).data('team-id')))] -= tiebreaker_value;
+                    tiebreaker_value -= 1;
+                }
+            });
+        }
+    });
+    return team_scores.length === new Set(team_scores).size;
+}
+
+
+function get_team_ids_with_unique_scores() {
+    const team_scores = [];
+
+    $('.team-score').each(function () {
+        team_scores.push(parseInt($(this).html()));
+    });
+
+
+    const team_scores_by_occurrence = [[], [], []];
+
+    $(".team-score").each(function () {
+        const score = parseInt($(this).html());
+
+        const team_id = parseInt($(this).parent().parent().data("team-id"));
+
+        team_scores_by_occurrence[team_scores.filter(x => x === score).length - 1].push(team_id);
+    });
+
+    return team_scores_by_occurrence;
+}
+
 function disableAnyUnusableCheckboxes() {
+    updateAllScores();
     // remove disabled-checkbox from all checkboxes
     allCheckboxes.each(function () {
         $(this).removeClass('disabled-checkbox')
@@ -106,15 +157,6 @@ function disableAnyUnusableCheckboxes() {
 
     const current_question_id = question_ids[question_counter];
 
-    if (question_counter === question_ids.length) {
-        quizzerValidateCheckboxes.each(function () {
-            $(this).removeClass('invisible');
-        });
-    } else {
-        quizzerValidateCheckboxes.each(function () {
-            $(this).addClass('invisible');
-        });
-    }
 
     // TODO:
     // // If someone on a team has validated, then add 'invisible' class the the other teammate's validate checkbox
@@ -164,6 +206,23 @@ function disableAnyUnusableCheckboxes() {
     });
 
 
+    const current_checkboxes = $('.checkbox-img[data-question-id="' + current_question_id + '"]');
+
+    if (current_checkboxes.first().data('question-type') === 'tiebreaker') {
+        current_checkboxes.each(function () {
+            $(this).removeClass('disabled-checkbox');
+        });
+
+        const current_scores = get_team_ids_with_unique_scores();
+
+        // For each team with a unique score, disable all checkboxes for that team
+        current_scores[0].forEach(function (team_id) {
+            $('.checkbox-img[data-team-id="' + team_id + '"]').each(function () {
+                $(this).addClass('disabled-checkbox');
+            });
+        });
+    }
+
     // Check that all questions have been answered
     let any_unanswered = false;
 
@@ -181,26 +240,34 @@ function disableAnyUnusableCheckboxes() {
 
     // Proceeding, all questions have been answered
 
-    let isTie = false;
-    const team_scores = [];
-
-    $('.team-score').each(function () {
-        let score = parseInt($(this).html());
-        if (team_scores.includes(score)) {
-            isTie = true;
-        } else {
-            team_scores.push(score);
-        }
-    });
-
-    if (isTie) {
+    if (!allow_ties && !areScoresUnique()) {
         submit_button.attr('disabled', true);
         tiebreaker_button.removeAttr('disabled');
         // submit_button.removeClass('btn-primary');
         // submit_button.addClass('btn-secondary');
         // tiebreaker_button.removeClass('btn-secondary');
         // tiebreaker_button.addClass('btn-primary');
+        quizzerValidateCheckboxes.each(function () {
+            $(this).addClass('invisible');
+        });
     } else {
+        // Check that all questions have been answered
+        let any_unanswered = false;
+
+        allCheckboxes.each(function () {
+            if (!($(this).hasClass('positive') || $(this).hasClass('negative') || $(this).hasClass('disabled-checkbox'))) {
+                any_unanswered = true;
+            }
+        });
+
+        if (any_unanswered) {
+            $(this).addClass('invisible');
+        } else {
+            quizzerValidateCheckboxes.each(function () {
+                $(this).removeClass('invisible');
+            });
+        }
+
         // Enable the submit button, then if any team hasn't validated, disable the submit button
         submit_button.removeAttr('disabled');
         for (let i = 0; i < team_ids.length; i++) {

@@ -177,13 +177,33 @@ def quiz_backend(request):
             None,
             'not answered',
             None
+        ],
+        'tiebreaker': [
+            current_quizzer,
+            'tiebreaker',
+            100
         ]
     }
 
     if result in result_options.keys():
-        current_question.individual = result_options[result][0]
-        current_question.ruling = result_options[result][1]
-        current_question.value = result_options[result][2]
+        if current_question.type != AskedQuestion.TIEBREAKER:
+            current_question.individual = result_options[result][0]
+            current_question.ruling = result_options[result][1]
+            current_question.value = result_options[result][2]
+        else:
+            value = result_options[result][2] - AskedQuestion.objects.filter(quiz=current_quiz,
+                                                                             type=AskedQuestion.TIEBREAKER,
+                                                                             question_number__lt=current_question.question_number).count()
+
+            if result == 'postive':
+                pass
+            elif result == 'negative':
+                value = -value
+
+            current_question.individual = current_quizzer
+            current_question.ruling = result_options[result][1]
+            current_question.value = value
+
         current_question.save()
         return HttpResponse(200)
     else:
