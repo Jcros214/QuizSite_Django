@@ -5,6 +5,8 @@ const csrftoken = Cookies.get('csrftoken');
 const allCheckboxes = $('.checkbox-img');
 const quizzerValidateCheckboxes = $('.quizzer-validate');
 const submit_button = $('#submit');
+const tiebreaker_button = $('#tiebreaker');
+
 
 // Get only the unique question_ids from all checkboxes
 const question_ids = [];
@@ -43,8 +45,8 @@ function setCheckBox(checkbox, value) {
 function updateAllScores() {
     $(".individual-name").each(function () {
         // count the number of children with .positive .negative
-        const correct = $(this).parent().find(".positive").length
-        const incorrect = $(this).parent().find(".negative").length
+        const correct = $(this).parent().find(".positive[data-question-type=normal]").length
+        const incorrect = $(this).parent().find(".negative[data-question-type=normal]").length
 
         // update the score
         $(this).parent().find(".individual-score").html(correct + ":" + incorrect);
@@ -115,25 +117,11 @@ function disableAnyUnusableCheckboxes() {
     }
 
     // TODO:
-    // // If somone on a team has validated, then add 'invisible' class the the other teamate's validate checkbox
+    // // If someone on a team has validated, then add 'invisible' class the the other teammate's validate checkbox
     // $('.quizzer-validate').each(function () {
     //
     // }
 
-    // Enable the submit button, then if any team hasn't validated, disable the submit button
-    submit_button.removeAttr('disabled');
-
-    for (let i = 0; i < team_ids.length; i++) {
-        const team_id = team_ids[i];
-        const teamValidates = $('.quizzer-validate[data-team-id="' + team_id + '"]');
-        const teamValidatesChecked = teamValidates.filter(':checked');
-        if (teamValidatesChecked.length === 0) {
-            submit_button.attr('disabled', true);
-        }
-
-
-        const teamCheckboxes = $('.checkbox-img[data-team-id="' + team_id + '"]');
-    }
 
     ++question_counter;
 
@@ -175,17 +163,79 @@ function disableAnyUnusableCheckboxes() {
         }
     });
 
-    // // Disable any checkboxes that are in the same column as an answered question
-    // $('.checkbox-img.positive, .checkbox-img.negative').each(function () {
-    //     const question_id = this.dataset.questionId;
-    //     $('.checkbox-img[data-question-id="' + question_id + '"]:not([data-quizzer-id="' + this.dataset.quizzerId + '"])').each(function () {
-    //         $(this).addClass('disabled-checkbox');
-    //     });
-    // });
 
+    // Check that all questions have been answered
+    let any_unanswered = false;
 
+    allCheckboxes.each(function () {
+        if (!($(this).hasClass('positive') || $(this).hasClass('negative') || $(this).hasClass('disabled-checkbox'))) {
+            any_unanswered = true;
+        }
+    });
+
+    if (any_unanswered) {
+        submit_button.attr('disabled', true);
+        tiebreaker_button.attr('disabled', true);
+        return;
+    }
+
+    // Proceeding, all questions have been answered
+
+    let isTie = false;
+    const team_scores = [];
+
+    $('.team-score').each(function () {
+        let score = parseInt($(this).html());
+        if (team_scores.includes(score)) {
+            isTie = true;
+        } else {
+            team_scores.push(score);
+        }
+    });
+
+    if (isTie) {
+        submit_button.attr('disabled', true);
+        tiebreaker_button.removeAttr('disabled');
+        // submit_button.removeClass('btn-primary');
+        // submit_button.addClass('btn-secondary');
+        // tiebreaker_button.removeClass('btn-secondary');
+        // tiebreaker_button.addClass('btn-primary');
+    } else {
+        // Enable the submit button, then if any team hasn't validated, disable the submit button
+        submit_button.removeAttr('disabled');
+        for (let i = 0; i < team_ids.length; i++) {
+            const team_id = team_ids[i];
+            const teamValidates = $('.quizzer-validate[data-team-id="' + team_id + '"]');
+            const teamValidatesChecked = teamValidates.filter(':checked');
+            if (teamValidatesChecked.length === 0) {
+                submit_button.attr('disabled', true);
+            }
+
+            //     check for non-unique scores
+        }
+    }
 }
 
+tiebreaker_button.click(function () {
+    $(this).attr('disabled', true);
+
+    $.ajax({
+        url: window.location.href,
+        type: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+        },
+        data: {
+            add_tiebreaker: true,
+        },
+        success: function (data, status, xhr) {
+            location.reload();
+        },
+        error: function (xhr, status, error) {
+            console.log(xhr, status, error);
+        }
+    });
+});
 allCheckboxes.click(function () {
 
     if ($(this).hasClass('disabled-checkbox')) {
@@ -286,7 +336,6 @@ allCheckboxes.each(function () {
     // Not reload????
 })
 
-submit_button.removeAttr('disabled');
 submit_button.click(function () {
     $(this).attr('disabled', true);
 
@@ -310,6 +359,7 @@ submit_button.click(function () {
 
 quizzerValidateCheckboxes.click(function () {
     const quizzer_id = this.dataset.quizzerId;
+    // TODO: Submit "unchecking" the box
 
     $.ajax({
         url: window.location.href,
@@ -329,38 +379,38 @@ quizzerValidateCheckboxes.click(function () {
 });
 
 
-(function () {
-    let previous;
-
-    $('.team-select').on('focus', function () {
-        // Store the current value on focus and on change
-        previous = this.value;
-    }).change(function () {
-        // Do something with the previous value after the change
-        $.ajax({
-            url: window.location.href,
-            type: 'POST',
-            headers: {
-                'X-CSRFToken': csrftoken,
-            },
-            data: {
-                team_select: true,
-                previous_team_id: previous,
-                new_team_id: this.value,
-            },
-            success: function (data, status, xhr) {
-                // location.reload();
-            },
-            error: function (xhr, status, error) {
-            }
-        });
-
-
-        // Make sure the previous value is updated
-        previous = this.value;
-    });
-})();
-
+// (function () {
+//     let previous;
+//
+//     $('.team-select').on('focus', function () {
+//         // Store the current value on focus and on change
+//         previous = this.value;
+//     }).change(function () {
+//         // Do something with the previous value after the change
+//         $.ajax({
+//             url: window.location.href,
+//             type: 'POST',
+//             headers: {
+//                 'X-CSRFToken': csrftoken,
+//             },
+//             data: {
+//                 team_select: true,
+//                 previous_team_id: previous,
+//                 new_team_id: this.value,
+//             },
+//             success: function (data, status, xhr) {
+//                 // location.reload();
+//             },
+//             error: function (xhr, status, error) {
+//             }
+//         });
+//
+//
+//         // Make sure the previous value is updated
+//         previous = this.value;
+//     });
+// })();
+//
 
 updateAllScores()
 disableAnyUnusableCheckboxes()

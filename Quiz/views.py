@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, reverse
 
 try:
@@ -121,6 +122,8 @@ def quiz_backend(request):
         elif request.POST.get('quiz_validated_by_scorekeeper'):
             scorekeeper = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
             current_quiz.validated_by(scorekeeper)
+
+            messages.success(request, "Submitted quiz.")
 
             return HttpResponse(205)
         elif request.POST.get('team_select'):
