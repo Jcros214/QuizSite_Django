@@ -235,6 +235,9 @@ function disableAnyUnusableCheckboxes() {
     if (any_unanswered) {
         submit_button.attr('disabled', true);
         tiebreaker_button.attr('disabled', true);
+        quizzerValidateCheckboxes.each(function () {
+            $(this).addClass('invisible');
+        });
         return;
     }
 
