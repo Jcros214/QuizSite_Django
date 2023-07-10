@@ -191,9 +191,9 @@ def quiz_backend(request):
             current_question.ruling = result_options[result][1]
             current_question.value = result_options[result][2]
         else:
-            value = result_options[result][2] - AskedQuestion.objects.filter(quiz=current_quiz,
-                                                                             type=AskedQuestion.TIEBREAKER,
-                                                                             question_number__lt=current_question.question_number).count()
+            value = 100 - AskedQuestion.objects.filter(quiz=current_quiz,
+                                                       type=AskedQuestion.TIEBREAKER,
+                                                       question_number__lt=current_question.question_number).count()
 
             if result == 'postive':
                 pass
