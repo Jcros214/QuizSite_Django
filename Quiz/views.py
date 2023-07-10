@@ -127,7 +127,16 @@ def quiz_backend(request):
 
             return HttpResponse(205)
         elif request.POST.get('add_tiebreaker'):
-            current_quiz.add_tiebreaker()
+
+            results_scores = [score[0] for score in current_quiz.get_results().values()]
+
+            if len(results_scores) == len(set(results_scores)):
+                messages.error(request, "There are no ties to break.")
+                return HttpResponse(400)
+
+            for _ in range(len(results_scores) - len(set(results_scores))):
+                current_quiz.add_tiebreaker()
+
             messages.success(request, "Added tiebreaker.")
             return HttpResponse(205)
         # elif request.POST.get('team_select'):
