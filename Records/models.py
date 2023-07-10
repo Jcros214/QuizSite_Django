@@ -469,11 +469,11 @@ class QuizProgression(models.Model):
 
     type = models.CharField(max_length=100, blank=True, null=True, choices=PROGRESSION_TYPES)
 
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    division = models.CharField(max_length=30)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, blank=True, null=True)
+    division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True)
     rank = models.IntegerField()
-    next_room = models.CharField(max_length=10)
-    next_round = models.IntegerField()
+    next_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='next_quiz')
+    next_division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True, related_name='next_division')
 
 
 class Division(models.Model):
