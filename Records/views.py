@@ -177,54 +177,54 @@ def individual(request, individual_id):
     return render(request, "Records/individual.html", {'individual': individual, 'teams': teams})
 
 
-@staff_member_required
-def event_summary(request, event_id):
-    event = Event.objects.get(id=event_id)
-    quizzes = Quiz.objects.filter(event=event)
-
-    # Initialize the pivot table
-    pivot_table = {}
-
-    # Iterate through quizzes
-    for quiz in quizzes:
-        # Get asked questions for each quiz
-        asked_questions = AskedQuestion.objects.filter(quiz=quiz)
-
-        # Iterate through asked questions
-        for question in asked_questions:
-            individual = question.individual
-
-            if individual is None:
-                continue
-
-            if individual not in pivot_table:
-                # Initialize the individual's record
-                pivot_table[individual] = {
-                    'total_points': 0,
-                    'total_questions': 0,
-                    'correct_questions': 0,
-                    'accuracy': 0,
-                }
-
-            # Add the question's value to the total points
-            pivot_table[individual]['total_points'] += question.value or 0
-
-            # Count the total and correct questions
-            pivot_table[individual]['total_questions'] += 1
-            if question.ruling == 'correct':  # Assuming "Correct" indicates a correct answer
-                pivot_table[individual]['correct_questions'] += 1
-
-            # Calculate the accuracy
-            pivot_table[individual]['accuracy'] = (
-                    pivot_table[individual]['correct_questions'] / pivot_table[individual]['total_questions']
-            )
-
-    context = {
-        'event': event,
-        'pivot_table': pivot_table,
-    }
-    return render(request, 'admin/event_summary.html', context)
-
+# @staff_member_required
+# def event_summary(request, event_id):
+#     event = Event.objects.get(id=event_id)
+#     quizzes = Quiz.objects.filter(event=event)
+#
+#     # Initialize the pivot table
+#     pivot_table = {}
+#
+#     # Iterate through quizzes
+#     for quiz in quizzes:
+#         # Get asked questions for each quiz
+#         asked_questions = AskedQuestion.objects.filter(quiz=quiz)
+#
+#         # Iterate through asked questions
+#         for question in asked_questions:
+#             individual = question.individual
+#
+#             if individual is None:
+#                 continue
+#
+#             if individual not in pivot_table:
+#                 # Initialize the individual's record
+#                 pivot_table[individual] = {
+#                     'total_points': 0,
+#                     'total_questions': 0,
+#                     'correct_questions': 0,
+#                     'accuracy': 0,
+#                 }
+#
+#             # Add the question's value to the total points
+#             pivot_table[individual]['total_points'] += question.value or 0
+#
+#             # Count the total and correct questions
+#             pivot_table[individual]['total_questions'] += 1
+#             if question.ruling == 'correct':  # Assuming "Correct" indicates a correct answer
+#                 pivot_table[individual]['correct_questions'] += 1
+#
+#             # Calculate the accuracy
+#             pivot_table[individual]['accuracy'] = (
+#                     pivot_table[individual]['correct_questions'] / pivot_table[individual]['total_questions']
+#             )
+#
+#     context = {
+#         'event': event,
+#         'pivot_table': pivot_table,
+#     }
+#     return render(request, 'admin/event_summary.html', context)
+#
 
 def live_event_display(request, event_id):
     if (event := Event.objects.filter(id=event_id)).exists():

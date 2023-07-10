@@ -15,7 +15,7 @@ urlpatterns = [
     path('<int:league_id>/<int:season_id>/<int:event_id>/<int:quiz_id>/<int:question_id>/', views.question,
          name='question'),
     path('user/<int:individual_id>/', views.individual, name='individual'),
-    path('event_summary/<int:event_id>/', views.event_summary, name='event_summary'),
+    # path('event_summary/<int:event_id>/', views.event_summary, name='event_summary'),
     path('live_display/event/<int:event_id>/', views.live_event_display, name='live_event_display'),
 
     # # ex: /polls/
