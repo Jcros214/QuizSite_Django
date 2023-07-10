@@ -5,7 +5,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
-import django.utils.timezone
 from django.db import connection
 
 
@@ -261,6 +260,8 @@ class Quiz(models.Model):
 
     type = models.CharField(max_length=10, choices=QUIZ_TYPES)
 
+    allow_ties = models.BooleanField()
+
     ####
     # Included for backwards compatibility
     ####
@@ -276,10 +277,9 @@ class Quiz(models.Model):
 
         # If there are ties...
 
-        breakpoints_within_division = [
-            15,
-
-        ]
+        # breakpoints_within_division = [
+        #     15,
+        # ]
 
         # Get results
         # look for ties at breakpoints
@@ -473,7 +473,8 @@ class QuizProgression(models.Model):
     division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True)
     rank = models.IntegerField()
     next_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='next_quiz')
-    next_division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True, related_name='next_division')
+    next_division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True,
+                                      related_name='next_division')
 
 
 class Division(models.Model):
