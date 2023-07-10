@@ -367,6 +367,10 @@ class Quiz(models.Model):
         else:
             raise Exception(f"{individual} is not the scorekeeper nor a member of any team in {self}")
 
+    def add_tiebreaker(self):
+        AskedQuestion.objects.create(quiz_id=self.pk, type=AskedQuestion.TIEBREAKER,
+                                     question_number=AskedQuestion.objects.filter(quiz=self).count() + 1)
+
     def get_absolute_url(self):
         return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
 

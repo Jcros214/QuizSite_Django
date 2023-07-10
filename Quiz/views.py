@@ -126,22 +126,26 @@ def quiz_backend(request):
             messages.success(request, "Submitted quiz.")
 
             return HttpResponse(205)
-        elif request.POST.get('team_select'):
-            previous_team_id = request.POST.get('previous_team_id')
-            new_team_id = request.POST.get('new_team_id')
-
-            if previous_team_id and new_team_id:
-                previous_team = Team.objects.get(pk=previous_team_id)
-                new_team = Team.objects.get(pk=new_team_id)
-
-                current_quiz.replace_team(previous_team, new_team)
-
-                return HttpResponse(205)
-
-            team = Team.objects.filter(pk=request.POST.get('team_select')).first()
-            current_quiz.set_team(team)
+        elif request.POST.get('add_tiebreaker'):
+            current_quiz.add_tiebreaker()
+            messages.success(request, "Added tiebreaker.")
             return HttpResponse(205)
-
+        # elif request.POST.get('team_select'):
+        #     previous_team_id = request.POST.get('previous_team_id')
+        #     new_team_id = request.POST.get('new_team_id')
+        #
+        #     if previous_team_id and new_team_id:
+        #         previous_team = Team.objects.get(pk=previous_team_id)
+        #         new_team = Team.objects.get(pk=new_team_id)
+        #
+        #         current_quiz.replace_team(previous_team, new_team)
+        #
+        #         return HttpResponse(205)
+        #
+        #     team = Team.objects.filter(pk=request.POST.get('team_select')).first()
+        #     current_quiz.set_team(team)
+        #     return HttpResponse(205)
+        #
         return HttpResponse(401)
 
     result_options = {
