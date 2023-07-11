@@ -36,11 +36,11 @@ left join (
     from "Records_quizparticipants" qp
     left join "Records_quiz" rq on qp.quiz_id = rq.id
     left join "Records_event" e on rq.event_id = e.id
-    where e.id = {} and cast(rq.round as int) <= (
+    where e.id = {} and rq.type = 'normal' and cast(rq.round as int) <= (
         select min(cast(rq.round as int)) 
         from "Records_quiz" rq 
         left join "Records_event" e on rq.event_id = e.id
-        where e.id = {} and rq."isValidated" = false)
+        where e.id = {} and rq.type = 'normal' and rq."isValidated" = false)
     group by qp.team_id
 ) as cr2 on cr2.team_id = t.id
 where e.id = {} and rq.type = 'normal' and aq.type = 'normal'

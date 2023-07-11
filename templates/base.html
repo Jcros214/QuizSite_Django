@@ -130,14 +130,17 @@
     {% if debug %}
         <br>
         <div class="alert alert-danger" role="alert">
-            Debug is enabled!
+            Site is currently being worked on. Some features may not work, or the site may go down.
         </div>
     {% endif %}
     {% if messages %}
+        <div style="height: 10px" role="none"></div>
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}"
-                 role="alert">
-                {{ message }}
+            <div class="container-fluid p-0">
+                <div class="alert {{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message|safe }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             </div>
         {% endfor %}
     {% endif %}

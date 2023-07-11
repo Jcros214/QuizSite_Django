@@ -30,7 +30,11 @@ def render_team(team: Team, event: Event) -> str:
 
 @register.simple_tag()
 def ranked_teams_table(event: Event):
+    print("started trying to get data")
+
     data = event.get_event_view_data()
+
+    print("successfully got data")
 
     caches = {}
 
@@ -42,7 +46,7 @@ def ranked_teams_table(event: Event):
 
     for team in data:
         if team['division'] != division:
-            color = 'danger' if team['division'] == 'R' else 'primary'
+            color = 'danger' if team['division'] == 'Red' else 'primary'
             close_tag = '</tbody>' if division is not None else ''
             html += f'{close_tag}<tbody class="table-{color}">'
             html += '''
@@ -251,8 +255,8 @@ def live_event(context):
     data = event.get_event_view_data()
 
     divisions = [
-        [team for team in data if team['division'] == 'B'],
-        [team for team in data if team['division'] == 'R'],
+        [team for team in data if team['division'] == 'Blue'],
+        [team for team in data if team['division'] == 'Red'],
     ]
 
     html = f'''

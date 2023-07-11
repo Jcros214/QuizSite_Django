@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, reverse
 
 try:
@@ -19,7 +20,7 @@ def get_quiz_from_scorekeeper_user(user: User) -> Quiz:
         raise AttributeError(
             'You have created an account, but it has not been setup to be a scorekeeper. Please contact your administer to get your account setup.')
 
-    current_quiz = Quiz.objects.filter(scorekeeper=current_individual).filter(isValidated=False).order_by('round')
+    current_quiz = Quiz.objects.filter(room__scorekeeper=current_individual).filter(isValidated=False).order_by('round')
 
     if current_quiz.exists():
         return current_quiz.first()
@@ -122,23 +123,38 @@ def quiz_backend(request):
             scorekeeper = request.user._wrapped if hasattr(request.user, '_wrapped') else request.user
             current_quiz.validated_by(scorekeeper)
 
+            messages.success(request, "Submitted quiz.")
+
             return HttpResponse(205)
-        elif request.POST.get('team_select'):
-            previous_team_id = request.POST.get('previous_team_id')
-            new_team_id = request.POST.get('new_team_id')
+        elif request.POST.get('add_tiebreaker'):
 
-            if previous_team_id and new_team_id:
-                previous_team = Team.objects.get(pk=previous_team_id)
-                new_team = Team.objects.get(pk=new_team_id)
+            results_scores = [score[0] for score in current_quiz.get_results().values()]
 
-                current_quiz.replace_team(previous_team, new_team)
+            if len(results_scores) == len(set(results_scores)):
+                messages.error(request, "There are no ties to break.")
+                return HttpResponse(400)
 
-                return HttpResponse(205)
+            for _ in range(len(results_scores) - len(set(results_scores))):
+                current_quiz.add_tiebreaker()
 
-            team = Team.objects.filter(pk=request.POST.get('team_select')).first()
-            current_quiz.set_team(team)
+            messages.success(request, "Added tiebreaker.")
             return HttpResponse(205)
-
+        # elif request.POST.get('team_select'):
+        #     previous_team_id = request.POST.get('previous_team_id')
+        #     new_team_id = request.POST.get('new_team_id')
+        #
+        #     if previous_team_id and new_team_id:
+        #         previous_team = Team.objects.get(pk=previous_team_id)
+        #         new_team = Team.objects.get(pk=new_team_id)
+        #
+        #         current_quiz.replace_team(previous_team, new_team)
+        #
+        #         return HttpResponse(205)
+        #
+        #     team = Team.objects.filter(pk=request.POST.get('team_select')).first()
+        #     current_quiz.set_team(team)
+        #     return HttpResponse(205)
+        #
         return HttpResponse(401)
 
     result_options = {
@@ -161,18 +177,37 @@ def quiz_backend(request):
             None,
             'not answered',
             None
+        ],
+        'tiebreaker': [
+            current_quizzer,
+            'tiebreaker',
+            100
         ]
     }
 
     if result in result_options.keys():
-        current_question.individual = result_options[result][0]
-        current_question.ruling = result_options[result][1]
-        current_question.value = result_options[result][2]
+        if current_question.type != AskedQuestion.TIEBREAKER:
+            current_question.individual = result_options[result][0]
+            current_question.ruling = result_options[result][1]
+            current_question.value = result_options[result][2]
+        else:
+            value = 100 - AskedQuestion.objects.filter(quiz=current_quiz,
+                                                       type=AskedQuestion.TIEBREAKER,
+                                                       question_number__lt=current_question.question_number).count()
+
+            if result == 'postive':
+                pass
+            elif result == 'negative':
+                value = -value
+
+            current_question.individual = current_quizzer
+            current_question.ruling = result_options[result][1]
+            current_question.value = value
+
         current_question.save()
         return HttpResponse(200)
     else:
         return HttpResponse(401)
-
 
 # def quiz_view_only(quiz_id) -> str:
 #     try:

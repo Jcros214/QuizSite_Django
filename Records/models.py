@@ -5,7 +5,6 @@ from django.db import models
 
 from django.contrib.auth.models import User
 from django.db.models import QuerySet
-import django.utils.timezone
 from django.db import connection
 
 
@@ -73,7 +72,7 @@ class Team(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE)
 
     short_name = models.CharField(max_length=20, blank=True, null=True)
-    
+
     type = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
@@ -120,18 +119,18 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.season} - {'afternoon' if self.isTournament else 'morning'}"
 
-    def get_team_rank_in_division(self, team: Team):
-        teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
-
-        rank = 1
-
-        for ranked_team in teams:
-            if team == ranked_team:
-                return rank
-            elif ranked_team.division == team.division:
-                rank += 1
-        else:
-            raise ValueError(f"Team {team} is not in this event")
+    # def get_team_rank_in_division(self, team: Team):
+    #     teams: List[Team] = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
+    #
+    #     rank = 1
+    #
+    #     for ranked_team in teams:
+    #         if team == ranked_team:
+    #             return rank
+    #         elif ranked_team.division == team.division:
+    #             rank += 1
+    #     else:
+    #         raise ValueError(f"Team {team} is not in this event")
 
     def get_team_rank(self, team: Team):
         teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
@@ -175,57 +174,8 @@ class Event(models.Model):
         return self.get_current_round() + 1 if self.get_current_round() else None
 
     def get_event_view_data(self):
-        raw_query = f'''
-    select
-    t.short_name,
-    t.name as teamname,
-    t.division as division,
-    cr.id as currentround,
-    nr.id as nextround,
-    i.id as individualid,
-    i.name as individualname,
-    sum(coalesce(aq.value, 0)) as points,
-    cr2.attendancepoints as attendancepoints
-from "Records_team" t
-left join "Records_teammembership" tm on tm.team_id = t.id
-left join "Records_individual" i on tm.individual_id = i.id
-left join "Records_quizparticipants" qp on qp.team_id = t.id
-left join "Records_quiz" rq on qp.quiz_id = rq.id
-left join "Records_event" e on rq.event_id = e.id
-left join "Records_askedquestion" aq on aq.individual_id = i.id and aq.quiz_id = rq.id
-left join (
-    SELECT qp.team_id, rqc.id
-    from "Records_quizparticipants" qp
-    left join "Records_quiz" rqc on qp.quiz_id = rqc.id
-    where cast(rqc.round as int) = (select min(cast(rq1.round as int)) from "Records_quiz" rq1 where rq1."isValidated" = false)
-) as cr on cr.team_id = t.id
-left join (
-    SELECT qp.team_id, rqn.id
-    from "Records_quizparticipants" qp
-    left join "Records_quiz" rqn on qp.quiz_id = rqn.id
-    where cast(rqn.round as int) = ((select min(cast(rq2.round as int)) from "Records_quiz" rq2 where rq2."isValidated" = false) + 1)
-) as nr on nr.team_id = t.id
-left join (
-    SELECT qp.team_id, count(qp.team_id)*20 as attendancepoints
-    from "Records_quizparticipants" qp
-    left join "Records_quiz" rqc2 on qp.quiz_id = rqc2.id
-    where cast(rqc2.round as int) <= (select min(cast(rq3.round as int)) from "Records_quiz" rq3 where rq3."isValidated" = false)
-    group by qp.team_id
-) as cr2 on cr2.team_id = t.id
-where e.id = {self.pk}
-group by
-    t.short_name,
-    t.name,
-    t.division,
-    cr.id,
-    nr.id,
-    i.id,
-    i.name,
-    cr2.attendancepoints
-order by t.short_name, i.id
-
-        
-        '''
+        with open('Records/queries/Event View.pgsql', 'r') as f:
+            raw_query = f.read().replace('{}', str(self.pk))
 
         teams = []
 
@@ -310,11 +260,15 @@ class Quiz(models.Model):
 
     type = models.CharField(max_length=10, choices=QUIZ_TYPES)
 
+    allow_ties = models.BooleanField()
+
     ####
     # Included for backwards compatibility
     ####
 
     def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
         # Quiz Progression
 
         # Event Progression
@@ -323,15 +277,12 @@ class Quiz(models.Model):
 
         # If there are ties...
 
-        breakpoints_within_division = [
-            15,
-
-        ]
+        # breakpoints_within_division = [
+        #     15,
+        # ]
 
         # Get results
         # look for ties at breakpoints
-
-        super().save(*args, **kwargs)
 
     @property
     def quizmaster(self) -> Optional[Individual]:
@@ -372,16 +323,24 @@ class Quiz(models.Model):
                         score += question.value
                     elif question.type == AskedQuestion.TIEBREAKER:
                         tiebreaker_score += question.value
+                    elif question.type is None:
+                        score += question.value
+
                     else:
-                        raise NotImplementedError("Unknown question type")
+                        raise NotImplementedError(f"Unknown question type: {question.type}")
 
                     # Handle nulls
                     if question.bonusValue:
                         score += question.bonusValue
 
-            results[team] = (score, tiebreaker_score)
+            results[team] = (int(score), int(tiebreaker_score))
 
         return results
+
+    def get_team_results(self, team: Team) -> int:
+        results = self.get_results()
+
+        return results[team][0]  # + results[team][1]
 
     def have_all_teams_validated(self):
         participants = QuizParticipants.objects.filter(quiz_id=self.pk)
@@ -407,6 +366,10 @@ class Quiz(models.Model):
                 return
         else:
             raise Exception(f"{individual} is not the scorekeeper nor a member of any team in {self}")
+
+    def add_tiebreaker(self):
+        AskedQuestion.objects.create(quiz_id=self.pk, type=AskedQuestion.TIEBREAKER,
+                                     question_number=AskedQuestion.objects.filter(quiz=self).count() + 1)
 
     def get_absolute_url(self):
         return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
@@ -506,18 +469,18 @@ class QuizProgression(models.Model):
 
     type = models.CharField(max_length=100, blank=True, null=True, choices=PROGRESSION_TYPES)
 
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    division = models.CharField(max_length=30)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, blank=True, null=True)
+    division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True)
     rank = models.IntegerField()
-    next_room = models.CharField(max_length=10)
-    next_round = models.IntegerField()
+    next_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='next_quiz')
+    next_division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True,
+                                      related_name='next_division')
 
 
 class Division(models.Model):
     class Meta:
-        unique_together = (('event','name'), )
+        unique_together = (('event', 'name'),)
 
     name = models.CharField(max_length=100)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    teams = models.ManyToManyField(Team)    
-    
+    teams = models.ManyToManyField(Team)

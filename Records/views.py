@@ -2,6 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
 from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual, Team
 from django.contrib.auth.decorators import login_required
+from server_timing.middleware import TimedService, timed, timed_wrapper
 
 
 # Create your views here.
@@ -107,48 +108,48 @@ def season(request, league_id, season_id):
 
 # List of quizes
 # @login_required
+# @timed_wrapper('event', 'Event View')
 def event(request, league_id, season_id, event_id):
     # get list of quizzes
-    quizzes = Quiz.objects.filter(event_id=event_id)
-
-    rooms = set()
-    rounds = set()
-
-    # find rounds
-    for current_quiz in quizzes:
-        rounds.add(int(current_quiz.round))
-        rooms.add(current_quiz.room)
-
-    quizzes_by_room = {}
-
-    for room in sorted(rooms, key=lambda r: str(r.name)):
-        quizzes_by_room[room] = []
-        for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
-            quizzes_by_room[room].append(current_quiz)
-
-    NEW_LINE = "\n"
-
-    HTML = f'''
-    <div style="overflow: scroll;">
-<table>
-    <tr>
-        <th style="width: 40px"></th>
-        {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
-    </tr>
-        
-    '''
-
-    for room in quizzes_by_room:
-        HTML += f"""<tr><th>{room}</th>"""
-        for current_quiz in quizzes_by_room[room]:
-            HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz}</a></td>"""
-        HTML += "</tr>"
-    HTML += "</table></div>"
-
+    #     quizzes = Quiz.objects.filter(event_id=event_id)
+    #
+    #     rooms = set()
+    #     rounds = set()
+    #
+    #     # find rounds
+    #     for current_quiz in quizzes:
+    #         rounds.add(int(current_quiz.round))
+    #         rooms.add(current_quiz.room)
+    #
+    #     quizzes_by_room = {}
+    #
+    #     for room in sorted(rooms, key=lambda r: str(r.name)):
+    #         quizzes_by_room[room] = []
+    #         for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
+    #             quizzes_by_room[room].append(current_quiz)
+    #
+    #     NEW_LINE = "\n"
+    #
+    #     HTML = f'''
+    #     <div style="overflow: scroll;">
+    # <table>
+    #     <tr>
+    #         <th style="width: 40px"></th>
+    #         {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
+    #     </tr>
+    #
+    #     '''
+    #
+    #     for room in quizzes_by_room:
+    #         HTML += f"""<tr><th>{room}</th>"""
+    #         for current_quiz in quizzes_by_room[room]:
+    #             HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{current_quiz}</a></td>"""
+    #         HTML += "</tr>"
+    #     HTML += "</table></div>"
+    #
     context = make_context(league_id, season_id, event_id)
-
-    context['schedule'] = HTML
-    context['current_round'] = context['event'].get_current_round()
+    #
+    #     context['schedule'] = HTML
 
     return render(request, "Records/event.html", context)
 
@@ -176,54 +177,54 @@ def individual(request, individual_id):
     return render(request, "Records/individual.html", {'individual': individual, 'teams': teams})
 
 
-@staff_member_required
-def event_summary(request, event_id):
-    event = Event.objects.get(id=event_id)
-    quizzes = Quiz.objects.filter(event=event)
-
-    # Initialize the pivot table
-    pivot_table = {}
-
-    # Iterate through quizzes
-    for quiz in quizzes:
-        # Get asked questions for each quiz
-        asked_questions = AskedQuestion.objects.filter(quiz=quiz)
-
-        # Iterate through asked questions
-        for question in asked_questions:
-            individual = question.individual
-
-            if individual is None:
-                continue
-
-            if individual not in pivot_table:
-                # Initialize the individual's record
-                pivot_table[individual] = {
-                    'total_points': 0,
-                    'total_questions': 0,
-                    'correct_questions': 0,
-                    'accuracy': 0,
-                }
-
-            # Add the question's value to the total points
-            pivot_table[individual]['total_points'] += question.value or 0
-
-            # Count the total and correct questions
-            pivot_table[individual]['total_questions'] += 1
-            if question.ruling == 'correct':  # Assuming "Correct" indicates a correct answer
-                pivot_table[individual]['correct_questions'] += 1
-
-            # Calculate the accuracy
-            pivot_table[individual]['accuracy'] = (
-                    pivot_table[individual]['correct_questions'] / pivot_table[individual]['total_questions']
-            )
-
-    context = {
-        'event': event,
-        'pivot_table': pivot_table,
-    }
-    return render(request, 'admin/event_summary.html', context)
-
+# @staff_member_required
+# def event_summary(request, event_id):
+#     event = Event.objects.get(id=event_id)
+#     quizzes = Quiz.objects.filter(event=event)
+#
+#     # Initialize the pivot table
+#     pivot_table = {}
+#
+#     # Iterate through quizzes
+#     for quiz in quizzes:
+#         # Get asked questions for each quiz
+#         asked_questions = AskedQuestion.objects.filter(quiz=quiz)
+#
+#         # Iterate through asked questions
+#         for question in asked_questions:
+#             individual = question.individual
+#
+#             if individual is None:
+#                 continue
+#
+#             if individual not in pivot_table:
+#                 # Initialize the individual's record
+#                 pivot_table[individual] = {
+#                     'total_points': 0,
+#                     'total_questions': 0,
+#                     'correct_questions': 0,
+#                     'accuracy': 0,
+#                 }
+#
+#             # Add the question's value to the total points
+#             pivot_table[individual]['total_points'] += question.value or 0
+#
+#             # Count the total and correct questions
+#             pivot_table[individual]['total_questions'] += 1
+#             if question.ruling == 'correct':  # Assuming "Correct" indicates a correct answer
+#                 pivot_table[individual]['correct_questions'] += 1
+#
+#             # Calculate the accuracy
+#             pivot_table[individual]['accuracy'] = (
+#                     pivot_table[individual]['correct_questions'] / pivot_table[individual]['total_questions']
+#             )
+#
+#     context = {
+#         'event': event,
+#         'pivot_table': pivot_table,
+#     }
+#     return render(request, 'admin/event_summary.html', context)
+#
 
 def live_event_display(request, event_id):
     if (event := Event.objects.filter(id=event_id)).exists():

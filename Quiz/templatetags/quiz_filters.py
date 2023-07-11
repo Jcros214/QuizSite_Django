@@ -46,7 +46,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
     if not isinstance(current_quiz, Quiz):
         return "It looks like you haven't been assigned to any more quizzes. If you think this is a mistake, please reach out to your administers."
 
-    quiz_questions = sorted(current_quiz.get_questions(), key=lambda x: x.question_number)
+    quiz_questions = current_quiz.get_questions().order_by('question_number')
 
     NEW_LINE = '\n'
 
@@ -57,7 +57,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
             <thead>
                 <tr>
                     <th class="headcol">Quizzer</th> <th></th>   <th class="score-col">Score</th>   
-                    {''.join([f'            <th data-question-id="{question.pk}">{question.question_number}</th>{NEW_LINE}' for question in quiz_questions])} 
+                    {''.join([f'            <th class="question-number" data-question-id="{question.pk}">{question.question_number if question.type != AskedQuestion.TIEBREAKER else "TIE"}</th>{NEW_LINE}' for question in quiz_questions])}
                 </tr>
                 <tr>
                     <th class="headcol"></th> <th></th>   <th class="score-col"></th>
@@ -74,15 +74,15 @@ def render_scoresheet(quiz: Quiz, mutable=True):
             team_name_select += '</select>'
         else:
             team_name_select = team.name
-        HTML += f'        <tbody>{NEW_LINE}'
-        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">0<span></th>  </tr> {NEW_LINE}'
+        HTML += f'        <tbody data-team-id="{team.pk}">{NEW_LINE}'
+        HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">{current_quiz.get_team_results(team)}<span></th>  </tr> {NEW_LINE}'
 
         for team_membership in TeamMembership.objects.filter(team=team):
             quizzer = team_membership.individual
             HTML += f'        <tr>{NEW_LINE}'
 
             if mutable:
-                validate_box = f'<input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/>'
+                validate_box = f'<input data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" class="quizzer-validate" type="checkbox"/>'  # Once more validation is added, this field could be "remembered" between requests {"checked" if QuizParticipants.objects.get(quiz=current_quiz, team=team).isValidated else ""}
             else:
                 validate_box = ''
 
@@ -100,7 +100,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
                     elif question.ruling == 'not answered':
                         ...  # Handled above
 
-                HTML += f'            <td class="question-td"><span data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
+                HTML += f'            <td class="question-td"><span data-question-type="{question.type}" data-team-id="{team.pk}" data-quizzer-id="{quizzer.pk}" data-question-id="{question.pk}" class="{span_class}" style="min-height:25px;"></span></td>{NEW_LINE}'
 
             HTML += '        </tr>\n'
         HTML += '        </tbody>\n'
@@ -108,6 +108,14 @@ def render_scoresheet(quiz: Quiz, mutable=True):
     HTML += '''\
             </table>
         </div>
-        </form>
         '''
+    if mutable:
+        HTML += '''
+        <div class="button-div"  style="margin-top: 70px">
+            <button id="submit" class="btn btn-primary" disabled>Submit Scores</button>
+            <button id="tiebreaker" class="btn btn-secondary" disabled>Add Tiebreaker</button>
+        </div>
+        '''
+    HTML += '</form>'
+
     return format_html(HTML)
