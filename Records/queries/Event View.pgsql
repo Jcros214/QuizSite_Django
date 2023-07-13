@@ -43,7 +43,7 @@ left join (
         where e.id = {} and rq.type = 'normal' and rq."isValidated" = false)
     group by qp.team_id
 ) as cr2 on cr2.team_id = t.id
-where e.id = {} and rq.type = 'normal' and aq.type = 'normal'
+where e.id = {} and coalesce(rq.type, 'normal') = 'normal' and coalesce(aq.type, 'normal') = 'normal'
 group by t.short_name
     , t.name
     , rd.name 
