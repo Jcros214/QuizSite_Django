@@ -339,10 +339,11 @@ allCheckboxes.click(function () {
             result: result,
         },
         success: function (data, status, xhr) {
-            // console.log(data, status, xhr);
+            location.reload()
         },
         error: function (xhr, status, error) {
             console.log(xhr, status, error);
+            location.reload()
         }
     });
 
