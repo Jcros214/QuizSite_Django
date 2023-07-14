@@ -421,6 +421,9 @@ class Quiz(models.Model):
 
 
 class QuizParticipants(models.Model):
+    class Meta:
+        unique_together = ('quiz', 'team')
+
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     isValidated = models.BooleanField(default=False)
@@ -475,6 +478,8 @@ class QuizProgression(models.Model):
     next_quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='next_quiz')
     next_division = models.ForeignKey('Division', on_delete=models.CASCADE, blank=True, null=True,
                                       related_name='next_division')
+    isCompleted = models.BooleanField(default=False)
+    allow_ties = models.BooleanField(default=True)
 
 
 class Division(models.Model):
@@ -521,3 +526,30 @@ class Division(models.Model):
 
                     teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
                 is_team_mate = not is_team_mate
+
+    def get_ranked_teams(self):
+        with open('Records/queries/Division View.pgsql', 'r') as f:
+            raw_query = f.read().replace('{event.id}', str(self.event.pk)).replace('{division.id}', str(self.pk))
+
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+
+            teams = []
+
+            for row in cursor.fetchall():
+                teams.append({
+                    'code': row[0],
+                    'name': row[1],
+                    'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+                    'division': row[2],
+                    'current_round': row[3],
+                    'next_round': row[4],
+                    'individuals': [
+                        {
+                            'name': row[6],
+                            'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+                        },
+                    ]
+                })
+
+            return sorted(teams, key=lambda item: item['score'], reverse=True)
