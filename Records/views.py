@@ -1,6 +1,6 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404
-from .models import League, Season, Event, Quiz, AskedQuestion, TeamMembership, Individual, Team
+from .models import *
 from django.contrib.auth.decorators import login_required
 from server_timing.middleware import TimedService, timed, timed_wrapper
 
@@ -231,3 +231,8 @@ def live_event_display(request, event_id):
         return render(request, 'admin/live_event_display.html', {'event': event.first()})
     else:
         return render(request, 'admin/live_event_display.html', {'event': Event.objects.first()})
+
+
+def live_division_display(request, division_id):
+    from Records.templatetags.records_filters import render_a_division_table
+    return render_a_division_table(get_object_or_404(Division, pk=division_id))

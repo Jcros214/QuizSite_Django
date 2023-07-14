@@ -165,8 +165,8 @@ def render_team_row(team: dict) -> str:
 
 
 division_colors = {
-    'R': 'danger',
-    'B': 'primary',
+    'Red': 'danger',
+    'Blue': 'primary',
 }
 
 
@@ -247,6 +247,12 @@ def render_division_table(division_data: list[dict]) -> str:
 </table>
 '''
     return html
+
+
+def render_a_division_table(division: Division) -> str:
+    data = division.get_division_view_data()
+
+    return format_html(render_division_table(data))
 
 
 @register.simple_tag(takes_context=True)

@@ -17,6 +17,7 @@ urlpatterns = [
     path('user/<int:individual_id>/', views.individual, name='individual'),
     # path('event_summary/<int:event_id>/', views.event_summary, name='event_summary'),
     path('live_display/event/<int:event_id>/', views.live_event_display, name='live_event_display'),
+    path('live_display/division/<int:division_id>/', views.live_division_display, name='live_division_display'),
 
     # # ex: /polls/
     # path('', views.index, name='index'),

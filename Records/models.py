@@ -484,3 +484,40 @@ class Division(models.Model):
     name = models.CharField(max_length=100)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     teams = models.ManyToManyField(Team)
+
+    def get_division_view_data(self):
+        with open('Records/queries/Division View.pgsql', 'r') as f:
+            raw_query = f.read().replace('{event.id}', str(self.event.pk)).replace('{division.id}', str(self.pk))
+
+        teams = []
+
+        with connection.cursor() as cursor:
+            cursor.execute(raw_query)
+
+            is_team_mate = False
+
+            for row in cursor.fetchall():
+                if not is_team_mate:
+                    team = {
+                        'code': row[0],
+                        'name': row[1],
+                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+                        'division': row[2],
+                        'current_round': row[3],
+                        'next_round': row[4],
+                        'individuals': [
+                            {
+                                'name': row[6],
+                                'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+                            },
+                        ]
+                    }
+                    teams.append(team)
+                else:
+                    teams[-1]['individuals'].append({
+                        'name': row[6],
+                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+                    })
+
+                    teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
+                is_team_mate = not is_team_mate

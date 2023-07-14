@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import path, include
 from django.contrib.flatpages import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
@@ -24,7 +24,7 @@ from Records.models import Event
 
 def index(request):
     # return render(request, 'home/index.html')
-    return redirect(Event.objects.get(pk=13))
+    return redirect(get_object_or_404(Event, pk=1))
 
 
 urlpatterns = [

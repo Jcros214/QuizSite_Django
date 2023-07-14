@@ -4,7 +4,14 @@
     Live Event
 {% endblock title %}
 {% block content %}
+
     {% live_event %}
+
+    <div class="division-table division-red" hx-get="{% url 'records:live_division_display_table' %}"
+         hx-trigger="every 2s">
+
+    </div>
+
 
     <script>
         setTimeout(() => {
