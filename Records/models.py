@@ -175,7 +175,7 @@ class Event(models.Model):
 
     def get_event_view_data(self):
         with open('Records/queries/Event View.pgsql', 'r') as f:
-            raw_query = f.read().replace('{}', str(self.pk))
+            raw_query = f.read().replace('{event.id}', str(self.pk))
 
         teams = []
 
