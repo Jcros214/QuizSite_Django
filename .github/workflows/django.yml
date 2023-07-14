@@ -24,6 +24,12 @@ jobs:
 #      Breaks... Not sure what's wrong with the env
       run: |
         python manage.py test
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
 
 
   deploy:
