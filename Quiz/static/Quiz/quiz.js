@@ -27,7 +27,7 @@ allCheckboxes.each(function () {
     }
 });
 
-question_ids.sort();
+question_ids.sort((a, b) => a - b);
 
 function setCheckBox(checkbox, value) {
     // value = 'positive', 'negative', or 'neutral'
