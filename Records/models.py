@@ -478,8 +478,8 @@ class Quiz(models.Model):
 
 
 class QuizParticipants(models.Model):
-    class Meta:
-        unique_together = ('quiz', 'team')
+    # class Meta:
+    #     unique_together = ('quiz', 'team')
 
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
@@ -540,8 +540,8 @@ class QuizProgression(models.Model):
 
 
 class Division(models.Model):
-    class Meta:
-        unique_together = (('event', 'name'),)
+    # class Meta:
+        # unique_together = (('event', 'name'),)
 
     name = models.CharField(max_length=100)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)

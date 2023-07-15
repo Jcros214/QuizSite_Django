@@ -189,6 +189,13 @@ def live_division_display(request, division_id):
                   {'division': get_object_or_404(Division, pk=division_id)})
 
 
+def live_divisions_display(request, division_1_id, division_2_id):
+    division_1 = get_object_or_404(Division, pk=division_1_id)
+    division_2 = get_object_or_404(Division, pk=division_2_id)
+
+    return render(request, 'admin/live_divisions_display.html', {'divisions': [division_1, division_2]})
+
+
 def live_division_display_table(request, division_id):
     from Records.templatetags.records_filters import render_a_division_table
     return HttpResponse(content=render_a_division_table(get_object_or_404(Division, pk=division_id)))

@@ -1,4 +1,5 @@
 from django import template
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -201,52 +202,7 @@ def render_division_table(division_data: list[dict], division: Division = None) 
         #             caches['cons1'] = prv_score
         #
         html += render_team_row(team)
-    #
-    #         prv_score = team['score']
-    #
-    #      f'''
-    #     <tr>
-    #         <td style="height: 82px;"></td>
-    #         <td></td>
-    #         <td></td>
-    #         <td></td>
-    #         <td></td>
-    #         <td></td>
-    #         <td></td>
-    #     </tr>
-    #     </tbody>
-    #     <thead>
-    #         <tr>
-    #             <th>Division</th>
-    #             <th></th>
-    #             <th>Minimum Points</th>
-    #             <th></th>
-    #             <th></th>
-    #             <th></th>
-    #             <th></th>
-    #         </tr>
-    #         <tr>
-    #             <td>Championship</td>
-    #             <td></td>
-    #             <td>{caches.get('champ', 'N/A')}</td>
-    #             <th></th>
-    #             <th></th>
-    #             <td></td>
-    #             <td></td>
-    #
-    #         </tr>
-    #         <tr>
-    #             <td>Consolation 1</td>
-    #             <td></td>
-    #             <td>{caches.get('cons1', 'N/A')}</td>
-    #             <th></th>
-    #             <th></th>
-    #             <td></td>
-    #             <td></td>
-    #         </tr>
-    #     </thead>
-    # </table>
-    # '''
+    html += '\n</table>'
     return html
 
 
@@ -289,4 +245,20 @@ def live_division(context):
             {render_division_table(data, division)}
         </div>
     '''
+    return format_html(html)
+
+
+@register.simple_tag(takes_context=True)
+def live_divisions(context):
+    html = ''
+
+    for division in context['divisions']:
+        data = division.get_division_view_data()
+
+        html += f'''
+            <div class="division-table division-red col-6" hx-get="{reverse('records:live_division_display_table', kwargs={'division_id': division.id})}"
+             hx-trigger="every 2s">
+                {render_division_table(data, division)}
+            </div>
+        '''
     return format_html(html)
