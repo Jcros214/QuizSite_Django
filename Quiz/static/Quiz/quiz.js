@@ -342,7 +342,12 @@ allCheckboxes.click(function () {
             result: result,
         },
         success: function (data, status, xhr) {
-            location.reload()
+
+            setTimeout(() => {
+                document.location.reload();
+            }, 5000);
+
+
         },
         error: function (xhr, status, error) {
             console.log(xhr, status, error);
