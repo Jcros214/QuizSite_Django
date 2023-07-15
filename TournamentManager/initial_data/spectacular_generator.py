@@ -2,7 +2,8 @@ from typing import List, Dict, Tuple, Optional
 
 from django.db import transaction
 
-from TournamentManager.initial_data.current.data import quizzes, rooms, divisions, progressions
+from TournamentManager.initial_data.current.data import quizzes, rooms, divisions, progressions, quizzes_afternoon2, \
+    quizzes_afternoon3
 from Records.models import *
 
 
@@ -141,6 +142,15 @@ def preload_spectacular_event():
             MORNING_QUESTIONS += [AskedQuestion(quiz=MORNING_QUIZZES[-1], question_number=q_num, type='normal')
                                   for q_num in range(1, 16)]
 
+    for quiz_event in [(quizzes_afternoon2, AFTERNOON_EVENT1), (quizzes_afternoon3, AFTERNOON_EVENT2)]:
+        event = quiz_event[1]
+        for quiz_dict in quiz_event[0]:
+            for room, teams in quiz_dict.items():
+                quiz_room = Room.objects.get(name=room[0], event=event)
+                MORNING_QUIZZES.append(
+                    Quiz(event=quiz_event[1], room=quiz_room,
+                         round=room[1], allow_ties=True, type='normal'))
+
     Quiz.objects.bulk_create(MORNING_QUIZZES)
     AskedQuestion.objects.bulk_create(MORNING_QUESTIONS)
     QuizParticipants.objects.bulk_create(MORNING_QUIZPARTICIPANTS)
@@ -206,9 +216,6 @@ def preload_spectacular_event():
     for progression in progressions:
         prog_type = progression['type']
         prog_quiz = Quiz.objects.get(id=progression['quiz']) if progression['quiz'] else None
-
-        print(progression['division'])
-
         prog_division = Division.objects.get(id=progression['division']) if progression['division'] else None
         prog_rank = progression['rank']
         prog_next_quiz = Quiz.objects.get(id=progression['next_quiz'])
