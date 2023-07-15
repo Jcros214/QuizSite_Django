@@ -19,8 +19,11 @@ quizzerValidateCheckboxes.each(function () {
 });
 
 allCheckboxes.each(function () {
-    if (!question_ids.includes(this.dataset.questionId)) {
-        question_ids.push(this.dataset.questionId);
+    // get number from string
+    const question_id = parseInt(this.dataset.questionId);
+
+    if (!question_ids.includes(question_id)) {
+        question_ids.push(question_id);
     }
 });
 
