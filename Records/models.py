@@ -297,8 +297,9 @@ class Quiz(models.Model):
     ####
 
     def __str__(self) -> str:
-        return str(self.room) + str(self.round) + ' - ' + '  v  '.join(
-            [str(team.try_short_name()) for team in self.get_teams()])
+        return f"{self.room} - {self.round}"
+        # return str(self.room) + str(self.round) + ' - ' + '  v  '.join(
+        #     [str(team.try_short_name()) for team in self.get_teams()])
 
     def get_questions(self) -> QuerySet['AskedQuestion']:
         return AskedQuestion.objects.filter(quiz_id=self.pk)
@@ -507,7 +508,6 @@ class Division(models.Model):
                         'code': row[0],
                         'name': row[1],
                         'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
-                        'division': row[2],
                         'current_round': row[3],
                         'next_round': row[4],
                         'individuals': [
@@ -526,6 +526,18 @@ class Division(models.Model):
 
                     teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
                 is_team_mate = not is_team_mate
+
+        sorted_teams = sorted(teams, key=lambda t: (t['score'], t['code']), reverse=True)
+
+        for i in range(len(sorted_teams)):
+            if i > 0 and sorted_teams[i]['score'] == sorted_teams[i - 1]['score']:
+                sorted_teams[i]['rank'] = sorted_teams[i - 1]['rank']
+            else:
+                sorted_teams[i]['rank'] = i + 1
+
+        sorted_teams = sorted(teams, key=lambda t: (t['rank'], t['code']))
+
+        return sorted_teams
 
     def get_ranked_teams(self):
         with open('Records/queries/Division View.pgsql', 'r') as f:

@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 from django.utils.html import format_html
 
 try:
@@ -165,94 +166,94 @@ def render_team_row(team: dict) -> str:
 
 
 division_colors = {
-    'Red': 'danger',
-    'Blue': 'primary',
+    'R': 'danger',
+    'B': 'primary',
 }
 
 
-def render_division_table(division_data: list[dict]) -> str:
+def render_division_table(division_data: list[dict], division: Division = None) -> str:
     caches = {}
     prv_score = None
 
-    division_letter = division_data[0]['division']
+    division_letter = division.name if division is not None else ''
 
-    color = division_colors[division_letter]
+    color = division_colors.get(division_letter, '')
 
     html = f'''
-<table class="table table-{color}">
+<table class="table table-sm table-{color}">
     <thead>
         <tr>
             <th>Rank</th>
             <th>Code</th>
             <th>Team Name</th>
             <th>Score</th>
-            <th>Current</th>
-            <th>Next</th>
+            <th>Current Round</th>
+            <th>Next Round</th>
             <th>Quizzers</th>
         </tr>                
     </thead>
 '''
 
     for team in division_data:
-        if team['rank'] > 6 and caches.get(division_letter + 'champ') is None:
-            caches[division_letter + 'champ'] = prv_score
-        elif team['rank'] > 12 and caches.get(division_letter + 'champ') is None:
-            caches[division_letter + 'cons1'] = prv_score
-
+        #         if team['rank'] > 6 and caches.get('champ') is None:
+        #             caches['champ'] = prv_score
+        #         elif team['rank'] > 12 and caches.get('champ') is None:
+        #             caches['cons1'] = prv_score
+        #
         html += render_team_row(team)
-
-        prv_score = team['score']
-
-    html += f'''
-    <tr>
-        <td style="height: 82px;"></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    </tbody>
-    <thead>
-        <tr>
-            <th>Division</th>
-            <th></th>
-            <th>Minimum Points</th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-        <tr>
-            <td>Championship</td>
-            <td></td>
-            <td>{caches.get(division_letter + 'champ', 'N/A')}</td>
-            <th></th>
-            <th></th>
-            <td></td>
-            <td></td>
-
-        </tr>
-        <tr>
-            <td>Consolation 1</td>
-            <td></td>
-            <td>{caches.get(division_letter + 'cons1', 'N/A')}</td>
-            <th></th>
-            <th></th>
-            <td></td>
-            <td></td>
-        </tr>
-    </thead>
-</table>
-'''
+    #
+    #         prv_score = team['score']
+    #
+    #      f'''
+    #     <tr>
+    #         <td style="height: 82px;"></td>
+    #         <td></td>
+    #         <td></td>
+    #         <td></td>
+    #         <td></td>
+    #         <td></td>
+    #         <td></td>
+    #     </tr>
+    #     </tbody>
+    #     <thead>
+    #         <tr>
+    #             <th>Division</th>
+    #             <th></th>
+    #             <th>Minimum Points</th>
+    #             <th></th>
+    #             <th></th>
+    #             <th></th>
+    #             <th></th>
+    #         </tr>
+    #         <tr>
+    #             <td>Championship</td>
+    #             <td></td>
+    #             <td>{caches.get('champ', 'N/A')}</td>
+    #             <th></th>
+    #             <th></th>
+    #             <td></td>
+    #             <td></td>
+    #
+    #         </tr>
+    #         <tr>
+    #             <td>Consolation 1</td>
+    #             <td></td>
+    #             <td>{caches.get('cons1', 'N/A')}</td>
+    #             <th></th>
+    #             <th></th>
+    #             <td></td>
+    #             <td></td>
+    #         </tr>
+    #     </thead>
+    # </table>
+    # '''
     return html
 
 
 def render_a_division_table(division: Division) -> str:
     data = division.get_division_view_data()
 
-    return format_html(render_division_table(data))
+    return format_html(render_division_table(data, division))
 
 
 @register.simple_tag(takes_context=True)
@@ -273,5 +274,19 @@ def live_event(context):
     
     </div>
     
+    '''
+    return format_html(html)
+
+
+@register.simple_tag(takes_context=True)
+def live_division(context):
+    division = context['division']
+    data = division.get_division_view_data()
+
+    html = f'''
+        <div class="division-table division-red" hx-get="{reverse('records:live_division_display_table', kwargs={'division_id': division.id})}"
+         hx-trigger="every 2s">
+            {render_division_table(data, division)}
+        </div>
     '''
     return format_html(html)

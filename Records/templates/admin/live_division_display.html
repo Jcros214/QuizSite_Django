@@ -1,0 +1,16 @@
+{% extends "base_stripped.html" %}
+{% load records_filters %}
+{% block title %}
+    Live Event
+{% endblock title %}
+{% block content %}
+
+    <style>
+        td {
+            font-size: 1.18rem;
+        }
+    </style>
+
+    {% live_division %}
+
+{% endblock content %}

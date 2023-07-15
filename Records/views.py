@@ -1,4 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from .models import *
 from django.contrib.auth.decorators import login_required
@@ -234,5 +235,10 @@ def live_event_display(request, event_id):
 
 
 def live_division_display(request, division_id):
+    return render(request, 'admin/live_division_display.html',
+                  {'division': get_object_or_404(Division, pk=division_id)})
+
+
+def live_division_display_table(request, division_id):
     from Records.templatetags.records_filters import render_a_division_table
-    return render_a_division_table(get_object_or_404(Division, pk=division_id))
+    return HttpResponse(content=render_a_division_table(get_object_or_404(Division, pk=division_id)))

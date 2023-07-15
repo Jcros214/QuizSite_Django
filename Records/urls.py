@@ -18,6 +18,8 @@ urlpatterns = [
     # path('event_summary/<int:event_id>/', views.event_summary, name='event_summary'),
     path('live_display/event/<int:event_id>/', views.live_event_display, name='live_event_display'),
     path('live_display/division/<int:division_id>/', views.live_division_display, name='live_division_display'),
+    path('live_display/division/<int:division_id>/table', views.live_division_display_table,
+         name='live_division_display_table'),
 
     # # ex: /polls/
     # path('', views.index, name='index'),
