@@ -150,6 +150,9 @@ def preload_spectacular_event():
                 Quiz(event=quiz_event[1], room=quiz_room,
                      round=quiz_dict[1], allow_ties=True, type='normal'))
 
+            MORNING_QUESTIONS += [AskedQuestion(quiz=MORNING_QUIZZES[-1], question_number=q_num, type='normal')
+                                  for q_num in range(1, 16)]
+
     Quiz.objects.bulk_create(MORNING_QUIZZES)
     AskedQuestion.objects.bulk_create(MORNING_QUESTIONS)
     QuizParticipants.objects.bulk_create(MORNING_QUIZPARTICIPANTS)
