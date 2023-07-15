@@ -186,12 +186,13 @@ def preload_spectacular_event():
     #     # QuizParticipants.objects.bulk_create(AFTERNOON_QUIZPARTICIPANTS)
 
     division_names = [
+        'Championship',
+        'Consolation 1',
+        'Consolation 2',
+        'Consolation 3',
     ]
 
-    new_divisions = [
-        Division(event=MORNING_EVENT, name='B'),
-        Division(event=MORNING_EVENT, name='R'),
-    ]
+    new_divisions = []
 
     for event in [AFTERNOON_EVENT1, AFTERNOON_EVENT2]:
         for division_name in division_names:
