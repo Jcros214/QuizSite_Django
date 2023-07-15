@@ -138,7 +138,7 @@ def ranked_teams_table(event: Event):
 #
 
 def render_quiz(quiz: Quiz) -> str:
-    return f"<a href='{quiz.get_absolute_url()}'>{quiz.room}{quiz.round}</a>"
+    return f"<a href='{quiz.get_absolute_url()}'>{quiz.room} - {quiz.round}</a>"
 
 
 def render_team_row(team: dict) -> str:
