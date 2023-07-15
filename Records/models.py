@@ -119,19 +119,6 @@ class Event(models.Model):
     def __str__(self):
         return f"{self.season} - {'afternoon' if self.isTournament else 'morning'}"
 
-    # def get_team_rank_in_division(self, team: Team):
-    #     teams: List[Team] = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
-    #
-    #     rank = 1
-    #
-    #     for ranked_team in teams:
-    #         if team == ranked_team:
-    #             return rank
-    #         elif ranked_team.division == team.division:
-    #             rank += 1
-    #     else:
-    #         raise ValueError(f"Team {team} is not in this event")
-
     def get_team_rank(self, team: Team):
         teams = sorted(self.season.get_teams(), key=lambda t: self.get_team_score(t), reverse=True)
 
@@ -225,6 +212,23 @@ class Event(models.Model):
         sorted_teams = sorted(teams, key=lambda t: (t['division'], t['rank'], t['code']))
 
         return sorted_teams
+
+    def create_quiz(self, teams: list[Team], room: 'Room', round_number: Optional[int] = None,
+                    quiz_type: str = 'tiebreaker'):
+
+        if round_number is None:
+            round_number = self.get_next_round()
+
+        quiz = Quiz.objects.create(event=self, quiz_type=quiz_type,
+                                   round=round_number, num_teams=len(teams),
+                                   type=quiz_type, room=room)
+
+        questions = AskedQuestion.objects.bulk_create([
+            AskedQuestion(quiz=quiz, type=AskedQuestion.NORMAL, question_number=_ + 1)
+            for _ in range(1, 16)])
+
+        participants = QuizParticipants.objects.bulk_create([
+            QuizParticipants(quiz=quiz, team=team) for team in teams])
 
 
 class Room(models.Model):
@@ -471,9 +475,6 @@ class Quiz(models.Model):
 
                 if len(ranks) == 3:
                     break
-
-    def create_quiz(self):
-        ...
 
 
 class QuizParticipants(models.Model):
