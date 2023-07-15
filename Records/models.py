@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List, Union, Any
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
@@ -404,14 +404,18 @@ class Quiz(models.Model):
 
         return sorted(results.items(), key=lambda item: (item[1][0], item[1][1]))[rank - 1][0]
 
-    def advance_quizzes(self):
-        progression_objects = QuizProgression.objects.filter(event=self.event, room=self.room.name, round=self.round)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
-        if not progression_objects.exists():
+        self.advance_quizzes()
+
+    def advance_quizzes(self):
+        quiz_progression_objects = QuizProgression.objects.filter(quiz=self, isCompleted=False)
+
+        if not quiz_progression_objects.exists():
             return
 
-        for progression_object in progression_objects:
-            # Get next quiz
+        for progression_object in quiz_progression_objects:
             try:
                 next_quiz = Quiz.objects.get(event=self.event, room__name=progression_object.next_room,
                                              round=progression_object.next_round)
@@ -419,6 +423,57 @@ class Quiz(models.Model):
                 raise ImproperlyConfigured(f"QuizProgression {progression_object} has no next quiz")
 
             QuizParticipants.objects.create(quiz=next_quiz, team=self.get_team_by_rank(progression_object.rank))
+
+        division_progressions = QuizProgression.objects.filter(division__in=self.event.division_set, isCompleted=False)
+
+        for division in self.event.division_set:
+            quizzes = Quiz.objects.filter(isValidated=False, quizparticipants__team__in=division.teams)
+
+            if quizzes.exists():
+                continue
+
+            # Check for meaningful ties
+            progressions_no_ties = QuizProgression.objects.filter(division=division, isCompleted=False,
+                                                                  allow_ties=False, type=QuizProgression.NORMAL)
+
+            forced_unique_ranks = progressions_no_ties.values('rank')  # 8,15,23
+
+            ranked_teams = division.get_ranked_teams()  # with ties
+
+            ranks_in_ranked_teams = [team['rank'] for team in ranked_teams.values() if
+                                     team['rank'] in forced_unique_ranks]
+
+            for rank in forced_unique_ranks:
+                if ranks_in_ranked_teams.count(rank) > 1:
+                    # Quiz.objects.create(event=self.event, round=self.round + 1,
+                    raise ValueError(f"Division {division} has a tie for rank {rank}")
+
+            # Create QuizParticipants
+            for index, team in enumerate(ranked_teams):
+                rank = index + 1
+
+                progression = QuizProgression.objects.get(division=division, isCompleted=False,
+                                                          rank=rank, type=QuizProgression.NORMAL)
+
+                QuizParticipants.objects.create(quiz=progression.next_quiz, team=team)
+
+                if progression.next_division:
+                    progression.next_division.teams.add(team)
+
+                progression.isCompleted = True
+                progression.save()
+
+            ranks = []
+
+            for team in ranked_teams:
+                if ranks.count(team['rank']) == 0:
+                    ranks.append(team['rank'])
+
+                if len(ranks) == 3:
+                    break
+
+    def create_quiz(self):
+        ...
 
 
 class QuizParticipants(models.Model):
@@ -539,7 +594,7 @@ class Division(models.Model):
 
         return sorted_teams
 
-    def get_ranked_teams(self):
+    def get_ranked_teams(self) -> List[Dict[str, Any]]:
         with open('Records/queries/Division View.pgsql', 'r') as f:
             raw_query = f.read().replace('{event.id}', str(self.event.pk)).replace('{division.id}', str(self.pk))
 
@@ -564,4 +619,12 @@ class Division(models.Model):
                     ]
                 })
 
-            return sorted(teams, key=lambda item: item['score'], reverse=True)
+        sorted_teams = sorted(teams, key=lambda item: item['score'], reverse=True)
+
+        for i in range(len(sorted_teams)):
+            if i > 0 and sorted_teams[i]['score'] == sorted_teams[i - 1]['score']:
+                sorted_teams[i]['rank'] = sorted_teams[i - 1]['rank']
+            else:
+                sorted_teams[i]['rank'] = i + 1
+
+        return sorted_teams
