@@ -256,7 +256,7 @@ def live_divisions(context):
         data = division.get_division_view_data()
 
         html += f'''
-            <div class="division-table division-red col-6" hx-get="{reverse('records:live_division_display_table', kwargs={'division_id': division.id})}"
+            <div class="division-table division-red col-5" hx-get="{reverse('records:live_division_display_table', kwargs={'division_id': division.id})}"
              hx-trigger="every 2s">
                 {render_division_table(data, division)}
             </div>
