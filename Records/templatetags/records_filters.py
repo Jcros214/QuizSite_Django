@@ -101,35 +101,35 @@ def ranked_teams_table(event: Event):
 
     html += '\n</table>'
 
-    html += f'''
-    <h3>Points to get into a bracket</h3>
-    <table class="table">
-        <tr>
-            <th>Division</th>
-            <th>Points</th>
-        </tr>
-        <tr class="table-primary">
-            <td>Blue - Championship</td>
-            <td>{caches.get('B' + 'champ')}</td>
-        </tr>
-        <tr class="table-primary">
-            <td>Blue - Consolation 1</td>
-            <td>{caches.get('B' + 'cons1')}</td>
-        </tr>
-        <tr class="table-danger">
-            <td>Red - Championship</td>
-            <td>{caches.get('R' + 'champ')}</td>
-        </tr>
-        <tr class="table-danger">
-            <td>Red - Consolation 1</td>
-            <td>{caches.get('R' + 'champ')}</td>
-        </tr>
-
-        </table>
-            
-            
-    
-    '''
+    # html += f'''
+    # <h3>Points to get into a bracket</h3>
+    # <table class="table">
+    #     <tr>
+    #         <th>Division</th>
+    #         <th>Points</th>
+    #     </tr>
+    #     <tr class="table-primary">
+    #         <td>Blue - Championship</td>
+    #         <td>{caches.get('B' + 'champ')}</td>
+    #     </tr>
+    #     <tr class="table-primary">
+    #         <td>Blue - Consolation 1</td>
+    #         <td>{caches.get('B' + 'cons1')}</td>
+    #     </tr>
+    #     <tr class="table-danger">
+    #         <td>Red - Championship</td>
+    #         <td>{caches.get('R' + 'champ')}</td>
+    #     </tr>
+    #     <tr class="table-danger">
+    #         <td>Red - Consolation 1</td>
+    #         <td>{caches.get('R' + 'champ')}</td>
+    #     </tr>
+    #
+    #     </table>
+    #
+    #
+    #
+    # '''
 
     return format_html(html)
 
