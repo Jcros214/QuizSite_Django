@@ -73,7 +73,7 @@ def render_scoresheet(quiz: Quiz, mutable=True):
                 team_name_select += f'<option value="{selectable_team.pk}" {"selected" if selectable_team == team else ""}>{selectable_team.name} - {selectable_team.short_name}</option>'
             team_name_select += '</select>'
         else:
-            team_name_select = team.name
+            team_name_select = f'{team.short_name} - {team.name}'
         HTML += f'        <tbody data-team-id="{team.pk}">{NEW_LINE}'
         HTML += f'          <tr> <th class="headcol team-name">{team_name_select}</th> <th></th> <th class="score-col team-score"><span class="team-score">{current_quiz.get_team_results(team)}<span></th>  </tr> {NEW_LINE}'
 
