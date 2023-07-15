@@ -18,7 +18,7 @@ left join "Records_event" e on rq.event_id = e.id
 left join "Records_division" rd on rdt.division_id = rd.id and rd.event_id = e.id
 left join "Records_askedquestion" aq on aq.individual_id = i.id and aq.quiz_id = rq.id
 left join "view_roundcurrentno" vrcn on e.id = vrcn.event_id
-left join "view_rounds" cr on t.id = cr.team_id and COALESCE(vrcn.round,1) = cr.round
+left join "view_rounds" cr on t.id = cr.team_id and COALESCE(vrcn.round,1) = cr.round and cr.event_id = {event.id}
 left join "view_rounds" nr on t.id = nr.team_id and (COALESCE(vrcn.round,1)+1) = nr.round
 left join "view_attendancepointsindv" as cr2 on cr2.individual_id = i.id
 where e.id = {event.id} and coalesce(rq.type, 'normal') = 'normal' and coalesce(aq.type, 'normal') = 'normal'
