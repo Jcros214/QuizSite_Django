@@ -217,6 +217,7 @@ def preload_spectacular_event():
         prog_quiz = Quiz.objects.get(id=progression['quiz']) if progression['quiz'] else None
         prog_division = Division.objects.get(id=progression['division']) if progression['division'] else None
         prog_rank = progression['rank']
+        print(progression['next_quiz'])
         prog_next_quiz = Quiz.objects.get(id=progression['next_quiz'])
         prog_next_division = Division.objects.get(id=progression['next_division']) if progression[
             'next_division'] else None
