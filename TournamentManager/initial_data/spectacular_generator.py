@@ -145,11 +145,10 @@ def preload_spectacular_event():
     for quiz_event in [(quizzes_afternoon2, AFTERNOON_EVENT1), (quizzes_afternoon3, AFTERNOON_EVENT2)]:
         event = quiz_event[1]
         for quiz_dict in quiz_event[0]:
-            for room, teams in quiz_dict.items():
-                quiz_room = Room.objects.get(name=room[0], event=event)
-                MORNING_QUIZZES.append(
-                    Quiz(event=quiz_event[1], room=quiz_room,
-                         round=room[1], allow_ties=True, type='normal'))
+            quiz_room = Room.objects.get(name=quiz_dict[0], event=event)
+            MORNING_QUIZZES.append(
+                Quiz(event=quiz_event[1], room=quiz_room,
+                     round=quiz_dict[1], allow_ties=True, type='normal'))
 
     Quiz.objects.bulk_create(MORNING_QUIZZES)
     AskedQuestion.objects.bulk_create(MORNING_QUESTIONS)
