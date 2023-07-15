@@ -47,7 +47,7 @@ def ranked_teams_table(event: Event):
 
     for team in data:
         if team['division'] != division:
-            color = 'danger' if team['division'] == 'Red' else 'primary'
+            color = 'danger' if team['division'] == 'R' else 'primary'
             close_tag = '</tbody>' if division is not None else ''
             html += f'{close_tag}<tbody class="table-{color}">'
             html += '''
@@ -74,7 +74,7 @@ def ranked_teams_table(event: Event):
         if current_round_object.exists():
             current_round_object = current_round_object.first()
 
-            current_round_repr = f"{current_round_object.room}{current_round_object.round}"
+            current_round_repr = f"{current_round_object}"
 
             current_round = f"<a href='{current_round_object.get_absolute_url()}'>{current_round_repr}</a>"
         else:
@@ -83,7 +83,7 @@ def ranked_teams_table(event: Event):
         next_round_object = Quiz.objects.filter(pk=team['next_round'])
         if next_round_object.exists():
             next_round_object = next_round_object.first()
-            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object.room}{next_round_object.round}</a>"
+            next_round = f"<a href='{next_round_object.get_absolute_url()}'>{next_round_object}</a>"
         else:
             next_round = "None"
 

@@ -6,7 +6,7 @@ __pycache__
 db.sqlite3
 media
 fixtures
-TournamentManager/initial_data
+#TournamentManager/initial_data
 # Backup files # 
 *.bak 
 
