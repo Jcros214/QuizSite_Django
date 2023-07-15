@@ -266,23 +266,23 @@ class Quiz(models.Model):
     # Included for backwards compatibility
     ####
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
 
-        # Quiz Progression
+    # Quiz Progression
 
-        # Event Progression
-        if Quiz.objects.filter(event=self.event, isValidated=False).exists():
-            return
+    # Event Progression
+    # if Quiz.objects.filter(event=self.event, isValidated=False).exists():
+    #     return
 
-        # If there are ties...
+    # If there are ties...
 
-        # breakpoints_within_division = [
-        #     15,
-        # ]
+    # breakpoints_within_division = [
+    #     15,
+    # ]
 
-        # Get results
-        # look for ties at breakpoints
+    # Get results
+    # look for ties at breakpoints
 
     @property
     def quizmaster(self) -> Optional[Individual]:
