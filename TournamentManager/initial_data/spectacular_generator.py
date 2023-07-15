@@ -63,7 +63,7 @@ AFTERNOON_EVENT1 = Event.objects.create(date='2023-07-15', season=SEASON, locati
 AFTERNOON_EVENT2 = Event.objects.create(date='2023-07-15', season=SEASON, location=LOCATION, isTournament=True)
 
 
-@transaction.atomic
+# @transaction.atomic
 def preload_spectacular_event():
     new_teams = []
     new_individuals = []
