@@ -4,37 +4,37 @@
 {% endblock title %}
 {% block content %}
     <h1>Season: {{ season }}</h1>
-    <h2>Details:</h2>
     <div class="col-lg-4">
+    <h2>Details</h2>
         <table class="table">
             <tr>
-                <td>Name:</td>
+                <td>Name</td>
                 <td>{{ season }}</td>
             </tr>
             <tr>
-                <td>Start Date:</td>
-                <td>{{ season.year }}</td>
+                <td>Start Date</td>
+                <td>{{ season.start_date }}</td>
             </tr>
             <tr>
-                <td>Material:</td>
+                <td>Material</td>
                 <td>{{ season.material }}</td>
             </tr>
             <tr>
-                <td>League:</td>
+                <td>League</td>
                 <td>
-                    <a href=" {% url 'records:league' league.id %} ">{{ league }}</a>
+                    <a href=" {% url 'records:league' season.league.id %} ">{{ season.league }}</a>
                 </td>
             </tr>
         </table>
     </div>
 
     <div class="col-lg-4">
-        {% if object_list %}
-            <h2>Events:</h2>
+        {% if season.event_set.all %}
+            <h2>Events</h2>
             <div class="list-group">
-                {% for l in object_list %}
+                {% for event in season.event_set.all %}
                     <a class="list-group-item list-group-item-action"
-                       href=" {% url 'records:event' league.id season.id l.id %} ">{{ l }}</a>
+                       href=" {% url 'records:event' event.id %} ">{{ event }}</a>
                 {% endfor %}
             </div>
         {% else %}
@@ -43,12 +43,12 @@
     </div>
 
     <div class="col-lg-4">
-        {% if teams %}
-            <h2>Teams:</h2>
+        {% if season.team_set.all %}
+            <h2>Teams</h2>
             <div class="list-group">
-                {% for t in teams %}
-                    <a class="list-group-item list-group-item-action" href=" {{ t.get_absolute_url }} ">{{ t }}
-                        - {{ t.name }}</a>
+                {% for team in season.team_set.all %}
+                    <a class="list-group-item list-group-item-action" href=" {{ team.get_absolute_url }} ">{{ team }}
+                        - {{ team.name }}</a>
                 {% endfor %}
             </div>
         {% else %}

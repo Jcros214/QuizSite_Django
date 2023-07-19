@@ -2,48 +2,51 @@
 {% load static %}
 {% load records_filters %}
 {% block title %}
-    Event
+{{ event }}
 {% endblock title %}
 {% block content %}
     <link rel="stylesheet" href="{% static 'Records/event.css' %}"/>
 
 
 
-    <h1>{{ object.season }}</h1>
-    <table>
-        <tr>
-            <td>Date:</td>
-            <td>{{ object.date }}</td>
-        </tr>
-        <tr>
-            <td>Season:</td>
-            <td>
-                <a href=" {% url 'records:season' object.season.id %} ">{{ object.season }}</a>
-            </td>
-        </tr>
-        <tr>
-            <td>Location:</td>
-            <td>{{ object.location }}</td>
-        </tr>
-    </table>
+    <h1>{{ event.season }}</h1>
+    <div class="col-lg-4">
+        <h2>Details</h2>
+        <table class="table">
+            <tr>
+                <td>Date:</td>
+                <td>{{ event.date }}</td>
+            </tr>
+            <tr>
+                <td>Season:</td>
+                <td>
+                    <a href=" {% url 'records:season' event.season.id %} ">{{ event.season }}</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Location:</td>
+                <td>{{ event.location }}</td>
+            </tr>
+        </table>
+    </div>
 
     <br>
     <br>
 
 
     <h2>Teams</h2>
-    {% ranked_teams_table object %}
+    {% ranked_teams_table event %}
 
     <h2>Individuals</h2>
-    {% ranked_individuals_table object %}
+    {% ranked_individuals_table event %}
 
 
 
-    <h2>Quizzes:</h2>
+    {#    <h2>Quizzes:</h2>#}
     {#    {{ schedule|safe }}#}
-    {#    {% if object_list %}#}
+    {#    {% if event_list %}#}
     {#        <ul>#}
-    {#            {% for l in object_list %}#}
+    {#            {% for l in event_list %}#}
     {#                <li>#}
     {#                    <a href=" {% url 'records:quiz' league.id season.id event.id l.id %} ">{{ l }}</a>#}
     {#                </li>#}

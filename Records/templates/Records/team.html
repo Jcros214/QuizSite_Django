@@ -3,37 +3,56 @@
     {{ team }}
 {% endblock title %}
 {% block content %}
-    <h1>{{ team }}</h1>
-    <div class="col-4">
+    <h1>Team: {{ team }}</h1>
+    <div class="col-lg-4">
         <h2>Details</h2>
         <table class="table">
             <tr>
-                <td>Name:</td>
+                <td>Name</td>
                 <td>{{ team.name }}</td>
             </tr>
             <tr>
-                <td>Orginization:</td>
-                <td>{{ team.orginization }}</td>
+                <td>Organization</td>
+                <td>Unknown</td>                            {#                <td> {{ team.organization|default_if_none:'Unknown' }} </td>#}
             </tr>
             <tr>
-                <td>Season:</td>
+                <td>Season</td>
                 <td>
-                    <a href="{% url 'records:season' league.id team.season.id %}">{{ team.season }}</a>
+                    <a href="{% url 'records:season' team.season.id %}">{{ team.season }}</a>
                 </td>
             </tr>
         </table>
     </div>
 
 
-    {% if object_list %}
-        <div class="list-group col-4">
+    {% if team.individuals.all %}
+        <br>
+        <div class="list-group co-md-4">
             <h2>Quizzers</h2>
-            {% for l in object_list %}
+            {% for individual in team.individuals.all %}
                 <a class="list-group-item list-group-item-action"
-                   href=" {% url 'records:individual' l.id %} ">{{ l }}</a>
+                   href=" {% url 'records:individual' individual.id %} ">{{ individual }}</a>
             {% endfor %}
         </div>
     {% else %}
         <p>No individuals on this team.</p>
     {% endif %}
+
+    {% if team.quizparticipants_set.all %}
+        <br>
+        <h2>Quizzes</h2>
+        <div class="list-group">
+
+        {% for quizparticipant in team.quizparticipants_set.all %}
+
+            <a class="list-group-item list-group-item-action" href="{{ quizparticipant.quiz.get_absolute_url }}"> {{ quizparticipant.quiz }}</a>
+
+        {% endfor %}
+
+        </div>
+
+    {% else %}
+        <p>No quizzes assigned to this team.</p>
+    {% endif %}
+
 {% endblock content %}

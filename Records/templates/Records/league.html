@@ -4,25 +4,28 @@
 {% endblock title %}
 {% block content %}
     <h1>League: {{ league }}</h1>
-    <h2>Details</h2>
-    <table>
-        <tr>
-            <td>Name:</td>
-            <td>{{ league.name }}</td>
-        </tr>
-    </table>
-    <h2>Seasons:</h2>
-    {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
-    {% comment %} <h2>object_list of seasons:</h2>s {% endcomment %}
-    {% if object_list %}
-        <ul>
-            {% for l in object_list %}
-                <li>
-                    <a href=" {% url 'records:season' league.id l.id %} ">{{ l }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No seasons are available.</p>
-    {% endif %}
+    <div class="col-lg-4">
+        <h2>Details</h2>
+        <table class="table">
+            <tr>
+                <td>Name</td>
+                <td>{{ league.name }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-lg-4">
+        <h2>Seasons</h2>
+        {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
+        {% comment %} <h2>league_list of seasons:</h2>s {% endcomment %}
+        {% if league.season_set.all %}
+            <div class="list-group">
+                {% for season in league.season_set.all %}
+                    <a class="list-group-item list-group-item-action" href=" {% url 'records:season' season.id %} ">{{ season }}</a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No seasons are available.</p>
+        {% endif %}
+    </div>
+
 {% endblock content %}

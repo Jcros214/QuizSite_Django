@@ -94,7 +94,7 @@ from server_timing.middleware import TimedService, timed, timed_wrapper
 # List of leagues
 # @login_required
 def index(request):
-    return render(request, "Records/league_list.html", make_context())
+    return render(request, "Records/league_list.html", {'object_list': League.objects.all()})
 
 
 # List of seasons
@@ -184,31 +184,15 @@ class LeagueDetailView(DetailView):
     model = League
     template_name = 'Records/league.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['seasons'] = Season.objects.filter(league=self.object).order_by('-start_date')
-        return context
-
 
 class SeasonDetailView(DetailView):
     model = Season
     template_name = 'Records/season.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['league'] = self.object.league
-        context['events'] = Event.objects.filter(season_id=self.kwargs['pk']).order_by('date')
-        return context
-
 
 class EventDetailView(DetailView):
     model = Event
     template_name = 'Records/event.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['quizzes'] = Quiz.objects.filter(event_id=self.kwargs['pk']).order_by('room', 'round')
-        return context
 
 
 class QuizDetailView(DetailView):
@@ -220,27 +204,12 @@ class TeamDetailView(DetailView):
     model = Team
     template_name = 'Records/team.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['members'] = TeamMembership.objects.filter(team_id=self.kwargs['pk']).order_by('individual__name')
-        return context
-
 
 class IndividualDetailView(DetailView):
     model = Individual
     template_name = 'Records/individual.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['teams'] = TeamMembership.objects.filter(individual_id=self.kwargs['pk']).order_by('team__name')
-        return context
-
 
 class QuestionDetailView(DetailView):
     model = AskedQuestion
     template_name = 'Records/question.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context['answers'] = Answer.objects.filter(asked_question_id=self.kwargs['pk']).order_by('number')
-        return context

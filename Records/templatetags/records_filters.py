@@ -131,7 +131,7 @@ def ranked_teams_table(event: Event):
             <td>{team.rank}</td>
             <td><a href="{team.get_absolute_url()}">{team.name}</a></td>
             <td>{team.score}</td>
-            <td>{team.type or ' - '}</td>
+            <td>{team.type.capitalize() if team.type else ' - '}</td>
             <td>{' / '.join([f'<a href="{team.get_absolute_url()}">{team.name}</a>' for team in team.get_individuals()])}</td>
         </tr>
         '''
