@@ -1,6 +1,8 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.views.generic import DetailView
+
 from .models import *
 from django.contrib.auth.decorators import login_required
 from server_timing.middleware import TimedService, timed, timed_wrapper
@@ -17,53 +19,54 @@ from server_timing.middleware import TimedService, timed, timed_wrapper
 # }
 
 
-def make_context(*args, **kwargs):
-    match len(args):
-        case 0:
-            return {'object_list': League.objects.all()}
-        case 1:
-            return {
-                'league': get_object_or_404(League, pk=args[0]),
-                'object_list': Season.objects.filter(league_id=args[0]),
-            }
-        case 2:
-            return {
-                'league': get_object_or_404(League, pk=args[0]),
-                'season': get_object_or_404(Season, pk=args[1]),
-                'teams': get_object_or_404(Season, pk=args[1]).get_teams(),
-                'object_list': Event.objects.filter(season_id=args[1]),
-            }
-        case 3:
-            context = {
-                'league': get_object_or_404(League, pk=args[0]),
-                'season': get_object_or_404(Season, pk=args[1]),
-            }
-
-            if kwargs.get("team", False):
-                context['object_list'] = [_.individual for _ in TeamMembership.objects.filter(team_id=args[2])]
-                context['team'] = get_object_or_404(Team, pk=args[2])
-            else:
-                context['object_list'] = Quiz.objects.filter(event_id=args[2])
-                context['event'] = get_object_or_404(Event, pk=args[2])
-            return context
-
-        case 4:
-            return {
-                'league': get_object_or_404(League, pk=args[0]),
-                'season': get_object_or_404(Season, pk=args[1]),
-                'event': get_object_or_404(Event, pk=args[2]),
-                'quiz': get_object_or_404(Quiz, pk=args[3]),
-                'results': get_object_or_404(Quiz, pk=args[3]).get_results(),
-                'object_list': AskedQuestion.objects.filter(quiz_id=args[3]),
-            }
-        case 5:
-            return {
-                'league': get_object_or_404(League, pk=args[0]),
-                'season': get_object_or_404(Season, pk=args[1]),
-                'event': get_object_or_404(Event, pk=args[2]),
-                'quiz': get_object_or_404(Quiz, pk=args[3]),
-                'question': get_object_or_404(AskedQuestion, pk=args[4]),
-            }
+# def make_context(*args, **kwargs):
+#     match len(args):
+#         case 0:
+#             return {'object_list': League.objects.all().order_by('name')}
+#         case 1:
+#             return {
+#                 'league': get_object_or_404(League, pk=args[0]),
+#                 'object_list': Season.objects.filter(league_id=args[0]).order_by('start_date'),
+#             }
+#         case 2:
+#             return {
+#                 'league': get_object_or_404(League, pk=args[0]),
+#                 'season': get_object_or_404(Season, pk=args[1]),
+#                 'teams': get_object_or_404(Season, pk=args[1]).get_teams().order_by('short_name'),
+#                 'object_list': Event.objects.filter(season_id=args[1]).order_by('date'),
+#             }
+#         case 3:
+#             context = {
+#                 'league': get_object_or_404(League, pk=args[0]),
+#                 'season': get_object_or_404(Season, pk=args[1]),
+#             }
+#
+#             if kwargs.get("team", False):
+#                 context['team'] = get_object_or_404(Team, pk=args[2])
+#                 context['object_list'] = context['team'].individuals.all().order_by('name')
+#             else:
+#                 context['object_list'] = Quiz.objects.filter(event_id=args[2]).order_by('round', 'room')
+#                 context['event'] = get_object_or_404(Event, pk=args[2])
+#             return context
+#
+#         case 4:
+#             quiz = get_object_or_404(Quiz, pk=args[3])
+#             return {
+#                 'league': get_object_or_404(League, pk=args[0]),
+#                 'season': get_object_or_404(Season, pk=args[1]),
+#                 'event': get_object_or_404(Event, pk=args[2]),
+#                 'quiz': quiz,
+#                 'results': quiz.get_results(),
+#                 'object_list': AskedQuestion.objects.filter(quiz=quiz),
+#             }
+#         case 5:
+#             return {
+#                 'league': get_object_or_404(League, pk=args[0]),
+#                 'season': get_object_or_404(Season, pk=args[1]),
+#                 'event': get_object_or_404(Event, pk=args[2]),
+#                 'quiz': get_object_or_404(Quiz, pk=args[3]),
+#                 'question': get_object_or_404(AskedQuestion, pk=args[4]),
+#             }
 
 
 # # views.py
@@ -102,7 +105,7 @@ def league(request, league_id):
 
 # List of events
 # @login_required
-def season(request, league_id, season_id):
+def season(request, season_id):
     # List of teams
     return render(request, "Records/season.html", make_context(league_id, season_id))
 
@@ -110,46 +113,46 @@ def season(request, league_id, season_id):
 # List of quizes
 # @login_required
 # @timed_wrapper('event', 'Event View')
-def event(request, league_id, season_id, event_id):
-    # get list of quizzes
-    quizzes = Quiz.objects.filter(event_id=event_id)
-
-    rooms = set()
-    rounds = set()
-
-    # find rounds
-    for current_quiz in quizzes:
-        rounds.add(int(current_quiz.round))
-        rooms.add(current_quiz.room)
-
-    quizzes_by_room = {}
-
-    for room in sorted(rooms, key=lambda r: str(r.name)):
-        quizzes_by_room[room] = []
-        for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
-            quizzes_by_room[room].append(current_quiz)
-
-    NEW_LINE = "\n"
-
-    HTML = f'''
-    <div style="overflow: scroll;">
-<table>
-    <tr>
-        <th style="width: 40px"></th>
-        {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
-    </tr>
-
-    '''
-
-    for room in quizzes_by_room:
-        HTML += f"""<tr><th>{room}</th>"""
-        for current_quiz in quizzes_by_room[room]:
-            HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{" v ".join([str(quiz_team) for quiz_team in current_quiz.get_teams()])}</a></td>"""
-        HTML += "</tr>"
-    HTML += "</table></div>"
+def event(request, event_id):
+    #     # get list of quizzes
+    #     quizzes = Quiz.objects.filter(event_id=event_id)
+    #
+    #     rooms = set()
+    #     rounds = set()
+    #
+    #     # find rounds
+    #     for current_quiz in quizzes:
+    #         rounds.add(int(current_quiz.round))
+    #         rooms.add(current_quiz.room)
+    #
+    #     quizzes_by_room = {}
+    #
+    #     for room in sorted(rooms, key=lambda r: str(r.name)):
+    #         quizzes_by_room[room] = []
+    #         for current_quiz in sorted(quizzes.filter(room=room), key=lambda q: int(q.round)):
+    #             quizzes_by_room[room].append(current_quiz)
+    #
+    #     NEW_LINE = "\n"
+    #
+    #     HTML = f'''
+    #     <div style="overflow: scroll;">
+    # <table>
+    #     <tr>
+    #         <th style="width: 40px"></th>
+    #         {''.join(f"        <th class='round-number'> {_} </th> {NEW_LINE}" for _ in sorted([current_round for current_round in sorted(rounds)]))}
+    #     </tr>
+    #
+    #     '''
+    #
+    #     for room in quizzes_by_room:
+    #         HTML += f"""<tr><th>{room}</th>"""
+    #         for current_quiz in quizzes_by_room[room]:
+    #             HTML += f"""<td><a style="text-wrap: nowrap; padding: 6px;" href='/records/{league_id}/{season_id}/{event_id}/{current_quiz.id}'>{" v ".join([str(quiz_team) for quiz_team in current_quiz.get_teams()])}</a></td>"""
+    #         HTML += "</tr>"
+    #     HTML += "</table></div>"
 
     context = make_context(league_id, season_id, event_id)
-    context['schedule'] = HTML
+    # context['schedule'] = HTML
 
     return render(request, "Records/event.html", context)
 
@@ -177,25 +180,67 @@ def individual(request, individual_id):
     return render(request, "Records/individual.html", {'individual': individual, 'teams': teams})
 
 
-def live_event_display(request, event_id):
-    if (event := Event.objects.filter(id=event_id)).exists():
-        return render(request, 'admin/live_event_display.html', {'event': event.first()})
-    else:
-        return render(request, 'admin/live_event_display.html', {'event': Event.objects.first()})
+class LeagueDetailView(DetailView):
+    model = League
+    template_name = 'Records/league.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['seasons'] = Season.objects.filter(league=self.object).order_by('-start_date')
+        return context
 
 
-def live_division_display(request, division_id):
-    return render(request, 'admin/live_division_display.html',
-                  {'division': get_object_or_404(Division, pk=division_id)})
+class SeasonDetailView(DetailView):
+    model = Season
+    template_name = 'Records/season.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['league'] = self.object.league
+        context['events'] = Event.objects.filter(season_id=self.kwargs['pk']).order_by('date')
+        return context
 
 
-def live_divisions_display(request, division_1_id, division_2_id):
-    division_1 = get_object_or_404(Division, pk=division_1_id)
-    division_2 = get_object_or_404(Division, pk=division_2_id)
+class EventDetailView(DetailView):
+    model = Event
+    template_name = 'Records/event.html'
 
-    return render(request, 'admin/live_divisions_display.html', {'divisions': [division_1, division_2]})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['quizzes'] = Quiz.objects.filter(event_id=self.kwargs['pk']).order_by('room', 'round')
+        return context
 
 
-def live_division_display_table(request, division_id):
-    from Records.templatetags.records_filters import render_a_division_table
-    return HttpResponse(content=render_a_division_table(get_object_or_404(Division, pk=division_id)))
+class QuizDetailView(DetailView):
+    model = Quiz
+    template_name = 'Records/quiz.html'
+
+
+class TeamDetailView(DetailView):
+    model = Team
+    template_name = 'Records/team.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['members'] = TeamMembership.objects.filter(team_id=self.kwargs['pk']).order_by('individual__name')
+        return context
+
+
+class IndividualDetailView(DetailView):
+    model = Individual
+    template_name = 'Records/individual.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['teams'] = TeamMembership.objects.filter(individual_id=self.kwargs['pk']).order_by('team__name')
+        return context
+
+
+class QuestionDetailView(DetailView):
+    model = AskedQuestion
+    template_name = 'Records/question.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # context['answers'] = Answer.objects.filter(asked_question_id=self.kwargs['pk']).order_by('number')
+        return context

@@ -3,26 +3,26 @@
     Question
 {% endblock title %}
 {% block content %}
-    <h1>{{ question }}</h1>
+    <h1>{{ object }}</h1>
     <h2>Data:</h2>
-    <table>
+    <table class="table col-lg-4">
         <tr>
             <td>Quiz:</td>
             <td>
-                <a href="{% url 'records:quiz' league.id season.id event.id quiz.id %}">{{ quiz }}</a>
+                <a href="{% url 'records:quiz' object.quiz.id %}">{{ object.quiz }}</a>
             </td>
         </tr>
         <tr>
             <td>Question #</td>
-            <td>{{ question.question_number }}</td>
+            <td>{{ object.question_number }}</td>
         </tr>
         <tr>
             <td>Answered by:</td>
-            <td>{{ question.individual }}</td>
+            <td><a href="{{ object.individual.get_absolute_url }}">{{ object.individual }}</a></td>
         </tr>
         <tr>
             <td>Ruling:</td>
-            <td>{{ question.ruleing }}</td>
+            <td>{{ object.ruling }}</td>
         </tr>
     </table>
 {% endblock content %}

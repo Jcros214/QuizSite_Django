@@ -4,16 +4,13 @@
 {% endblock title %}
 {% block content %}
     <h1>Records</h1>
-    <h2>Leagues:</h2>
-    {% comment %} Maybe inclued data about how much data is stored? {% endcomment %}
+    <h2>Leagues</h2>
     {% if object_list %}
-        <ul>
+        <div class="list-group">
             {% for l in object_list %}
-                <li>
-                    <a href=" {% url 'records:league' l.id %} ">{{ l }}</a>
-                </li>
+                <a class="list-group-item list-group-item-action" href=" {% url 'records:league' l.id %} ">{{ l }}</a>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
         <p>No seasons are available.</p>
     {% endif %}

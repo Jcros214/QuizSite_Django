@@ -1,30 +1,34 @@
 {% extends "base.html" %}
 {% block title %}
-    Individal
+    Individual
 {% endblock title %}
 {% block content %}
-    <h1>{{ individual.user.username }}</h1>
-    <h2>Details:</h2>
-    <table>
-        <tr>
-            <td>Name:</td>
-            <td>{{ individual.name }}</td>
-        </tr>
-        <tr>
-            <td>Birthday:</td>
-            <td>{{ individual.birthday }}</td>
-        </tr>
-    </table>
-    <h2>object_list of teams:</h2>
-    {% if teams %}
-        <ul>
-            {% for t in teams %}
-                <li>
-                    <a href="{{ t.url }}">{{ t }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No individuals are available.</p>
-    {% endif %}
+    <h1>{{ object.user.username }}</h1>
+    <div class="col-4">
+        <h2>Details</h2>
+        <table class="table">
+            <tr>
+                <td>Name:</td>
+                <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+                <td>Birthday:</td>
+
+                <td>{{ object.birthday|default_if_none:"Unknown" }}</td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-lg-4">
+        <h2>Teams</h2>
+        {% if object.team_set %}
+            <div class="list-group">
+                {% for t in object.team_set.all %}
+                    <a class="list-group-item list-group-item-action" href="{{ t.get_absolute_url }}">{{ t.short_name }}
+                        - {{ t.name }}</a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No individuals are available.</p>
+        {% endif %}
+    </div>
 {% endblock content %}

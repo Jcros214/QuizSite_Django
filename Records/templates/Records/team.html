@@ -4,33 +4,36 @@
 {% endblock title %}
 {% block content %}
     <h1>{{ team }}</h1>
-    <h2>Team details:</h2>
-    <table>
-        <tr>
-            <td>Name:</td>
-            <td>{{ team.name }}</td>
-        </tr>
-        <tr>
-            <td>Orginization:</td>
-            <td>{{ team.orginization }}</td>
-        </tr>
-        <tr>
-            <td>Season:</td>
-            <td>
-                <a href="{% url 'records:season' league.id team.season.id %}">{{ team.season }}</a>
-            </td>
-        </tr>
-    </table>
-    <h2>object_list of individuals:</h2>
+    <div class="col-4">
+        <h2>Details</h2>
+        <table class="table">
+            <tr>
+                <td>Name:</td>
+                <td>{{ team.name }}</td>
+            </tr>
+            <tr>
+                <td>Orginization:</td>
+                <td>{{ team.orginization }}</td>
+            </tr>
+            <tr>
+                <td>Season:</td>
+                <td>
+                    <a href="{% url 'records:season' league.id team.season.id %}">{{ team.season }}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
     {% if object_list %}
-        <ul>
+        <div class="list-group col-4">
+            <h2>Quizzers</h2>
             {% for l in object_list %}
-                <li>
-                    <a href=" {% url 'records:individual' l.id %} ">{{ l }}</a>
-                </li>
+                <a class="list-group-item list-group-item-action"
+                   href=" {% url 'records:individual' l.id %} ">{{ l }}</a>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>No individuals are available.</p>
+        <p>No individuals on this team.</p>
     {% endif %}
 {% endblock content %}

@@ -9,21 +9,21 @@
 
 
 
-    <h1>{{ event }}</h1>
+    <h1>{{ object.season }}</h1>
     <table>
         <tr>
             <td>Date:</td>
-            <td>{{ event.date }}</td>
+            <td>{{ object.date }}</td>
         </tr>
         <tr>
             <td>Season:</td>
             <td>
-                <a href=" {% url 'records:season' league.id season.id %} ">{{ season }}</a>
+                <a href=" {% url 'records:season' object.season.id %} ">{{ object.season }}</a>
             </td>
         </tr>
         <tr>
             <td>Location:</td>
-            <td>{{ event.location }}</td>
+            <td>{{ object.location }}</td>
         </tr>
     </table>
 
@@ -31,13 +31,16 @@
     <br>
 
 
-    <h2>Rankings:</h2>
-    {% ranked_teams_table event %}
+    <h2>Teams</h2>
+    {% ranked_teams_table object %}
+
+    <h2>Individuals</h2>
+    {% ranked_individuals_table object %}
 
 
 
     <h2>Quizzes:</h2>
-    {{ schedule|safe }}
+    {#    {{ schedule|safe }}#}
     {#    {% if object_list %}#}
     {#        <ul>#}
     {#            {% for l in object_list %}#}

@@ -7,32 +7,32 @@
 {% endblock title %}
 {% block content %}
     <link rel="stylesheet" href="{% static 'Quiz/quiz.css' %}"/>
-    <h1>{{ quiz }}</h1>
+    <h1>{{ object }}</h1>
     <h2>Quiz details:</h2>
-    <table>
+    <table class="table col-lg-4">
         <tr>
             <td>Event:</td>
             <td>
-                <a href=" {% url 'records:event' league.id season.id event.id %} ">{{ event }}</a>
+                <a href=" {% url 'records:event' object.event.id %} ">{{ object.event }}</a>
             </td>
         </tr>
         <tr>
             <td>Quizmaster:</td>
-            <td>{{ quiz.quizmaster }}</td>
+            <td>{{ object.quizmaster }}</td>
         </tr>
         <tr>
             <td>Scorekeeper:</td>
-            <td> {{ quiz.scorekeeper }}</td>
+            <td> {{ object.scorekeeper }}</td>
         </tr>
         <tr>
             <td>Room:</td>
-            <td>{{ quiz.room }}</td>
+            <td>{{ object.room }}</td>
         </tr>
         <tr>
             <td>Round #</td>
-            <td>{{ quiz.round }}</td>
+            <td>{{ object.round }}</td>
         </tr>
     </table>
     <h2>Questions:</h2>
-    {% render_scoresheet quiz False %}
+    {% render_scoresheet object False %}
 {% endblock content %}

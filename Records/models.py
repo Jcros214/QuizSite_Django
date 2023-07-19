@@ -4,8 +4,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Sum, Q, Window, F, Count
 from django.db import connection
+from django.db.models.functions import Rank, Coalesce
+from django.urls import reverse
 
 
 # from django.utils.functional import SimpleLazyObject
@@ -44,6 +46,9 @@ class Individual(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     gender = models.BooleanField(choices=((MALE, "Male"), (FEMALE, "Female")), null=True, blank=True)
 
+    def get_absolute_url(self):
+        return reverse('records:individual', args=[self.pk])
+
     def __str__(self):
         return self.name
 
@@ -75,6 +80,8 @@ class Team(models.Model):
 
     type = models.CharField(max_length=20, blank=True, null=True)
 
+    individuals = models.ManyToManyField(Individual, through='TeamMembership')
+
     def __str__(self):
         return self.short_name
 
@@ -94,7 +101,7 @@ class Team(models.Model):
             return False
 
     def get_absolute_url(self):
-        return f"/records/{self.season.league.pk}/{self.season.pk}/team/{self.pk}"
+        return reverse('records:team', args=[self.pk])
 
     def get_individuals(self):
         return Individual.objects.filter(teammembership__team_id=self.pk)
@@ -147,7 +154,7 @@ class Event(models.Model):
             'round')[1]
 
     def get_absolute_url(self):
-        return f"/records/{self.season.league.pk}/{self.season.pk}/{self.pk}"
+        return reverse('records:event', args=[self.pk])
 
     def get_current_round(self) -> int | None:
         last_quiz = Quiz.objects.filter(event_id=self.pk).filter(isValidated=False).order_by('round').first()
@@ -160,58 +167,98 @@ class Event(models.Model):
     def get_next_round(self) -> int | None:
         return self.get_current_round() + 1 if self.get_current_round() else None
 
+    def get_ranked_individuals(self):
+        from datetime import datetime
+        start = datetime.now()
+        individuals = Individual.objects.filter(teammembership__team__season=self.season).annotate(
+            score=Coalesce(
+                Sum('askedquestion__value', filter=Q(askedquestion__quiz__event=self)), 0) + 260
+            # (attendance_points := (Count('teammembership__team__quizparticipants',
+            #                              filter=Q(teammembership__team__quizparticipants__quiz__event=self),
+            #                              distinct=True) * 20))
+            ,
+            rank=Window(expression=Rank(), order_by='-score'),
+            events_team=F('teammembership__team')
+        ).order_by('rank')
+        end = datetime.now()
+
+        print(f"Time taken: {end - start}")
+
+        return individuals
+
+    def get_ranked_teams(self):
+        teams = Team.objects.filter(season=self.season).annotate(
+            score=Coalesce(
+                Sum('teammembership__individual__askedquestion__value',
+                    filter=Q(teammembership__individual__askedquestion__quiz__event=self)),
+                0) + 260,
+            rank=Window(expression=Rank(), order_by='-score')
+        ).order_by('rank')
+        return teams
+
     def get_event_view_data(self):
-        with open('Records/queries/Event View.pgsql', 'r') as f:
-            raw_query = f.read().replace('{event.id}', str(self.pk))
 
-        teams = []
+        teams = Team.objects.filter(season=self.season).annotate(
+            score=Sum('teammembership__individual__askedquestion__value',
+                      filter=Q(teammembership__individual__askedquestion__quiz__event=self)),
+            rank=Window(expression=Rank(), order_by=F('score'))
+        ).order_by('rank')
+        return teams
 
-        with connection.cursor() as cursor:
-            cursor.execute(raw_query)
+        # individuals = Individual.objects.filter(teammembership__team__season=self.season).annotate(
+        #     score=Sum('askedquestion__value', filter=Q(askedquestion__quiz__event=self)))
 
-            is_team_mate = False
-
-            for row in cursor.fetchall():
-                if not is_team_mate:
-                    team = {
-                        'code': row[0],
-                        'name': row[1],
-                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
-                        'division': row[2],
-                        'current_round': row[3],
-                        'next_round': row[4],
-                        'individuals': [
-                            {
-                                'name': row[6],
-                                'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
-                            },
-                        ]
-                    }
-                    teams.append(team)
-                else:
-                    teams[-1]['individuals'].append({
-                        'name': row[6],
-                        'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
-                    })
-
-                    teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
-                is_team_mate = not is_team_mate
-
-        sorted_teams = sorted(teams, key=lambda t: (t['division'], t['score'], t['code']), reverse=True)
-
-        # assign a rank to each team per division, and make each team tie that has the same score
-        for division in set([t['division'] for t in sorted_teams]):
-            division_teams = [t for t in sorted_teams if t['division'] == division]
-
-            for i in range(len(division_teams)):
-                if i > 0 and division_teams[i]['score'] == division_teams[i - 1]['score']:
-                    division_teams[i]['rank'] = division_teams[i - 1]['rank']
-                else:
-                    division_teams[i]['rank'] = i + 1
-
-        sorted_teams = sorted(teams, key=lambda t: (t['division'], t['rank'], t['code']))
-
-        return sorted_teams
+        # with open('Records/queries/Event View.pgsql', 'r') as f:
+        #     raw_query = f.read().replace('{event.id}', str(self.pk))
+        #
+        # teams = []
+        #
+        # with connection.cursor() as cursor:
+        #     cursor.execute(raw_query)
+        #
+        #     is_team_mate = False
+        #
+        #     for row in cursor.fetchall():
+        #         if not is_team_mate:
+        #             team = {
+        #                 'code': row[0],
+        #                 'name': row[1],
+        #                 'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+        #                 'division': row[2],
+        #                 'current_round': row[3],
+        #                 'next_round': row[4],
+        #                 'individuals': [
+        #                     {
+        #                         'name': row[6],
+        #                         'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+        #                     },
+        #                 ]
+        #             }
+        #             teams.append(team)
+        #         else:
+        #             teams[-1]['individuals'].append({
+        #                 'name': row[6],
+        #                 'score': (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0),
+        #             })
+        #
+        #             teams[-1]['score'] += (row[7] if row[7] is not None else 0) + (row[8] if row[8] is not None else 0)
+        #         is_team_mate = not is_team_mate
+        #
+        # sorted_teams = sorted(teams, key=lambda t: (t['division'], t['score'], t['code']), reverse=True)
+        #
+        # # assign a rank to each team per division, and make each team tie that has the same score
+        # for division in set([t['division'] for t in sorted_teams]):
+        #     division_teams = [t for t in sorted_teams if t['division'] == division]
+        #
+        #     for i in range(len(division_teams)):
+        #         if i > 0 and division_teams[i]['score'] == division_teams[i - 1]['score']:
+        #             division_teams[i]['rank'] = division_teams[i - 1]['rank']
+        #         else:
+        #             division_teams[i]['rank'] = i + 1
+        #
+        # sorted_teams = sorted(teams, key=lambda t: (t['division'], t['rank'], t['code']))
+        #
+        # return sorted_teams
 
     def create_quiz(self, teams: list[Team], room: 'Room', round_number: Optional[int] = None,
                     quiz_type: str = 'tiebreaker'):
@@ -377,7 +424,7 @@ class Quiz(models.Model):
                                      question_number=AskedQuestion.objects.filter(quiz=self).count() + 1)
 
     def get_absolute_url(self):
-        return f"/records/{self.event.season.league.pk}/{self.event.season.pk}/{self.event.pk}/{self.pk}"
+        return reverse('records:quiz', args=[self.pk])
 
     def add_team(self, team: Team):
         participants = QuizParticipants.objects.filter(quiz_id=self.pk)
@@ -411,70 +458,70 @@ class Quiz(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        self.advance_quizzes()
+        # self.advance_quizzes()
 
-    def advance_quizzes(self):
-        quiz_progression_objects = QuizProgression.objects.filter(quiz=self, isCompleted=False)
-
-        if not quiz_progression_objects.exists():
-            return
-
-        for progression_object in quiz_progression_objects:
-            try:
-                next_quiz = Quiz.objects.get(event=self.event, room__name=progression_object.next_room,
-                                             round=progression_object.next_round)
-            except Quiz.DoesNotExist:
-                raise ImproperlyConfigured(f"QuizProgression {progression_object} has no next quiz")
-
-            QuizParticipants.objects.create(quiz=next_quiz, team=self.get_team_by_rank(progression_object.rank))
-
-        division_progressions = QuizProgression.objects.filter(division__in=self.event.division_set, isCompleted=False)
-
-        for division in self.event.division_set:
-            quizzes = Quiz.objects.filter(isValidated=False, quizparticipants__team__in=division.teams)
-
-            if quizzes.exists():
-                continue
-
-            # Check for meaningful ties
-            progressions_no_ties = QuizProgression.objects.filter(division=division, isCompleted=False,
-                                                                  allow_ties=False, type=QuizProgression.NORMAL)
-
-            forced_unique_ranks = progressions_no_ties.values('rank')  # 8,15,23
-
-            ranked_teams = division.get_ranked_teams()  # with ties
-
-            ranks_in_ranked_teams = [team['rank'] for team in ranked_teams.values() if
-                                     team['rank'] in forced_unique_ranks]
-
-            for rank in forced_unique_ranks:
-                if ranks_in_ranked_teams.count(rank) > 1:
-                    # Quiz.objects.create(event=self.event, round=self.round + 1,
-                    raise ValueError(f"Division {division} has a tie for rank {rank}")
-
-            # Create QuizParticipants
-            for index, team in enumerate(ranked_teams):
-                rank = index + 1
-
-                progression = QuizProgression.objects.get(division=division, isCompleted=False,
-                                                          rank=rank, type=QuizProgression.NORMAL)
-
-                QuizParticipants.objects.create(quiz=progression.next_quiz, team=team)
-
-                if progression.next_division:
-                    progression.next_division.teams.add(team)
-
-                progression.isCompleted = True
-                progression.save()
-
-            ranks = []
-
-            for team in ranked_teams:
-                if ranks.count(team['rank']) == 0:
-                    ranks.append(team['rank'])
-
-                if len(ranks) == 3:
-                    break
+    # def advance_quizzes(self):
+    #     quiz_progression_objects = QuizProgression.objects.filter(quiz=self, isCompleted=False)
+    #
+    #     if not quiz_progression_objects.exists():
+    #         return
+    #
+    #     for progression_object in quiz_progression_objects:
+    #         try:
+    #             next_quiz = Quiz.objects.get(event=self.event, room__name=progression_object.next_room,
+    #                                          round=progression_object.next_round)
+    #         except Quiz.DoesNotExist:
+    #             raise ImproperlyConfigured(f"QuizProgression {progression_object} has no next quiz")
+    #
+    #         QuizParticipants.objects.create(quiz=next_quiz, team=self.get_team_by_rank(progression_object.rank))
+    #
+    #     division_progressions = QuizProgression.objects.filter(division__in=self.event.division_set, isCompleted=False)
+    #
+    #     for division in self.event.division_set:
+    #         quizzes = Quiz.objects.filter(isValidated=False, quizparticipants__team__in=division.teams)
+    #
+    #         if quizzes.exists():
+    #             continue
+    #
+    #         # Check for meaningful ties
+    #         progressions_no_ties = QuizProgression.objects.filter(division=division, isCompleted=False,
+    #                                                               allow_ties=False, type=QuizProgression.NORMAL)
+    #
+    #         forced_unique_ranks = progressions_no_ties.values('rank')  # 8,15,23
+    #
+    #         ranked_teams = division.get_ranked_teams()  # with ties
+    #
+    #         ranks_in_ranked_teams = [team['rank'] for team in ranked_teams.values() if
+    #                                  team['rank'] in forced_unique_ranks]
+    #
+    #         for rank in forced_unique_ranks:
+    #             if ranks_in_ranked_teams.count(rank) > 1:
+    #                 # Quiz.objects.create(event=self.event, round=self.round + 1,
+    #                 raise ValueError(f"Division {division} has a tie for rank {rank}")
+    #
+    #         # Create QuizParticipants
+    #         for index, team in enumerate(ranked_teams):
+    #             rank = index + 1
+    #
+    #             progression = QuizProgression.objects.get(division=division, isCompleted=False,
+    #                                                       rank=rank, type=QuizProgression.NORMAL)
+    #
+    #             QuizParticipants.objects.create(quiz=progression.next_quiz, team=team)
+    #
+    #             if progression.next_division:
+    #                 progression.next_division.teams.add(team)
+    #
+    #             progression.isCompleted = True
+    #             progression.save()
+    #
+    #         ranks = []
+    #
+    #         for team in ranked_teams:
+    #             if ranks.count(team['rank']) == 0:
+    #                 ranks.append(team['rank'])
+    #
+    #             if len(ranks) == 3:
+    #                 break
 
 
 class QuizParticipants(models.Model):
@@ -541,7 +588,7 @@ class QuizProgression(models.Model):
 
 class Division(models.Model):
     # class Meta:
-        # unique_together = (('event', 'name'),)
+    # unique_together = (('event', 'name'),)
 
     name = models.CharField(max_length=100)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
