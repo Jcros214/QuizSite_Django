@@ -6,7 +6,7 @@ import os
 import json
 from collections import Counter
 
-mat = "matt5-7"
+mat = "matthew"
 
 
 class HTMLize:
@@ -70,7 +70,7 @@ class Word(HTMLize):
 
 class Verse(HTMLize):
     def __init__(
-            self, verse: str, book_name: str, chapter_number: int, verse_number: int
+            self, verse: str, book_name: str, chapter_number: int, verse_number: int, is_quote: bool = False
     ) -> None:
         self.verse = verse
         self.words = [Word(word) for word in verse.split()]
@@ -78,6 +78,8 @@ class Verse(HTMLize):
         self.book_name = book_name
         self.chapter_number = chapter_number
         self.verse_number = verse_number
+
+        self.is_quote = is_quote
 
         self.index_at_unique_word = None
         self.index_at_unique_word: int | None
@@ -107,19 +109,19 @@ class Verse(HTMLize):
     #     return ''.join([letter.lower() for letter in word if letter.isalpha()])
 
     def __repr__(self) -> str:
-        return f"<Verse {self.book_name} {self.chapter_number}:{self.verse_number}>"
+        return f"<Verse (quote) {self.book_name} {self.chapter_number}:{self.verse_number}>"
 
     def __str__(self) -> str:
         return " ".join(self.words_with_punctuation)
 
     def __html__(self, keywords_only: bool = False) -> str:
         if keywords_only:
-            return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words if word.used <= 2])} </verse> "
+            return f"<verse> <ref class=\"{'quote' if self.is_quote else 'normal'}\"> {self.verse_number} </ref> {' '.join([html(word) for word in self.words if word.used <= 2])} </verse> "
 
         if self.index_at_unique_word is None:
-            return f"<verse> <ref> {self.verse_number} </ref> {' '.join([html(word) for word in self.words])} </verse> "
+            return f"<verse> <ref class=\"{'quote' if self.is_quote else 'normal'}\"> {self.verse_number} </ref> {' '.join([html(word) for word in self.words])} </verse> "
         else:
-            return f"<verse> <ref> {self.verse_number} </ref> <span class='unique_start'>{' '.join([html(word, 'font-weight-bold') for word in self.unique_start])}/ </span> {' '.join([html(word) for word in self.after_unique_start])}</verse> "  # type: ignore
+            return f"<verse> <ref class=\"{'quote' if self.is_quote else 'normal'}\"> {self.verse_number} </ref> <span class='unique_start'>{' '.join([html(word, 'font-weight-bold') for word in self.unique_start])}/ </span> {' '.join([html(word) for word in self.after_unique_start])}</verse> "  # type: ignore
 
 
 class Chapter(HTMLize):
@@ -128,7 +130,7 @@ class Chapter(HTMLize):
         self.chapter_number = verse_list[0].get("chapter")
         self.book_name = verse_list[0].get("book_name")
         self.verse_list = [
-            Verse(verse.get("text"), self.book_name, self.chapter_number, verse_num + 1)
+            Verse(verse.get("text"), self.book_name, self.chapter_number, verse_num + 1, verse.get('is_quote'))
             for verse_num, verse in enumerate(verse_list)
         ]
         self.verse_list: list[Verse]
